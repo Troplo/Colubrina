@@ -1,0 +1,43 @@
+{
+  "name": "colubrina-backend",
+  "version": "1.0.0",
+  "private": true,
+  "license": "GPL-3.0",
+  "scripts": {
+    "start": "node .",
+    "serve": "nodemon"
+  },
+  "dependencies": {
+    "argon2": "^0.28.5",
+    "axios": "^0.26.1",
+    "clean-css": "^4.1.11",
+    "constantinople": "3.1.1",
+    "cookie-parser": "^1.4.6",
+    "crypto-random-string": "3.3.1",
+    "debug": "~2.6.9",
+    "dotenv": "^16.0.0",
+    "express": "^4.17.1",
+    "express-rate-limit": "^6.4.0",
+    "file-type": "16.5.3",
+    "http-errors": "~1.6.3",
+    "jade": "~1.11.0",
+    "jw-paginate": "^1.0.4",
+    "local-cors-proxy": "^1.1.0",
+    "mariadb": "^3.0.0",
+    "multer": "^1.4.4",
+    "node-xwhois": "^2.0.10",
+    "open-graph-scraper": "^4.11.0",
+    "patch-package": "^6.4.7",
+    "semver": "^7.3.7",
+    "sequelize": "^6.17.0",
+    "socket.io": "^4.5.1",
+    "speakeasy": "^2.0.0",
+    "ua-parser-js": "^1.0.2",
+    "uglify-js": "^2.6.0"
+  },
+  "resolutions": {
+    "constantinople": "^3.1.1",
+    "clean-css": "^4.1.11",
+    "uglify-js": "^2.6.0"
+  }
+}
