@@ -34,12 +34,36 @@ module.exports = async function (socket, next) {
           next()
         }
       } else {
-        //
+        socket.user = {
+          id: null,
+          username: "Not Authenticated"
+        }
+        socket.compassUser = {
+          id: null,
+          username: "BC-NOAUTH"
+        }
+        next()
       }
     } else {
-      //
+      socket.user = {
+        id: null,
+        username: "Not Authenticated"
+      }
+      socket.compassUser = {
+        id: null,
+        username: "BC-NOAUTH"
+      }
+      next()
     }
   } catch (error) {
-    //
+    socket.user = {
+      id: null,
+      username: "Not Authenticated"
+    }
+    socket.compassUser = {
+      id: null,
+      username: "BC-NOAUTH"
+    }
+    next()
   }
 }

@@ -405,27 +405,6 @@
     <v-main>
       <Header></Header>
       <v-container
-        v-if="
-          $store.state.user?.compact === 'nagPending' &&
-          $vuetify.breakpoint.lgAndDown &&
-          !$vuetify.breakpoint.mobile
-        "
-      >
-        <v-alert dense text color="info" dismissible v-model="compactModeNag">
-          Introducing <strong>Compact Mode</strong>, a better experience for
-          lower resolution devices.
-          <v-btn
-            to="/settings/appearance"
-            text
-            color="primary"
-            outlined
-            class="ml-1"
-          >
-            Settings
-          </v-btn>
-        </v-alert>
-      </v-container>
-      <v-container
         v-if="$store.state.site.latestVersion > $store.state.versioning.version"
         id="update-notify-banner"
       >
@@ -466,10 +445,9 @@
 <style></style>
 <script>
 import AjaxErrorHandler from "@/lib/errorHandler"
-import Vue from "vue"
-import Vuetify from "@/plugins/vuetify"
 import { VueFinalModal } from "vue-final-modal"
 import Header from "@/components/Header"
+import Vue from "vue"
 export default {
   name: "App",
   components: {
@@ -580,35 +558,6 @@ export default {
         return index.charAt(0).toUpperCase() + index.slice(1)
       }
     },
-    computeColor(event) {
-      if (this.$vuetify?.theme?.themes) {
-        if (event.color === "#003300") {
-          return this.$vuetify.theme.themes[
-            this.$store.state.user.theme || "dark"
-          ].calendarActivityType8
-        } else if (event.color === "#133897") {
-          return this.$vuetify.theme.themes[
-            this.$store.state.user.theme || "dark"
-          ].calendarExternalActivity
-        } else if (event.activityType === 7 || event.color === "#f4dcdc") {
-          return this.$vuetify.theme.themes[
-            this.$store.state.user.theme || "dark"
-          ].calendarActivityType7
-        } else if (event.color === "#dce6f4") {
-          return this.$vuetify.theme.themes[
-            this.$store.state.user.theme || "dark"
-          ].calendarNormalActivity
-        } else if (event.activityType === 10) {
-          return this.$vuetify.theme.themes[
-            this.$store.state.user.theme || "dark"
-          ].calendarActivityType10
-        } else {
-          return this.$vuetify.theme.themes[
-            this.$store.state.user.theme || "dark"
-          ].calendarNormalActivity
-        }
-      }
-    },
     editorInit() {
       require("brace/ext/language_tools")
       require("brace/mode/css")
@@ -616,19 +565,6 @@ export default {
       require("brace/theme/monokai")
       require("brace/theme/chrome")
       require("brace/snippets/css")
-    },
-    baseRole() {
-      if (this.$store.state.user?.baseRole) {
-        return (
-          this.$store.state.user.baseRole
-            .toLowerCase()
-            .charAt(0)
-            .toUpperCase() +
-          this.$store.state.user.baseRole.toLowerCase().slice(1)
-        )
-      } else {
-        return "Not Authenticated"
-      }
     },
     saveSettings() {
       this.loading = true
@@ -642,15 +578,6 @@ export default {
           this.loading = false
           AjaxErrorHandler(this.$store)(e)
         })
-    },
-    completeGuidedWizard() {
-      this.loadingGuidedWizard = true
-      this.$store.dispatch("saveOnlineSettings", {
-        guidedWizard: false
-      })
-      this.$store.dispatch("getUserInfo").then(() => {
-        this.loadingGuidedWizard = false
-      })
     },
     getThemes() {
       this.axios.get("/api/v1/themes").then((res) => {
@@ -692,24 +619,26 @@ export default {
         .catch((e) => {
           AjaxErrorHandler(this.$store)(e)
         })
-    },
-    retryConnection() {
-      this.connectionLoading = true
-      this.$store.dispatch("getState").finally(() => {
-        this.connectionLoading = false
-      })
-    },
-    validate(value, defaultValue) {
-      if (value === undefined || value === null) {
-        return defaultValue
-      } else {
-        return value
-      }
     }
   },
   mounted() {
+    Vue.axios.defaults.headers.common["Authorization"] =
+      localStorage.getItem("session")
+    if (this.$vuetify.breakpoint.mobile) {
+      this.$store.state.drawer = false
+    }
     if (localStorage.getItem("cssTipsDismissed")) {
       this.cssTips = false
+    }
+    if (localStorage.getItem("userPanel")) {
+      this.$store.state.userPanel = JSON.parse(
+        localStorage.getItem("userPanel")
+      )
+    } else {
+      this.$store.state.userPanel = true
+    }
+    if (this.$vuetify.breakpoint.mobile) {
+      this.$store.state.userPanel = false
     }
     window.addEventListener("offline", () => {
       this.$store.commit("setOnline", false)
@@ -721,56 +650,11 @@ export default {
       this.$store.dispatch("getUserInfo")
     })
     this.$socket.connect()
-    Vue.axios.defaults.headers.common["CompassAPIKey"] =
-      localStorage.getItem("apiKey")
-    Vue.axios.defaults.headers.common["Authorization"] =
-      localStorage.getItem("bcToken")
     document.title = this.$route.name
       ? this.$route.name + " - " + this.$store.state.site.name
       : this.$store.state.site.name
     this.$store.commit("setLoading", true)
     this.$vuetify.theme.dark = this.$store.state.user?.theme === "dark" || true
-    this.axios.defaults.headers.common["compassInstance"] =
-      localStorage.getItem("schoolInstance")
-    this.axios.defaults.headers.common["compassSchoolId"] =
-      localStorage.getItem("schoolId")
-    if (JSON.parse(localStorage.getItem("userCache"))?.id) {
-      const user = JSON.parse(localStorage.getItem("userCache"))
-      const name = user.themeObject.id
-      const dark = user.themeObject.theme.dark
-      const light = user.themeObject.theme.light
-      if (user.accentColor) {
-        user.themeObject.theme.dark.primary = user.accentColor
-        user.themeObject.theme.light.primary = user.accentColor
-      }
-      if (JSON.parse(localStorage.getItem("subjectsCache"))) {
-        this.$store.commit(
-          "setSubjects",
-          JSON.parse(localStorage.getItem("subjectsCache"))
-        )
-      }
-      Vuetify.framework.theme.themes.dark = dark
-      Vuetify.framework.theme.themes.light = light
-      Vuetify.framework.theme.themes.name = name
-      Vuetify.framework.theme.themes.primaryType =
-        user.themeObject.theme.primaryType
-      this.$store.commit(
-        "setUser",
-        JSON.parse(localStorage.getItem("userCache"))
-      )
-    }
-    if (localStorage.getItem("calendarCache")?.length) {
-      this.$store.commit(
-        "setCalendar",
-        JSON.parse(localStorage.getItem("calendarCache")).map((event) => {
-          return {
-            ...event,
-            start: new Date(event.start),
-            end: new Date(event.finish)
-          }
-        })
-      )
-    }
     this.$store.dispatch("getState")
     this.$store.dispatch("checkAuth").catch(() => {
       this.$store.dispatch("logout")
@@ -853,9 +737,6 @@ export default {
           this.$store.state.site.notification = state.notification
           this.$store.state.site.notificationType = state.notificationType
         })
-        setInterval(() => {
-          this.$socket.emit("ping")
-        }, 10000)
         // eslint-disable-next-line no-undef
         if (JSON.parse(process.env.VUE_APP_MATOMO_ENABLED)) {
           // eslint-disable-next-line no-undef
@@ -870,11 +751,8 @@ export default {
       })
   },
   watch: {
-    compactModeNag(val) {
-      if (!val) {
-        this.$store.state.user.compact = "disabled"
-        this.$store.dispatch("saveOnlineSettings")
-      }
+    "$store.state.userPanel"(val) {
+      localStorage.setItem("userPanel", val)
     },
     cssTips(val) {
       localStorage.setItem("cssTipsDismissed", !val)
@@ -908,7 +786,7 @@ export default {
     search() {
       if (this.search) {
         if (this.search.id) {
-          this.$router.push("/activity/activity/" + this.search.id)
+          this.$router.push("/communications/" + this.search.id)
           this.$store.commit("setSearch", false)
           this.search = null
           this.$nextTick(() => {

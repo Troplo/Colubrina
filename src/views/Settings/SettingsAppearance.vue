@@ -179,12 +179,7 @@ export default {
           sheet: "#181818",
           text: "#000000",
           dark: "#151515",
-          bg: "#151515",
-          calendarNormalActivity: "#3f51b5",
-          calendarActivityType7: "#f44336",
-          calendarActivityType8: "#4caf50",
-          calendarActivityType10: "#ff9800",
-          calendarExternalActivity: "#2196f3"
+          bg: "#151515"
         },
         light: {
           primary: "#0190ea",
@@ -199,68 +194,14 @@ export default {
           sheet: "#f8f8f8",
           text: "#000000",
           dark: "#f8f8f8",
-          bg: "#f8f8f8",
-          calendarNormalActivity: "#3f51b5",
-          calendarActivityType7: "#f44336",
-          calendarActivityType8: "#4caf50",
-          calendarActivityType10: "#ff9800",
-          calendarExternalActivity: "#2196f3"
+          bg: "#f8f8f8"
         }
       },
       createTheme: false,
       createThemeCSS: false,
       name: "",
       creatorType: "create",
-      themes: [],
-      fakeEvents: [
-        {
-          name: "English",
-          content: "English",
-          color: "#dce6f4",
-          start: new Date().setHours(9, 0, 0, 0),
-          end: new Date().setHours(10, 0, 0, 0),
-          timed: true,
-          activityType: 1,
-          activityId: 0,
-          calendarId: 0
-        },
-        {
-          name: "Maths",
-          content: "Maths",
-          color: "#f4dcdc",
-          start: new Date().setHours(10, 0, 0, 0),
-          end: new Date().setHours(11, 0, 0, 0),
-          timed: true,
-          activityType: 1,
-          activityId: 0,
-          instanceId: 0,
-          calendarId: 0
-        },
-        {
-          name: "Lunch Break",
-          content: "Lunch Break",
-          color: "#dce6f4",
-          start: new Date().setHours(11, 0, 0, 0),
-          end: new Date().setHours(11, 30, 0, 0),
-          timed: true,
-          activityType: 1,
-          activityId: 0,
-          instanceId: 0,
-          calendarId: 0
-        },
-        {
-          name: "Excursion",
-          content: "Excursion",
-          color: "#dce6f4",
-          start: new Date().setHours(11, 0, 0, 0),
-          end: new Date().setHours(13, 30, 0, 0),
-          timed: true,
-          activityType: 1,
-          activityId: 0,
-          instanceId: 0,
-          calendarId: 0
-        }
-      ]
+      themes: []
     }
   },
   computed: {
@@ -308,33 +249,6 @@ div {
       document.head.appendChild(style)
       this.$store.dispatch("saveOnlineSettings")
     },
-    computeColor(event) {
-      if (event.color === "#003300") {
-        return this.$vuetify.theme.themes[
-          this.$store.state.user.theme || "dark"
-        ].calendarActivityType8
-      } else if (event.color === "#133897") {
-        return this.$vuetify.theme.themes[
-          this.$store.state.user.theme || "dark"
-        ].calendarExternalActivity
-      } else if (event.activityType === 7 || event.color === "#f4dcdc") {
-        return this.$vuetify.theme.themes[
-          this.$store.state.user.theme || "dark"
-        ].calendarActivityType7
-      } else if (event.color === "#dce6f4") {
-        return this.$vuetify.theme.themes[
-          this.$store.state.user.theme || "dark"
-        ].calendarNormalActivity
-      } else if (event.activityType === 10) {
-        return this.$vuetify.theme.themes[
-          this.$store.state.user.theme || "dark"
-        ].calendarActivityType10
-      } else {
-        return this.$vuetify.theme.themes[
-          this.$store.state.user.theme || "dark"
-        ].calendarNormalActivity
-      }
-    },
     editorInit() {
       require("brace/ext/language_tools")
       require("brace/mode/css")
@@ -357,18 +271,7 @@ div {
         sheet: "#" + Math.floor(Math.random() * 16777215).toString(16),
         text: "#" + Math.floor(Math.random() * 16777215).toString(16),
         dark: "#" + Math.floor(Math.random() * 16777215).toString(16),
-        bg: "#" + Math.floor(Math.random() * 16777215).toString(16),
-        calendarNormalActivity:
-          "#" + Math.floor(Math.random() * 16777215).toString(16),
-        calendarActivityType7:
-          "#" + Math.floor(Math.random() * 16777215).toString(16),
-        calendarActivityType8:
-          "#" + Math.floor(Math.random() * 16777215).toString(16),
-        calendarActivityType10:
-          "#" + Math.floor(Math.random() * 16777215).toString(16),
-        calendarExternalActivity: Math.floor(Math.random() * 16777215).toString(
-          16
-        )
+        bg: "#" + Math.floor(Math.random() * 16777215).toString(16)
       }
       this.creator.dark = {
         primary: "#" + Math.floor(Math.random() * 16777215).toString(16),
@@ -383,18 +286,7 @@ div {
         sheet: "#" + Math.floor(Math.random() * 16777215).toString(16),
         text: "#" + Math.floor(Math.random() * 16777215).toString(16),
         dark: "#" + Math.floor(Math.random() * 16777215).toString(16),
-        bg: "#" + Math.floor(Math.random() * 16777215).toString(16),
-        calendarNormalActivity:
-          "#" + Math.floor(Math.random() * 16777215).toString(16),
-        calendarActivityType7:
-          "#" + Math.floor(Math.random() * 16777215).toString(16),
-        calendarActivityType8:
-          "#" + Math.floor(Math.random() * 16777215).toString(16),
-        calendarActivityType10:
-          "#" + Math.floor(Math.random() * 16777215).toString(16),
-        calendarExternalActivity: Math.floor(Math.random() * 16777215).toString(
-          16
-        )
+        bg: "#" + Math.floor(Math.random() * 16777215).toString(16)
       }
     },
     doDeleteTheme(theme) {
@@ -500,17 +392,7 @@ div {
       a.dispatchEvent(e)
     },
     friendlyName(index) {
-      if (index === "calendarNormalActivity") {
-        return "Standard Class"
-      } else if (index === "calendarActivityType7") {
-        return "Relief Event"
-      } else if (index === "calendarActivityType8") {
-        return "Generic Type 8"
-      } else if (index === "calendarActivityType10") {
-        return "Learning Task"
-      } else if (index === "calendarExternalActivity") {
-        return "External Activity"
-      } else if (index === "bg") {
+      if (index === "bg") {
         return "Background"
       } else if (index === "dark") {
         return "Sidebar & Header"
@@ -581,7 +463,6 @@ div {
     }
   },
   mounted() {
-    console.log(document.querySelectorAll(".editor__toolbar"))
     this.defineAccent = this.$store.state.user.accentColor !== null
     this.accent = this.$store.state.user.accentColor
     this.name = this.$vuetify.theme.themes.name

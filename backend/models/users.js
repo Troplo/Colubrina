@@ -16,6 +16,10 @@ module.exports = (sequelize, DataTypes) => {
         as: "friends",
         foreignKey: "userId"
       })
+      User.hasOne(models.Nickname, {
+        foreignKey: "friendId",
+        as: "nickname"
+      })
     }
   }
   User.init(
@@ -135,6 +139,11 @@ module.exports = (sequelize, DataTypes) => {
       avatar: {
         type: DataTypes.STRING,
         allowNull: true
+      },
+      bot: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
       }
     },
     {

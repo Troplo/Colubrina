@@ -1,27 +1,5 @@
 <template>
   <div id="login" v-if="!$store.state.user?.bcUser?.id">
-    <v-dialog v-model="totpDialog" max-width="500px">
-      <v-card color="card">
-        <v-toolbar color="toolbar">
-          <v-toolbar-title> Two-Factor Authentication </v-toolbar-title>
-        </v-toolbar>
-        <v-container>
-          <v-card-text
-            >You are seeing this because you have enabled Two-Factor
-            Authentication on BetterCompass.<br />
-            Please check your phone, or authenticator app to obtain the 6 digit
-            code and enter it here.</v-card-text
-          >
-          <v-otp-input
-            length="6"
-            @keyup.enter="doLogin()"
-            @finish="doLogin()"
-            v-model="totp"
-            :disabled="loading"
-          ></v-otp-input>
-        </v-container>
-      </v-card>
-    </v-dialog>
     <div :class="{ outer: !$vuetify.breakpoint.mobile }">
       <div :class="{ middle: !$vuetify.breakpoint.mobile }">
         <div :class="{ innerLogin: !$vuetify.breakpoint.mobile }">
@@ -121,6 +99,7 @@ export default {
           this.$store.commit("setToken", res.data.session)
           await this.$store.dispatch("getUserInfo")
           this.loading = false
+          this.$socket.disconnect()
           this.$socket.connect()
           this.$router.push("/")
         })

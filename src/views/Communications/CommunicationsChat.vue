@@ -1,5 +1,219 @@
 <template>
   <div id="communications-chat" @dragover.prevent @drop.prevent>
+    <v-menu
+      v-model="context.message.value"
+      :position-x="context.message.x"
+      :position-y="context.message.y"
+      absolute
+      offset-y
+      class="rounded-l"
+    >
+      <v-list class="rounded-l" v-if="context.message.item">
+        <v-list-item @click="replying = context.message.item">
+          <v-list-item-title>Reply to Message</v-list-item-title>
+        </v-list-item>
+        <v-list-item
+          @click="
+            edit.content = context.message.item.content
+            edit.editing = true
+            edit.id = context.message.item.id
+          "
+          v-if="
+            context.message.item.userId === $store.state.user.id &&
+            edit.id !== context.message.item.id
+          "
+        >
+          <v-list-item-title>Edit Message</v-list-item-title>
+        </v-list-item>
+        <v-list-item
+          v-if="context.message.item.userId === $store.state.user.id"
+          @click="deleteMessage(context.message.item)"
+        >
+          <v-list-item-title>Delete Message</v-list-item-title>
+        </v-list-item>
+      </v-list>
+    </v-menu>
+    <v-dialog v-model="context.userPopout.value" max-width="650px">
+      <v-card v-if="context.userPopout.item" class="user-popout" height="600px">
+        <v-toolbar color="toolbar" height="100">
+          <v-avatar size="64" class="mr-3 mb-2 mt-2">
+            <v-img
+              :src="
+                $store.state.baseURL +
+                '/usercontent/' +
+                context.userPopout.item.avatar
+              "
+              v-if="context.userPopout.item.avatar"
+              class="elevation-1"
+            />
+            <v-icon v-else class="elevation-1"> mdi-account </v-icon>
+          </v-avatar>
+          <v-toolbar-title>
+            {{ getName(context.userPopout.item) }}
+            <v-tooltip top v-if="context.userPopout.item.admin">
+              <template v-slot:activator="{ on }">
+                <v-btn icon v-on="on" small>
+                  <v-icon> mdi-crown </v-icon>
+                </v-btn>
+              </template>
+              <span>Colubrina Instance Administrator</span>
+            </v-tooltip>
+            <v-tooltip top v-if="context.userPopout.item.id < 35">
+              <template v-slot:activator="{ on }">
+                <v-btn icon v-on="on" small>
+                  <v-icon> mdi-alpha-a-circle </v-icon>
+                </v-btn>
+              </template>
+              <span>Early User</span>
+            </v-tooltip>
+            <v-tooltip top v-if="context.userPopout.item.bot">
+              <template v-slot:activator="{ on }">
+                <v-btn icon v-on="on" small>
+                  <v-icon> mdi-robot </v-icon>
+                </v-btn>
+              </template>
+              <span>Bot</span>
+            </v-tooltip>
+            <div class="subheading subtitle-1 text--lighten-2">
+              <template v-if="context.userPopout.item.nickname"
+                >{{ context.userPopout.item.username }}:</template
+              >{{ context.userPopout.item.instance }}
+            </div>
+          </v-toolbar-title>
+        </v-toolbar>
+        <v-tabs :show-arrows="false" fixed-tabs background-color="card">
+          <v-tab>
+            <v-icon>mdi-account-multiple</v-icon>&nbsp; Mutual Friends
+          </v-tab>
+          <v-tab>
+            <v-icon>mdi-account-group</v-icon>&nbsp; Mutual Groups
+          </v-tab>
+          <v-tab-item
+            :style="
+              'background-color: ' +
+              $vuetify.theme.themes[$vuetify.theme.dark ? 'dark' : 'light'].card
+            "
+          >
+            <v-list
+              :height="400"
+              :style="
+                'background-color: ' +
+                $vuetify.theme.themes[$vuetify.theme.dark ? 'dark' : 'light']
+                  .card
+              "
+            >
+              <v-overlay
+                :value="context.userPopout.item.loading.mutualFriends"
+                absolute
+              >
+                <v-progress-circular
+                  indeterminate
+                  size="64"
+                ></v-progress-circular>
+              </v-overlay>
+              <v-list-item
+                v-for="item in context.userPopout.item.mutualFriends"
+                :key="item.id"
+                @click="openUserPanel(item)"
+              >
+                <v-list-item-title>
+                  <v-avatar size="24">
+                    <v-img
+                      :src="
+                        $store.state.baseURL + '/usercontent/' + item.avatar
+                      "
+                      v-if="item.avatar"
+                      class="elevation-1"
+                    />
+                    <v-icon v-else class="elevation-1"> mdi-account </v-icon>
+                  </v-avatar>
+                  {{ getName(item) }}
+                </v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-tab-item>
+          <v-tab-item
+            :style="
+              'background-color: ' +
+              $vuetify.theme.themes[$vuetify.theme.dark ? 'dark' : 'light'].card
+            "
+          >
+            <v-list
+              :height="400"
+              :style="
+                'background-color: ' +
+                $vuetify.theme.themes[$vuetify.theme.dark ? 'dark' : 'light']
+                  .card
+              "
+            >
+              <v-overlay
+                :value="context.userPopout.item.loading.mutualFriends"
+                absolute
+              >
+                <v-progress-circular
+                  indeterminate
+                  size="64"
+                ></v-progress-circular>
+              </v-overlay>
+              <v-list-item
+                v-for="item in context.userPopout.item.mutualGroups"
+                :key="item.id"
+                @click="$router.push('/communications/' + item.associationId)"
+              >
+                <v-list-item-title>
+                  {{ item.name }}
+                </v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-tab-item>
+        </v-tabs>
+        <v-card-actions
+          :style="
+            'background-color: ' +
+            $vuetify.theme.themes[$vuetify.theme.dark ? 'dark' : 'light'].card
+          "
+        >
+          <v-spacer></v-spacer>
+          <v-btn color="primary" text @click="context.userPopout.value = false">
+            Close
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-dialog v-model="nickname.dialog" width="500px">
+      <v-card>
+        <v-card-title>
+          <span class="headline">{{ nickname.user.username }}</span>
+        </v-card-title>
+        <v-card-text>
+          <v-text-field
+            v-model="nickname.nickname"
+            label="Nickname"
+            required
+            @keyup.enter="setFriendNickname"
+            autofocus
+          ></v-text-field>
+          <small>Friend nicknames only show to you.</small>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="blue darken-1"
+            text
+            @click="
+              nickname.dialog = false
+              nickname.nickname = ''
+              nickname.user = {}
+            "
+          >
+            Cancel
+          </v-btn>
+          <v-btn color="blue darken-1" text @click="setFriendNickname">
+            Apply
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     <v-dialog
       v-model="preview.dialog"
       elevation="0"
@@ -23,19 +237,78 @@
         </v-container>
       </v-card>
     </v-dialog>
-
-    <v-row v-if="!loading" @drop="handleDrag">
-      <v-col id="chat-col">
-        <v-app>
-          <v-card class="rounded-xl" color="card">
-            <v-card-text>
-              <v-list two-line elevation="0" ref="message-list">
-                <template v-for="(message, index) in messages">
+    <v-card
+      color="card"
+      v-if="loading"
+      style="overflow: scroll; height: calc(100vh - 24px - 40px - 40px)"
+    >
+      <v-overlay :value="loading" absolute>
+        <v-progress-circular indeterminate size="64"></v-progress-circular>
+      </v-overlay>
+    </v-card>
+    <v-navigation-drawer
+      v-model="$store.state.userPanel"
+      color="bg"
+      floating
+      v-if="!loading && $vuetify.breakpoint.mobile"
+      app
+      right
+    >
+      <v-list two-line color="card">
+        <v-list-item-group class="rounded-xl">
+          <template v-for="item in associations">
+            <v-list-item
+              :key="item.title"
+              @contextmenu="show($event, 'user', item.user)"
+              @click="openUserPanel(item.user)"
+              :id="'user-popout-' + item.userId"
+            >
+              <v-badge
+                bordered
+                bottom
+                :color="getStatus(item.user)"
+                dot
+                offset-x="24"
+                offset-y="26"
+              >
+                <v-list-item-avatar :color="$vuetify.theme.themes.dark.primary">
+                  <v-img
+                    v-if="item.user.avatar"
+                    :src="
+                      $store.state.baseURL + '/usercontent/' + item.user.avatar
+                    "
+                  />
+                  <v-icon v-else> mdi-account </v-icon>
+                </v-list-item-avatar>
+              </v-badge>
+              <template>
+                <v-list-item-content>
+                  <v-list-item-title>
+                    {{ getName(item.user) }}
+                  </v-list-item-title>
+                </v-list-item-content>
+              </template>
+            </v-list-item>
+          </template>
+        </v-list-item-group>
+      </v-list>
+    </v-navigation-drawer>
+    <v-row v-if="!loading" @drop="handleDrag" no-gutters>
+      <v-col class="flex-grow-1 flex-shrink-1" id="chat-col">
+        <v-card
+          class="d-flex flex-column fill-height rounded-xl"
+          style="overflow: auto; height: calc(100vh - 24px - 40px - 40px)"
+          color="card"
+          elevation="0"
+        >
+          <v-card-text class="flex-grow-1 overflow-y-auto">
+            <v-list two-line color="card" ref="message-list">
+              <template v-for="(message, index) in messages">
+                <template v-if="!message.type">
                   <v-toolbar
                     @click="jumpToMessage(message.replyId)"
                     :key="message.keyId + '-reply-toolbar'"
                     elevation="0"
-                    outlined
                     height="40"
                     color="card"
                     v-if="message.reply"
@@ -44,7 +317,11 @@
                     <v-icon class="mr-2">mdi-reply</v-icon>
                     <v-avatar size="24" class="mr-2">
                       <v-img
-                        :src="'/usercontent/' + message.reply.user.avatar"
+                        :src="
+                          $store.state.baseURL +
+                          '/usercontent/' +
+                          message.reply.user.avatar
+                        "
                         v-if="message.reply.user.avatar"
                         class="elevation-1"
                       />
@@ -70,10 +347,15 @@
                       'text-xs-left': message.userId !== $store.state.user.id
                     }"
                     :id="'message-' + index"
+                    @contextmenu="show($event, 'message', message)"
                   >
                     <v-avatar size="48" class="mr-2">
                       <v-img
-                        :src="'/usercontent/' + message.user.avatar"
+                        :src="
+                          $store.state.baseURL +
+                          '/usercontent/' +
+                          message.user.avatar
+                        "
                         v-if="message.user.avatar"
                         class="elevation-1"
                       />
@@ -81,7 +363,21 @@
                     </v-avatar>
                     <v-list-item-content>
                       <v-list-item-subtitle>
-                        {{ message.user.username }}
+                        {{ getName(message.user) }}
+                        <v-chip
+                          v-if="message.user.bot"
+                          color="calendarNormalActivity"
+                          small
+                        >
+                          <v-icon small>mdi-robot</v-icon>&nbsp;
+                        </v-chip>
+                        <small>
+                          {{
+                            $date(message.createdAt).format(
+                              "hh:mm A, DD/MM/YYYY"
+                            )
+                          }}
+                        </small>
                         <v-tooltip top v-if="message.edited">
                           <template v-slot:activator="{ on, attrs }">
                             <span v-on="on" v-bind="attrs">
@@ -119,15 +415,20 @@
                           v-for="(embed, index) in message.embeds"
                           :key="index"
                           :id="'embed-' + index"
+                          no-gutters
                         >
                           <v-card
                             elevaion="0"
-                            color="bg"
-                            max-width="25%"
-                            width="25%"
-                            class="ml-3"
+                            :color="
+                              embed.type === 'embed-v1'
+                                ? embed.backgroundColor
+                                : 'bg'
+                            "
+                            :max-width="400"
+                            :min-width="!$vuetify.breakpoint.mobile ? 300 : 0"
+                            class="ml-1 rounded-xl mb-1 mr-1"
                           >
-                            <v-container>
+                            <v-container fluid>
                               <v-row v-if="embed.type === 'openGraph'">
                                 <v-col
                                   cols="12"
@@ -175,6 +476,29 @@
                                   </p>
                                 </v-col>
                               </v-row>
+                              <v-row
+                                v-else-if="embed.type === 'compass'"
+                                @click="$router.push(embed.path)"
+                                style="cursor: pointer"
+                              >
+                                <v-container
+                                  :style="
+                                    'background: url(/' +
+                                    embed.compass.banner +
+                                    ')'
+                                  "
+                                  style="color: white"
+                                  class="rounded"
+                                >
+                                  <h4>BetterCompass</h4>
+                                  <h3>
+                                    {{ embed.compass.name }}
+                                  </h3>
+                                  <p>
+                                    {{ embed.compass.displayName }}
+                                  </p>
+                                </v-container>
+                              </v-row>
                               <template v-else-if="embed.type === 'image'">
                                 <v-hover v-slot="{ hover }">
                                   <div>
@@ -221,6 +545,97 @@
                                   </v-btn>
                                 </v-card-actions>
                               </template>
+                              <v-row v-else-if="embed.type === 'embed-v1'">
+                                <v-col
+                                  cols="12"
+                                  class="text-xs-center"
+                                  v-if="embed.headerImage"
+                                >
+                                  <v-img
+                                    :src="
+                                      embed.openGraph.headerImage?.url ||
+                                      embed.openGraph.headerImage[0]?.url
+                                    "
+                                    class="elevation-1"
+                                    contain
+                                    :aspect-ratio="16 / 9"
+                                  >
+                                    <template v-slot:placeholder>
+                                      <v-row
+                                        class="fill-height ma-0"
+                                        align="center"
+                                        justify="center"
+                                      >
+                                        <v-progress-circular
+                                          indeterminate
+                                          color="grey lighten-5"
+                                        ></v-progress-circular>
+                                      </v-row>
+                                    </template>
+                                  </v-img>
+                                </v-col>
+                                <v-col cols="12" class="text-xs-center">
+                                  <h4 v-if="embed.title">
+                                    {{ embed.title }}
+                                  </h4>
+                                  <p v-if="embed.description">
+                                    {{ embed.description }}
+                                  </p>
+                                  <v-row
+                                    v-for="(graph, index) in embed.graphs"
+                                    :key="'graph-' + index"
+                                  >
+                                    <v-col cols="12" class="text-xs-center">
+                                      <h3>
+                                        {{ graph.name }}
+                                      </h3>
+                                      <Chart
+                                        :chart-data="graph.data"
+                                        v-if="graph.data"
+                                        :options="graphOptions"
+                                      ></Chart>
+                                      <p v-else>
+                                        Chart data could not be loaded.
+                                      </p>
+                                    </v-col>
+                                  </v-row>
+                                  <v-row
+                                    v-for="(field, index) in embed.fields"
+                                    :key="'field-' + index"
+                                    :id="'field-' + index"
+                                    class="mt-1"
+                                  >
+                                    <v-col
+                                      cols="12"
+                                      class="text-xs-center"
+                                      style="white-space: pre-wrap"
+                                    >
+                                      <h4>{{ field.name }}</h4>
+                                      <p>{{ field.value }}</p>
+                                    </v-col>
+                                  </v-row>
+                                  <a
+                                    :href="embed.link.url"
+                                    v-if="embed.link"
+                                    target="_blank"
+                                    style="text-decoration: none"
+                                  >
+                                    <h3>
+                                      {{ embed.link.title }}
+                                    </h3>
+                                  </a>
+                                  <small v-if="embed.footer">
+                                    {{ embed.footer }}
+                                  </small>
+                                </v-col>
+                              </v-row>
+                              <v-row v-else>
+                                <v-container>
+                                  <h4>
+                                    You must update Colubrina to see this embed.
+                                  </h4>
+                                </v-container>
+                              </v-row>
                             </v-container>
                           </v-card>
                         </v-row>
@@ -232,7 +647,7 @@
                           :id="'attachment-' + index"
                           max-width="40%"
                           elevaion="0"
-                          color="bg"
+                          color="card"
                         >
                           <v-hover
                             v-slot="{ hover }"
@@ -248,7 +663,11 @@
                                 @click="setImagePreview(attachment)"
                                 contain
                                 :aspect-ratio="16 / 9"
-                                :src="'/usercontent/' + attachment.attachment"
+                                :src="
+                                  $store.state.baseURL +
+                                  '/usercontent/' +
+                                  attachment.attachment
+                                "
                               >
                                 <template v-slot:placeholder>
                                   <v-row
@@ -291,7 +710,11 @@
                             <v-btn
                               text
                               icon
-                              :href="'/usercontent/' + attachment.attachment"
+                              :href="
+                                $store.state.baseURL +
+                                '/usercontent/' +
+                                attachment.attachment
+                              "
                               target="_blank"
                             >
                               <v-icon> mdi-download </v-icon>
@@ -299,26 +722,71 @@
                           </v-card-actions>
                         </v-card>
                       </template>
-                      <v-text-field
-                        v-model="edit.content"
-                        v-if="edit.editing && edit.id === message.id"
-                        autofocus
-                        :value="message.content"
-                        label="Type a message"
-                        placeholder="Type a message"
-                        type="text"
-                        ref="edit-input"
-                        outlined
-                        append-outer-icon="mdi-send"
-                        @keyup.enter="editMessage(message)"
-                        @keydown.esc="
-                          edit.content = ''
-                          edit.editing = false
-                          edit.id = null
-                          focusInput()
-                        "
-                        @click:append-outer="editMessage(message)"
-                      />
+                      <CommsInput
+                        :edit="edit"
+                        :chat="chat"
+                        :auto-scroll="autoScroll"
+                        :end-edit="endEdit"
+                        v-if="edit.id === message.id"
+                      ></CommsInput>
+                    </v-list-item-content>
+                    <v-list-item-action v-if="!$vuetify.breakpoint.mobile">
+                      <v-list-item-subtitle>
+                        <v-btn
+                          icon
+                          v-if="message.userId === $store.state.user.id"
+                          @click="deleteMessage(message)"
+                        >
+                          <v-icon> mdi-delete </v-icon>
+                        </v-btn>
+                        <v-btn
+                          icon
+                          @click="
+                            edit.content = message.content
+                            edit.editing = true
+                            edit.id = message.id
+                          "
+                          v-if="
+                            message.userId === $store.state.user.id &&
+                            edit.id !== message.id
+                          "
+                        >
+                          <v-icon> mdi-pencil </v-icon>
+                        </v-btn>
+                        <v-btn
+                          icon
+                          @click="
+                            edit.content = ''
+                            edit.editing = false
+                            edit.id = null
+                          "
+                          v-if="
+                            message.userId === $store.state.user.id &&
+                            edit.id === message.id
+                          "
+                        >
+                          <v-icon> mdi-close </v-icon>
+                        </v-btn>
+                        <v-btn
+                          icon
+                          @click="
+                            replying = message
+                            focusInput()
+                          "
+                        >
+                          <v-icon> mdi-reply </v-icon>
+                        </v-btn>
+                      </v-list-item-subtitle>
+                    </v-list-item-action>
+                  </v-list-item>
+                </template>
+                <template v-else-if="message.type === 'leave'">
+                  <v-list-item :key="message.keyId" :id="'message-' + index">
+                    <v-icon color="red" class="mr-2 ml-1">
+                      mdi-arrow-left
+                    </v-icon>
+                    <v-list-item-content>
+                      {{ message.content }}
                     </v-list-item-content>
                     <v-list-item-action>
                       <v-list-item-subtitle>
@@ -375,113 +843,145 @@
                     </v-list-item-action>
                   </v-list-item>
                 </template>
-              </v-list>
-              <v-app-bar app bottom height="100px" color="bg" elevation="0">
-                <v-toolbar
-                  elevation="0"
-                  outlined
-                  height="40"
-                  color="card"
-                  v-if="file"
-                  style="cursor: pointer"
-                  class="mb-2"
-                >
-                  <v-toolbar-title>
-                    <v-icon> mdi-attachment </v-icon>
-                    {{ file.name }}
-                  </v-toolbar-title>
-                  <v-spacer></v-spacer>
-                  <v-btn icon @click="file = null">
-                    <v-icon> mdi-close </v-icon>
-                  </v-btn>
-                </v-toolbar>
-                <v-toolbar
-                  @click="jumpToMessage(replying?.id)"
-                  elevation="0"
-                  outlined
-                  height="40"
-                  color="card"
-                  v-if="replying"
-                  style="cursor: pointer"
-                  class="mb-2"
-                >
-                  <v-icon class="mr-2">mdi-reply</v-icon>
-                  <v-avatar size="24" class="mr-2">
-                    <v-img
-                      :src="'/usercontent/' + replying.user.avatar"
-                      v-if="replying.user.avatar"
-                      class="elevation-1"
-                    />
-                    <v-icon v-else class="elevation-1"> mdi-account </v-icon>
-                  </v-avatar>
-                  <template v-if="replying.attachments.length">
-                    <v-icon class="mr-2">mdi-file-image</v-icon>
-                  </template>
-                  <template
-                    v-if="!replying.content && replying.attachments.length"
-                  >
-                    Click to view attachment
-                  </template>
-                  {{ replying.content.substring(0, 100) }}
-                  <v-spacer></v-spacer>
-                  <v-btn icon @click="replying = null" class="mr-2">
-                    <v-icon> mdi-close </v-icon>
-                  </v-btn>
-                </v-toolbar>
-                <v-text-field
-                  v-model="message"
-                  autofocus
-                  solo
-                  label="Type a message"
-                  placeholder="Type a message"
-                  type="text"
-                  ref="message-input"
-                  outlined
-                  append-outer-icon="mdi-send"
-                  auto-grow
-                  @keyup.enter="sendMessage"
-                  @keyup.up="editLastMessage"
-                  @keyup.esc="handleEsc"
-                  @click:append-outer="sendMessage"
-                  @paste="handlePaste"
-                >
-                  <template v-slot:prepend>
-                    <v-file-input
-                      single-line
-                      hide-input
-                      v-model="file"
-                      @change="getURLForImage"
-                    ></v-file-input>
-                  </template>
-                </v-text-field>
-                <p
-                  style="margin-top: -17px; position: absolute"
-                  v-if="usersTyping.length"
-                >
-                  {{ usersTyping.map((user) => user.username).join(", ") }}
-                  {{ usersTyping.length > 1 ? " are" : " is" }} typing...
-                </p>
-              </v-app-bar>
-            </v-card-text>
-          </v-card>
-        </v-app>
+                <template v-else-if="message.type === 'join'">
+                  <v-list-item :key="message.keyId" :id="'message-' + index">
+                    <v-icon color="success" class="mr-2 ml-1">
+                      mdi-arrow-right
+                    </v-icon>
+                    <v-list-item-content>
+                      {{ message.content }}
+                    </v-list-item-content>
+                    <v-list-item-action>
+                      <v-list-item-subtitle>
+                        {{
+                          $date(message.createdAt).format("DD/MM/YYYY hh:mm A")
+                        }}
+                      </v-list-item-subtitle>
+                      <v-list-item-subtitle>
+                        <v-btn
+                          icon
+                          v-if="message.userId === $store.state.user.id"
+                          @click="deleteMessage(message)"
+                        >
+                          <v-icon> mdi-delete </v-icon>
+                        </v-btn>
+                        <v-btn
+                          icon
+                          @click="
+                            edit.content = message.content
+                            edit.editing = true
+                            edit.id = message.id
+                          "
+                          v-if="
+                            message.userId === $store.state.user.id &&
+                            edit.id !== message.id
+                          "
+                        >
+                          <v-icon> mdi-pencil </v-icon>
+                        </v-btn>
+                        <v-btn
+                          icon
+                          @click="
+                            edit.content = ''
+                            edit.editing = false
+                            edit.id = null
+                          "
+                          v-if="
+                            message.userId === $store.state.user.id &&
+                            edit.id === message.id
+                          "
+                        >
+                          <v-icon> mdi-close </v-icon>
+                        </v-btn>
+                        <v-btn
+                          icon
+                          @click="
+                            replying = message
+                            focusInput()
+                          "
+                        >
+                          <v-icon> mdi-reply </v-icon>
+                        </v-btn>
+                      </v-list-item-subtitle>
+                    </v-list-item-action>
+                  </v-list-item>
+                </template>
+              </template>
+            </v-list>
+          </v-card-text>
+          <v-card-text>
+            <v-toolbar
+              @click="jumpToMessage(replying?.id)"
+              elevation="0"
+              height="35"
+              color="card"
+              v-if="replying"
+              style="cursor: pointer; overflow: hidden"
+              class="mb-2"
+            >
+              <v-icon class="mr-2">mdi-reply</v-icon>
+              <v-avatar size="24" class="mr-2">
+                <v-img
+                  :src="
+                    $store.state.baseURL +
+                    '/usercontent/' +
+                    replying.user.avatar
+                  "
+                  v-if="replying.user.avatar"
+                  class="elevation-1"
+                />
+                <v-icon v-else class="elevation-1"> mdi-account </v-icon>
+              </v-avatar>
+              <template v-if="replying.attachments.length">
+                <v-icon class="mr-2">mdi-file-image</v-icon>
+              </template>
+              <template v-if="!replying.content && replying.attachments.length">
+                Click to view attachment
+              </template>
+              {{ replying.content.substring(0, 100) }}
+              <v-spacer></v-spacer>
+              <v-btn icon @click="replying = null" class="mr-2" small>
+                <v-icon> mdi-close </v-icon>
+              </v-btn>
+            </v-toolbar>
+            <v-toolbar
+              height="29"
+              color="transparent"
+              elevation="0"
+              style="margin-bottom: -12px; padding-top: 0"
+            >
+              <p v-if="usersTyping.length" style="float: left">
+                {{ usersTyping.map((user) => getName(user)).join(", ") }}
+                {{ usersTyping.length > 1 ? " are" : " is" }} typing...
+              </p>
+            </v-toolbar>
+            <CommsInput
+              :chat="chat"
+              :replying="replying"
+              :editLastMessage="editLastMessage"
+              :autoScroll="autoScroll"
+              :endSend="endSend"
+            ></CommsInput>
+          </v-card-text>
+        </v-card>
       </v-col>
-      <v-navigation-drawer
-        app
-        right
-        floating
+      <v-col
         cols="3"
         class=""
         id="search-col"
-        v-if="$store.state.searchPanel"
+        v-if="searchPanel && !$vuetify.breakpoint.mobile"
       >
-        <v-card class="d-flex flex-column fill-height rounded-xl" color="card">
-          <v-toolbar color="toolbar" class="flex-grow-0 flex-shrink-0">
+        <v-card
+          class="d-flex flex-column fill-height rounded-xl"
+          style="overflow: scroll; height: calc(100vh - 24px - 40px - 40px)"
+          color="card"
+        >
+          <v-toolbar color="transparent" class="flex-grow-0 flex-shrink-0">
             <v-toolbar-title>
               Search ({{ search.pager.totalItems || 0 }})
             </v-toolbar-title>
             <v-spacer></v-spacer>
-            <v-btn icon @click="$store.state.searchPanel = false">
+            <v-btn icon @click="searchPanel = false">
               <v-icon>mdi-close</v-icon>
             </v-btn>
           </v-toolbar>
@@ -508,7 +1008,11 @@
                   <v-icon class="mr-2">mdi-reply</v-icon>
                   <v-avatar size="24" class="mr-2">
                     <v-img
-                      :src="'/usercontent/' + message.reply.user.avatar"
+                      :src="
+                        $store.state.baseURL +
+                        '/usercontent/' +
+                        message.reply.user.avatar
+                      "
                       v-if="message.reply.user.avatar"
                       class="elevation-1"
                     />
@@ -538,7 +1042,11 @@
                 >
                   <v-avatar size="48" class="mr-2">
                     <v-img
-                      :src="'/usercontent/' + message.user.avatar"
+                      :src="
+                        $store.state.baseURL +
+                        '/usercontent/' +
+                        message.user.avatar
+                      "
                       v-if="message.user.avatar"
                       class="elevation-1"
                     />
@@ -546,7 +1054,7 @@
                   </v-avatar>
                   <v-list-item-content>
                     <v-list-item-subtitle>
-                      {{ message.user.username }}
+                      {{ getName(message.user) }}
                       <small>
                         {{
                           $date(message.createdAt).format("DD/MM/YYYY hh:mm A")
@@ -592,7 +1100,7 @@
                       >
                         <v-card
                           elevaion="0"
-                          color="bg"
+                          color="card"
                           max-width="25%"
                           width="25%"
                           class="ml-3"
@@ -723,7 +1231,7 @@
                         :id="'attachment-' + index"
                         max-width="40%"
                         elevaion="0"
-                        color="bg"
+                        color="card"
                       >
                         <v-hover
                           v-slot="{ hover }"
@@ -739,7 +1247,11 @@
                               @click="setImagePreview(attachment)"
                               contain
                               :aspect-ratio="16 / 9"
-                              :src="'/usercontent/' + attachment.attachment"
+                              :src="
+                                $store.state.baseURL +
+                                '/usercontent/' +
+                                attachment.attachment
+                              "
                             >
                               <template v-slot:placeholder>
                                 <v-row
@@ -778,7 +1290,11 @@
                           <v-btn
                             text
                             icon
-                            :href="'/usercontent/' + attachment.attachment"
+                            :href="
+                              $store.state.baseURL +
+                              '/usercontent/' +
+                              attachment.attachment
+                            "
                             target="_blank"
                           >
                             <v-icon> mdi-download </v-icon>
@@ -812,25 +1328,46 @@
             </v-list>
           </v-card-text>
         </v-card>
-      </v-navigation-drawer>
-      <v-navigation-drawer
-        right
-        app
-        floating
-        background-color="bg"
-        color="bg"
-        width="20%"
-        class=""
-        id="search-col"
-        v-if="$store.state.userPanel && chat.chat.type === 'group'"
+      </v-col>
+      <v-col
+        cols="3"
+        class="ml-2"
+        id="user-col"
+        v-if="$store.state.userPanel && !$vuetify.breakpoint.mobile"
       >
         <v-card
           class="d-flex flex-column fill-height rounded-xl"
-          :max-height="viewport()"
-          :min-height="viewport()"
+          elevation="0"
+          style="overflow: scroll; height: calc(100vh - 24px - 40px - 40px)"
           color="card"
         >
-          <v-toolbar color="bg" class="flex-grow-0 flex-shrink-0">
+          <v-menu
+            v-model="context.user.value"
+            :position-x="context.user.x"
+            :position-y="context.user.y"
+            absolute
+            offset-y
+            class="rounded-l"
+          >
+            <v-list class="rounded-l" v-if="context.user.item">
+              <v-list-item
+                @click="
+                  nickname.dialog = true
+                  nickname.user = context.user.item
+                "
+              >
+                <v-list-item-title
+                  >Change Friend Nickname for
+                  {{ context.user.item.username }}</v-list-item-title
+                >
+              </v-list-item>
+            </v-list>
+          </v-menu>
+          <v-toolbar
+            color="transparent"
+            class="flex-grow-0 flex-shrink-0"
+            elevation="2"
+          >
             <v-toolbar-title> Members </v-toolbar-title>
             <v-spacer></v-spacer>
             <v-btn icon @click="$store.state.userPanel = false">
@@ -839,8 +1376,13 @@
           </v-toolbar>
           <v-list two-line color="card">
             <v-list-item-group class="rounded-xl">
-              <template v-for="item in chat.chat.associations">
-                <v-list-item :key="item.title">
+              <template v-for="item in associations">
+                <v-list-item
+                  :key="item.title"
+                  @contextmenu="show($event, 'user', item.user)"
+                  @click="openUserPanel(item.user)"
+                  :id="'user-popout-' + item.userId"
+                >
                   <v-badge
                     bordered
                     bottom
@@ -854,7 +1396,11 @@
                     >
                       <v-img
                         v-if="item.user.avatar"
-                        :src="'/usercontent/' + item.user.avatar"
+                        :src="
+                          $store.state.baseURL +
+                          '/usercontent/' +
+                          item.user.avatar
+                        "
                       />
                       <v-icon v-else> mdi-account </v-icon>
                     </v-list-item-avatar>
@@ -862,7 +1408,31 @@
                   <template>
                     <v-list-item-content>
                       <v-list-item-title>
-                        {{ item.user.username }}
+                        {{ getName(item.user) }}
+                        <v-tooltip top v-if="item.user.admin">
+                          <template v-slot:activator="{ on }">
+                            <v-btn icon v-on="on" small>
+                              <v-icon> mdi-crown </v-icon>
+                            </v-btn>
+                          </template>
+                          <span>Colubrina Instance Administrator</span>
+                        </v-tooltip>
+                        <v-tooltip top v-if="item.user.bot">
+                          <template v-slot:activator="{ on }">
+                            <v-btn icon v-on="on" small>
+                              <v-icon> mdi-robot </v-icon>
+                            </v-btn>
+                          </template>
+                          <span>Bot</span>
+                        </v-tooltip>
+                        <v-tooltip top v-if="item.user.id < 35">
+                          <template v-slot:activator="{ on }">
+                            <v-btn icon v-on="on" small>
+                              <v-icon> mdi-alpha-a-circle </v-icon>
+                            </v-btn>
+                          </template>
+                          <span>Early User</span>
+                        </v-tooltip>
                       </v-list-item-title>
                     </v-list-item-content>
                   </template>
@@ -872,17 +1442,73 @@
           </v-list>
           <br />
         </v-card>
-      </v-navigation-drawer>
+      </v-col>
     </v-row>
   </div>
 </template>
 <script>
 import AjaxErrorHandler from "@/lib/errorHandler"
+import CommsInput from "@/components/CommsInput"
+import { Line as Chart } from "vue-chartjs/legacy"
+import {
+  Chart as ChartJS,
+  Title,
+  Tooltip,
+  Legend,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement
+} from "chart.js"
 
+ChartJS.register(
+  Title,
+  Tooltip,
+  Legend,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement
+)
 export default {
   name: "CommunicationsChat",
+  components: { CommsInput, Chart },
   props: ["chat", "loading", "items"],
   data: () => ({
+    graphOptions: {
+      responsive: true,
+      maintainAspectRatio: false,
+      title: {
+        display: false
+      }
+    },
+    page: 1,
+    nickname: {
+      dialog: false,
+      nickname: "",
+      user: {}
+    },
+    context: {
+      user: {
+        value: false,
+        x: null,
+        y: null,
+        item: null
+      },
+      userPopout: {
+        value: false,
+        x: null,
+        y: null,
+        item: null,
+        id: 0
+      },
+      message: {
+        value: false,
+        x: null,
+        y: null,
+        item: null
+      }
+    },
     search: {
       query: "",
       results: [],
@@ -950,18 +1576,136 @@ export default {
     userPanel: true
   }),
   computed: {
-    getDirectRecipient() {
-      const user = this.chat.chat.users.find(
-        (user) => user.id !== this.$store.state.user.id
-      )
-      if (user) {
-        return user
-      } else {
-        return this.chat.chat.users[0]
-      }
+    associations() {
+      return this.chat.chat.associations.slice().sort((a, b) => {
+        if (a.lastRead > b.lastRead) {
+          return -1
+        } else if (a.lastRead < b.lastRead) {
+          return 1
+        } else {
+          return 0
+        }
+      })
     }
   },
   methods: {
+    markAsRead() {
+      if (this.items) {
+        try {
+          const unread = this.$store.state.chats.find(
+            (item) => item.id === JSON.parse(this.$route.params.id)
+          ).unread
+          this.items.find(
+            (item) => item.id === JSON.parse(this.$route.params.id)
+          ).unread = 0
+          this.$store.state.communicationNotifications -= unread
+        } catch {
+          return
+        }
+      }
+    },
+    endSend() {
+      this.replying = null
+    },
+    focusInput() {
+      const input = document.getElementById("message-input")
+      if (input) {
+        input.focus()
+      }
+    },
+    openUserPanel(user) {
+      this.context.userPopout.item = user
+      this.context.userPopout.item.mutualGroups = []
+      this.context.userPopout.item.mutualFriends = []
+      this.context.userPopout.item.loading = {
+        mutualGroups: true,
+        mutualFriends: true
+      }
+      this.context.userPopout.value = true
+      this.axios
+        .get(
+          process.env.VUE_APP_BASE_URL +
+            "/api/v1/communications/mutual/" +
+            user.id +
+            "/groups"
+        )
+        .then((res) => {
+          this.context.userPopout.item.mutualGroups = res.data
+          this.context.userPopout.item.loading.mutualGroups = false
+        })
+        .catch((e) => {
+          AjaxErrorHandler(this.$store)(e)
+        })
+      this.axios
+        .get(
+          process.env.VUE_APP_BASE_URL +
+            "/api/v1/communications/mutual/" +
+            user.id +
+            "/friends"
+        )
+        .then((res) => {
+          this.context.userPopout.item.mutualFriends = res.data
+          this.context.userPopout.item.loading.mutualFriends = false
+        })
+        .catch((e) => {
+          AjaxErrorHandler(this.$store)(e)
+        })
+    },
+    getName(user) {
+      if (user.nickname?.nickname) {
+        return user.nickname.nickname
+      } else {
+        return user.username
+      }
+    },
+    setFriendNickname() {
+      this.axios
+        .post(
+          process.env.VUE_APP_BASE_URL +
+            "/api/v1/communications/nickname/" +
+            this.context.user.item.id,
+          {
+            nickname: this.nickname.nickname
+          }
+        )
+        .then((res) => {
+          this.context.user.value = false
+          this.nickname.dialog = false
+          this.nickname.nickname = ""
+          this.nickname.user = {}
+          this.$toast.success("Nickname changed successfully.")
+          this.items.forEach((item) => {
+            item.chat.associations.forEach((a) => {
+              if (a.user.id === this.context.user.item.id) {
+                a.user.nickname = {
+                  nickname: res.data.nickname
+                }
+              }
+            })
+            item.chat.users.forEach((u) => {
+              if (u.id === this.context.user.item.id) {
+                u.nickname = {
+                  nickname: res.data.nickname
+                }
+              }
+            })
+          })
+        })
+        .catch((e) => {
+          AjaxErrorHandler(this.$store)(e)
+        })
+    },
+    show(e, context, item) {
+      e.preventDefault()
+      this.context[context].value = false
+      this.context[context].x = e.clientX
+      this.context[context].y = e.clientY
+      this.context[context].item = item
+      this.context[context].id = item.id
+      this.$nextTick(() => {
+        this.context[context].value = true
+      })
+    },
     getStatus(item) {
       if (item.status === "online") {
         return "green"
@@ -978,12 +1722,18 @@ export default {
     doSearch() {
       if (this.search.query.length) {
         this.axios
-          .get("/api/v1/communications/" + this.$route.params.id + "/search", {
-            params: {
-              query: this.search.query,
-              page: this.search.page
+          .get(
+            process.env.VUE_APP_BASE_URL +
+              "/api/v1/communications/" +
+              this.$route.params.id +
+              "/search",
+            {
+              params: {
+                query: this.search.query,
+                page: this.search.page
+              }
             }
-          })
+          )
           .then((res) => {
             this.search.results = res.data.messages
             this.search.pager = res.data.pager
@@ -995,7 +1745,7 @@ export default {
     },
     setImagePreview(attachment) {
       const link = attachment.attachment
-        ? attachment.attachment
+        ? this.$store.state.baseURL + "/usercontent/" + attachment.attachment
         : attachment.mediaProxyLink
       this.preview.src = link
       const img = new Image()
@@ -1012,15 +1762,6 @@ export default {
         this.file = e.dataTransfer.files[0]
       }
     },
-    handlePaste(data) {
-      if (data.clipboardData.items.length) {
-        const item = data.clipboardData.items[0]
-        if (item.kind === "file") {
-          this.file = item.getAsFile()
-          this.getURLForImage()
-        }
-      }
-    },
     friendlySize(size) {
       if (size < 1024) {
         return size + " bytes"
@@ -1032,18 +1773,11 @@ export default {
         return (size / 1073741824).toFixed(2) + " GB"
       }
     },
-    getURLForImage() {
-      const file = this.file
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        this.blobURL = e.target.result
-      }
-      reader.readAsDataURL(file)
-    },
     deleteMessage(message) {
       this.axios
         .delete(
-          "/api/v1/communications/" +
+          process.env.VUE_APP_BASE_URL +
+            "/api/v1/communications/" +
             this.$route.params.id +
             "/message/" +
             message.id
@@ -1080,21 +1814,10 @@ export default {
         console.log("Could not auto scroll (Jump to message)")
       }
     },
-    handleEsc() {
-      if (this.replying) {
-        this.replying = null
-      }
-    },
-    viewport() {
-      return window.innerHeight - 25
-    },
     typing() {
       this.usersTyping = this.usersTyping.filter((user) => {
         return this.$date().isBefore(user.timeout)
       })
-    },
-    focusInput() {
-      this.$refs["message-input"].$refs.input.focus()
     },
     editLastMessage() {
       // find last message sent by current user
@@ -1108,27 +1831,11 @@ export default {
         this.edit.id = lastMessage.id
       }
     },
-    editMessage() {
-      if (this.edit.content.length > 0) {
-        this.axios
-          .put(
-            "/api/v1/communications/" + this.$route.params.id + "/message/edit",
-            {
-              id: this.edit.id,
-              content: this.edit.content
-            }
-          )
-          .then(() => {
-            this.edit.editing = false
-            this.edit.id = null
-            this.edit.content = ""
-            this.$refs["message-input"].$refs.input.focus()
-            // response will be handled via WebSocket
-          })
-          .catch((e) => {
-            AjaxErrorHandler(this.$store)(e)
-          })
-      }
+    endEdit() {
+      this.edit.editing = false
+      this.edit.content = ""
+      this.edit.id = ""
+      this.focusInput()
     },
     autoScroll(smooth = true) {
       this.$nextTick(() => {
@@ -1159,12 +1866,14 @@ export default {
     getMessages() {
       this.axios
         .get(
-          "/api/v1/communications/" +
+          process.env.VUE_APP_BASE_URL +
+            "/api/v1/communications/" +
             this.$route.params.id +
             "/messages?limit=50"
         )
         .then((res) => {
           this.messages = res.data
+          this.markRead()
           this.$nextTick(() => {
             this.autoScroll(false)
           })
@@ -1175,102 +1884,30 @@ export default {
     },
     markRead() {
       this.axios.put(
-        "/api/v1/communications/" + this.$route.params.id + "/read"
+        process.env.VUE_APP_BASE_URL +
+          "/api/v1/communications/" +
+          this.$route.params.id +
+          "/read"
       )
-    },
-    sendMessage() {
-      if (this.message.length > 0 || this.file) {
-        const emojis = require("../../lib/emojis.json")
-        this.message = this.message.replaceAll(
-          /:([a-zA-Z0-9_\-+]+):/g,
-          (match, group1) => {
-            const emoji = emojis.find((emoji) => {
-              return emoji.aliases.includes(group1)
-            })
-            if (emoji) {
-              return emoji.emoji
-            } else {
-              return match
-            }
-          }
-        )
-        if (!this.file) {
-          this.axios
-            .post(
-              "/api/v1/communications/" + this.$route.params.id + "/message",
-              {
-                message: this.message,
-                replyId: this.replying?.id
-              }
-            )
-            .then((res) => {
-              this.messages.push(res.data)
-              this.message = ""
-              this.autoScroll()
-              this.replying = null
-              const chat = this.items.find(
-                (item) => item.chatId === this.chat.chatId
-              )
-              if (chat) {
-                const index = this.items.indexOf(chat)
-                this.items.splice(index, 1)
-                this.items.unshift(chat)
-              }
-            })
-            .catch((e) => {
-              AjaxErrorHandler(this.$store)(e)
-            })
-        } else {
-          const formData = new FormData()
-          formData.append("message", this.message)
-          if (this.replying) {
-            formData.append("replyId", this.replying.id)
-          }
-          formData.append("file", this.file)
-          this.axios
-            .post(
-              "/api/v1/communications/" +
-                this.$route.params.id +
-                "/formData/message",
-              formData,
-              {
-                headers: {
-                  "Content-Type": "multipart/form-data"
-                }
-              }
-            )
-            .then((res) => {
-              this.messages.push(res.data)
-              this.message = ""
-              this.autoScroll()
-              this.replying = null
-              this.file = null
-              const chat = this.items.find(
-                (item) => item.chatId === this.chat.chatId
-              )
-              if (chat) {
-                const index = this.items.indexOf(chat)
-                this.items.splice(index, 1)
-                this.items.unshift(chat)
-              }
-            })
-            .catch((e) => {
-              AjaxErrorHandler(this.$store)(e)
-            })
-        }
-      }
+      this.markAsRead()
     }
   },
   mounted() {
+    /*  // check if document.querySelector(`#message-${lastIndex}`) is scrolled to the top, and load new messages
+    window.addEventListener("scroll", () => {
+      const lastIndex = this.messages.length - 1
+      const lastMessage = document.querySelector(`#message-${lastIndex}`)
+      if (lastMessage && lastMessage.getBoundingClientRect().top < 0) {
+        this.page += 1
+        this.getMessages()
+      }
+    })*/
     setInterval(() => {
       this.typing()
     }, 1000)
     this.getMessages()
-    this.markRead()
     if (localStorage.getItem("userPanel")) {
-      this.$store.state.userPanel = JSON.parse(
-        localStorage.getItem("userPanel")
-      )
+      this.userPanel = JSON.parse(localStorage.getItem("userPanel"))
     } else {
       localStorage.setItem("userPanel", true)
     }
@@ -1282,10 +1919,14 @@ export default {
       this.message = drafts[this.$route.params.id]
     }
     this.$socket.on("message", (message) => {
-      if (message.chatId === this.chat.chat.id) {
+      console.log(this.chat)
+      if (message.chatId === this.chat.chatId) {
         this.messages.push(message)
         this.autoScroll()
         this.markRead()
+        if (this.messages.length > 50) {
+          this.messages.shift()
+        }
       }
     })
     this.$socket.on("editMessage", (message) => {
@@ -1333,26 +1974,8 @@ export default {
     userPanel() {
       localStorage.setItem("userPanel", JSON.stringify(this.userPanel))
     },
-    message() {
-      if (this.$store.state.user.storedStatus !== "invisible") {
-        if (this.typingDate) {
-          const now = new Date()
-          if (now - this.typingDate > 5000) {
-            this.typingDate = now
-            this.axios.put(
-              "/api/v1/communications/" + this.$route.params.id + "/typing"
-            )
-          }
-        } else {
-          this.typingDate = new Date()
-          this.axios.put(
-            "/api/v1/communications/" + this.$route.params.id + "/typing"
-          )
-        }
-      }
-    },
     "$route.params.id"(val, oldVal) {
-      this.$refs["message-input"].$refs.input.focus()
+      this.focusInput()
       let drafts = {}
       if (localStorage.getItem("drafts")) {
         drafts = JSON.parse(localStorage.getItem("drafts"))
@@ -1360,13 +1983,14 @@ export default {
       if (this.message || drafts[oldVal]) {
         drafts[oldVal] = this.message
         localStorage.setItem("drafts", JSON.stringify(drafts))
+      } else if (!this.message && drafts[oldVal]) {
+        drafts[oldVal] = ""
       }
       this.message = drafts[val] || ""
       this.messages = []
       this.usersTyping = []
       this.replying = null
       this.getMessages()
-      this.markRead()
     }
   }
 }

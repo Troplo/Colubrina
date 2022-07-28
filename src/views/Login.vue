@@ -118,6 +118,7 @@ export default {
           this.$store.commit("setToken", res.data.session)
           await this.$store.dispatch("getUserInfo")
           this.loading = false
+          this.$socket.disconnect()
           this.$socket.connect()
           this.$router.push("/")
         })

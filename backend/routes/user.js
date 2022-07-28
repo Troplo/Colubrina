@@ -342,40 +342,6 @@ router.put("/settings/:type", auth, async (req, res, next) => {
       return false
     }
   }
-  async function checkPassword(password) {
-    return new Promise((resolve, reject) => {
-      axios
-        .post(
-          "http://localhost:23994/services/admin.svc/GetApiKey",
-          {
-            password: password,
-            schoolId: req.body.schoolId,
-            sussiId: req.user.sussiId
-          },
-          {
-            headers: {
-              compassInstance:
-                req.header("compassInstance") ||
-                req.query.compassInstance ||
-                "devices"
-            }
-          }
-        )
-        .then((resp) => {
-          if (resp.data.d) {
-            resolve(true)
-            return true
-          } else {
-            resolve(false)
-            return false
-          }
-        })
-        .catch((e) => {
-          reject(e)
-          return false
-        })
-    })
-  }
   try {
     const io = req.app.get("io")
     if (req.params.type === "full") {
@@ -452,66 +418,6 @@ router.put("/settings/:type", auth, async (req, res, next) => {
       } else {
         throw Errors.invalidParameter("Password or Code")
       }
-    } else if (req.params.type === "totpConfirm") {
-      const user = await User.findOne({
-        where: {
-          id: req.user.id
-        }
-      })
-      if (user.totp) {
-        const verified = speakeasy.totp.verify({
-          secret: user.totp,
-          encoding: "base32",
-          token: req.body.code
-        })
-        if (verified) {
-          await User.update(
-            {
-              totpEnabled: true
-            },
-            {
-              where: {
-                id: req.user.id
-              }
-            }
-          )
-          res.sendStatus(204)
-        } else {
-          throw Errors.invalidTotp
-        }
-      } else {
-        throw Errors.unknown
-      }
-    } else if (req.params.type === "bcSessionsEnable") {
-      /*
-      const match = await checkPassword(req.body.password)
-      if (match) {
-        await User.update(
-          {
-            bcSessionsEnabled: true
-          },
-          {
-            where: {
-              id: req.user.id
-            }
-          }
-        )
-        const session = await Session.create({
-          session:
-            "BETTERCOMPASS-" +
-            cryptoRandomString({
-              length: 64
-            }),
-          compassUserId: req.user.compassUserId,
-          sussiId: req.user.sussiId,
-          instance: req.user.instance,
-          other: {},
-          userId: req.user.id
-        })
-      } else {
-        throw Errors.invalidCredentials
-      }*/
-      throw Errors.experimentsOptIn
     } else if (req.params.type === "password") {
       const user = await User.findOne({
         where: {

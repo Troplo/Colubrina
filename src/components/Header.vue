@@ -3,6 +3,39 @@
     <v-overlay :value="!$store.state.wsConnected" absolute>
       <v-progress-circular indeterminate size="64"></v-progress-circular>
     </v-overlay>
+    <NicknameDialog :nickname="nickname" />
+    <v-menu
+      v-model="context.user.value"
+      :position-x="context.user.x"
+      :position-y="context.user.y"
+      absolute
+      offset-y
+      class="rounded-l"
+    >
+      <v-list class="rounded-l" v-if="context.user.item">
+        <v-list-item
+          v-if="context.user.item.type === 'direct'"
+          @click="
+            nickname.user = context.user.item
+            nickname.dialog = true
+          "
+        >
+          <v-list-item-title>Change Friend Nickname</v-list-item-title>
+        </v-list-item>
+        <v-list-item @click="groupSettings(context.user.id)">
+          <v-list-item-title>Group Settings</v-list-item-title>
+        </v-list-item>
+        <v-list-item
+          @click="
+            leave.item = context.user.item
+            leave.dialog = true
+          "
+          color="error"
+        >
+          <v-list-item-title>Leave Group</v-list-item-title>
+        </v-list-item>
+      </v-list>
+    </v-menu>
     <v-dialog
       v-model="settings.addMembers.dialog"
       max-width="400px"
@@ -263,6 +296,38 @@
       </v-card>
     </v-dialog>
     <v-app-bar app color="bg">
+      <v-app-bar-nav-icon
+        @click.stop="$store.state.drawer = !$store.state.drawer"
+        v-if="$vuetify.breakpoint.mobile"
+      ></v-app-bar-nav-icon>
+      <button
+        style="display: none"
+        v-shortkey="['ctrl', 'k']"
+        @shortkey="$store.commit('setSearch', true)"
+      >
+        Debug
+      </button>
+      <button
+        style="display: none"
+        v-shortkey="['meta', 'k']"
+        @shortkey="$store.commit('setSearch', true)"
+      >
+        Debug
+      </button>
+      <button
+        style="display: none"
+        v-shortkey="['ctrl', 'alt', 'd']"
+        @shortkey="$store.dispatch('toggleCSS')"
+      >
+        Style Toggle
+      </button>
+      <button
+        style="display: none"
+        v-shortkey="['f9']"
+        @shortkey="$store.dispatch('toggleCSS')"
+      >
+        Style Toggle
+      </button>
       <template v-if="$route.name === 'Communications'">
         <v-toolbar-title v-if="$store.state.selectedChat?.chat?.type">
           {{
@@ -271,7 +336,6 @@
               : $store.state.selectedChat?.chat?.name
           }}
         </v-toolbar-title>
-
         <v-spacer></v-spacer>
         <v-btn
           icon
@@ -279,11 +343,7 @@
         >
           <v-icon>mdi-magnify</v-icon>
         </v-btn>
-        <v-btn
-          icon
-          @click="$store.state.userPanel = !$store.state.userPanel"
-          v-if="selected?.chat?.type === 'group'"
-        >
+        <v-btn icon @click="$store.state.userPanel = !$store.state.userPanel">
           <v-icon>mdi-account-group</v-icon>
         </v-btn>
       </template>
@@ -293,148 +353,147 @@
         </v-toolbar-title>
       </template>
     </v-app-bar>
-    <v-navigation-drawer color="bg" floating app style="max-height: 100%">
+    <v-navigation-drawer
+      color="bg"
+      floating
+      app
+      style="max-height: 100%"
+      v-model="$store.state.drawer"
+      :width="$vuetify.breakpoint.mobile ? 270 : 320"
+    >
       <v-container>
-        <v-btn
-          color="toolbar"
-          to="/communications/friends"
-          block
-          class="mb-3 rounded-xl"
-          elevation="2"
-        >
-          <v-icon left>mdi-account-multiple</v-icon>
-          Friends
-        </v-btn>
-        <v-text-field
-          class="rounded-xl"
-          filled
-          solo
-          label="Search..."
-          append-icon="mdi-magnify"
-          background-color="toolbar"
-          style="margin-bottom: -18px"
-          elevation="2"
-        ></v-text-field>
-        <v-toolbar color="toolbar" class="rounded-xl mb-3" elevation="2">
-          <v-toolbar-title class="subtitle-1">
-            CHATS ({{ $store.state.chats.length }})
-          </v-toolbar-title>
-          <v-spacer></v-spacer>
-          <v-btn icon @click="dialogs.new = true">
-            <v-icon>mdi-plus</v-icon>
-          </v-btn>
-        </v-toolbar>
-        <v-card height="100%" color="transparent" class="mt-2" elevation="0">
-          <v-list height="100%" two-line color="transparent" elevation="0">
-            <v-list-item-group v-model="selected">
-              <template v-for="(item, index) in $store.state.chats">
-                <v-list-item
-                  :key="item.title"
-                  :to="'/communications/' + item.id"
+        <v-list dense nav id="comms-sidebar-list">
+          <template v-if="$vuetify.breakpoint.mobile">
+            <v-btn
+              color="toolbar"
+              to="/communications/friends"
+              width="48%"
+              class="mb-3 mr-1 rounded-xl"
+              elevation="2"
+            >
+              <v-icon left>mdi-account-multiple</v-icon>
+              Friends
+            </v-btn>
+            <v-btn
+              color="toolbar"
+              width="48%"
+              class="mb-3 ml-1 rounded-xl"
+              elevation="2"
+              @click="dialogs.new = true"
+            >
+              <v-icon left>mdi-plus</v-icon>
+              New
+            </v-btn>
+          </template>
+          <template v-else>
+            <v-btn
+              color="toolbar"
+              to="/communications/friends"
+              block
+              class="mb-3 rounded-xl"
+              elevation="2"
+            >
+              <v-icon left>mdi-account-multiple</v-icon>
+              Friends
+            </v-btn>
+            <v-text-field
+              class="rounded-xl"
+              filled
+              solo
+              label="Search..."
+              append-icon="mdi-magnify"
+              background-color="toolbar"
+              style="margin-bottom: -18px"
+              elevation="2"
+            ></v-text-field>
+            <v-toolbar color="toolbar" class="rounded-xl mb-3" elevation="2">
+              <v-toolbar-title class="subtitle-1">
+                CHATS ({{ $store.state.chats.length }})
+              </v-toolbar-title>
+              <v-spacer></v-spacer>
+              <v-btn icon @click="dialogs.new = true">
+                <v-icon>mdi-plus</v-icon>
+              </v-btn>
+            </v-toolbar></template
+          >
+          <v-list v-for="item in $store.state.chats" :key="item.id">
+            <template>
+              <v-list-item
+                :to="'/communications/' + item.id"
+                @contextmenu="
+                  show($event, 'user', getDirectRecipient(item), item.id)
+                "
+              >
+                <v-badge
+                  bordered
+                  bottom
+                  :color="getStatus(item)"
+                  v-if="item.chat.type === 'direct'"
+                  dot
+                  offset-x="24"
+                  offset-y="20"
                 >
-                  <v-badge
-                    bordered
-                    bottom
-                    :color="getStatus(item)"
-                    v-if="item.chat.type === 'direct'"
-                    dot
-                    offset-x="24"
-                    offset-y="26"
+                  <v-list-item-avatar
+                    :color="$vuetify.theme.themes.dark.primary"
                   >
-                    <v-list-item-avatar
-                      :color="$vuetify.theme.themes.dark.primary"
-                    >
-                      <v-icon v-if="item.chat.type === 'group'">
-                        mdi-account-group
-                      </v-icon>
-                      <v-img
-                        v-else-if="
-                          item.chat.type === 'direct' &&
-                          getDirectRecipient(item).avatar
-                        "
-                        :src="'/usercontent/' + getDirectRecipient(item).avatar"
-                      />
-                      <v-icon v-else-if="item.chat.type === 'direct'">
-                        mdi-account
-                      </v-icon>
-                    </v-list-item-avatar>
-                  </v-badge>
-                  <v-badge dot color="none" v-else>
-                    <v-list-item-avatar
-                      :color="$vuetify.theme.themes.dark.primary"
-                    >
-                      <v-icon v-if="item.chat.type === 'group'">
-                        mdi-account-group
-                      </v-icon>
-                    </v-list-item-avatar>
-                  </v-badge>
-                  <template>
-                    <v-list-item-content>
-                      <v-list-item-title v-if="item.chat.type === 'direct'">
-                        {{ getDirectRecipient(item).username }}
-                        <v-badge
-                          v-if="
-                            getLastRead(item).count >= 1 &&
-                            $route.params.id !== item.id.toString()
-                          "
-                          color="red"
-                          class="ml-2"
-                          :content="getLastRead(item).count"
-                        >
-                        </v-badge>
-                      </v-list-item-title>
-                      <v-list-item-title v-else>
-                        {{ item.chat.name }}
-                        <v-badge
-                          v-if="
-                            getLastRead(item).count >= 1 &&
-                            $route.params.id !== item.id.toString()
-                          "
-                          color="red"
-                          class="ml-2"
-                          :content="getLastRead(item).count"
-                        >
-                        </v-badge>
-                      </v-list-item-title>
+                    <v-icon v-if="item.chat.type === 'group'">
+                      mdi-account-group
+                    </v-icon>
+                    <v-img
+                      v-else-if="
+                        item.chat.type === 'direct' &&
+                        getDirectRecipient(item).avatar
+                      "
+                      :src="
+                        $store.state.baseURL +
+                        '/usercontent/' +
+                        getDirectRecipient(item).avatar
+                      "
+                    />
+                    <v-icon v-else-if="item.chat.type === 'direct'">
+                      mdi-account
+                    </v-icon>
+                  </v-list-item-avatar>
+                </v-badge>
+                <v-badge dot color="none" v-else>
+                  <v-list-item-avatar
+                    :color="$vuetify.theme.themes.dark.primary"
+                  >
+                    <v-icon v-if="item.chat.type === 'group'">
+                      mdi-account-group
+                    </v-icon>
+                  </v-list-item-avatar>
+                </v-badge>
+                <template>
+                  <v-list-item-content>
+                    <v-list-item-title v-if="item.chat.type === 'direct'">
+                      {{ getDirectRecipient(item).name }}
+                    </v-list-item-title>
+                    <v-list-item-title v-else>
+                      <span> {{ item.chat.name }} </span>
+                    </v-list-item-title>
 
-                      <v-list-item-subtitle v-if="item.chat.type === 'group'">
-                        {{ item.chat.users.length }} Members
-                      </v-list-item-subtitle>
-                    </v-list-item-content>
-                    <v-list-item-action>
-                      <v-icon
-                        @click="
-                          leave.item = item
-                          leave.dialog = true
-                        "
-                      >
-                        mdi-exit-to-app
-                      </v-icon>
-                    </v-list-item-action>
-                    <v-list-item-action>
-                      <v-icon
-                        @click="
-                          settings.item = item
-                          settings.dialog = true
-                        "
-                      >
-                        mdi-cog
-                      </v-icon>
-                    </v-list-item-action>
-                  </template>
-                </v-list-item>
-
-                <v-divider
-                  v-if="index < $store.state.chats.length - 1"
-                  :key="index"
-                ></v-divider>
-              </template>
-            </v-list-item-group>
+                    <v-list-item-subtitle v-if="item.chat.type === 'group'">
+                      {{ item.chat.users.length }} Members
+                    </v-list-item-subtitle>
+                  </v-list-item-content>
+                  <v-list-item-action
+                    v-if="
+                      item.unread >= 1 &&
+                      $route.params.id !== item.id.toString()
+                    "
+                  >
+                    <v-badge color="red" inline :content="item.unread">
+                    </v-badge>
+                  </v-list-item-action>
+                </template>
+              </v-list-item>
+            </template>
           </v-list>
-        </v-card>
+        </v-list>
       </v-container>
       <template v-slot:append>
-        <v-card tile color="card" elevation="0">
+        <v-card tile color="bg" elevation="0">
           <v-overlay :value="!$store.state.wsConnected" absolute>
             <v-progress-circular indeterminate size="48"></v-progress-circular>
           </v-overlay>
@@ -522,11 +581,19 @@
 
 <script>
 import AjaxErrorHandler from "@/lib/errorHandler"
+import NicknameDialog from "@/components/NicknameDialog"
+import Vue from "vue"
 
 export default {
   name: "Header",
+  components: { NicknameDialog },
   data() {
     return {
+      nickname: {
+        dialog: false,
+        nickname: "",
+        user: {}
+      },
       copyTooltip: false,
       settings: {
         dialog: false,
@@ -537,6 +604,28 @@ export default {
           name: ""
         },
         item: null
+      },
+      context: {
+        user: {
+          value: false,
+          x: null,
+          y: null,
+          item: null,
+          id: 0
+        },
+        userPopout: {
+          value: false,
+          x: null,
+          y: null,
+          item: null,
+          id: 0
+        },
+        message: {
+          value: false,
+          x: null,
+          y: null,
+          item: null
+        }
       },
       selected: [2],
       loading: true,
@@ -556,6 +645,23 @@ export default {
     }
   },
   methods: {
+    groupSettings(id) {
+      this.settings.item = this.$store.state.chats.find(
+        (chat) => chat.id === id
+      )
+      this.settings.dialog = true
+    },
+    show(e, context, item, id) {
+      e.preventDefault()
+      this.context[context].value = false
+      this.context[context].x = e.clientX
+      this.context[context].y = e.clientY
+      this.context[context].item = item
+      this.context[context].id = id
+      this.$nextTick(() => {
+        this.context[context].value = true
+      })
+    },
     setStatus(status) {
       const previousStatus = {
         status: this.$store.state.user.status,
@@ -740,13 +846,30 @@ export default {
       }
     },
     getDirectRecipient(item) {
-      const user = item.chat.users.find(
+      let user = item.chat.users.find(
         (user) => user.id !== this.$store.state.user.id
       )
       if (user) {
-        return user
+        if (user.nickname?.nickname) {
+          user.name = user.nickname.nickname
+        } else {
+          user.name = user.username
+        }
+        return {
+          ...user,
+          type: item.chat.type
+        }
       } else {
-        return item.chat.users[0]
+        let user = item.chat.users[0]
+        if (user.nickname?.nickname) {
+          user.name = user.nickname.nickname
+        } else {
+          user.name = user.username
+        }
+        return {
+          ...user,
+          type: item.chat.type
+        }
       }
     },
     createConversation() {
@@ -756,7 +879,6 @@ export default {
           users: this.newConversation.users
         })
         .then(() => {
-          this.getChats()
           this.newConversation.name = ""
           this.newConversation.users = []
           this.newConversation.loading = false
@@ -774,10 +896,10 @@ export default {
     searchUsers() {
       this.newConversation.loading = true
       this.axios
-        .get("/api/v1/communications/search?query=" + this.newConversation.name)
+        .get("/api/v1/communications/search?query=")
         .then((res) => {
           this.newConversation.loading = false
-          this.newConversation.results.push(...res.data)
+          this.newConversation.results = res.data
         })
         .catch(() => {
           this.newConversation.loading = false
@@ -785,12 +907,10 @@ export default {
     },
     searchUsersForGroupAdmin() {
       this.axios
-        .get(
-          "/api/v1/communications/search?query=" + this.settings.addMembers.name
-        )
+        .get("/api/v1/communications/search?query=")
         .then((res) => {
           if (this.settings.item) {
-            this.settings.addMembers.results.push(...res.data)
+            this.settings.addMembers.results = res.data
             this.settings.addMembers.results =
               this.settings.addMembers.results.filter(
                 (user) =>
@@ -802,6 +922,8 @@ export default {
     }
   },
   mounted() {
+    Vue.axios.defaults.headers.common["Authorization"] =
+      localStorage.getItem("session")
     this.searchUsers()
     this.searchUsersForGroupAdmin()
     this.$store.dispatch("getChats")
@@ -834,7 +956,6 @@ export default {
       )
       if (chat) {
         const index = this.$store.state.chats.indexOf(chat)
-        this.$store.state.chats[index].chat.lastMessages.unshift(message)
         this.$store.state.chats.splice(index, 1)
         this.$store.state.chats.unshift(chat)
       }

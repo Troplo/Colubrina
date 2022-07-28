@@ -15,6 +15,7 @@
     "@mdi/js": "^6.6.95",
     "@sentry/tracing": "^6.19.3",
     "@sentry/vue": "^6.19.3",
+    "@tauri-apps/api": "^1.0.2",
     "apollo-boost": "^0.4.9",
     "axios": "^0.26.1",
     "brace": "^0.11.1",

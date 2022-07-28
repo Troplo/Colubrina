@@ -2,8 +2,14 @@ module.exports = function (vuex) {
   return function (res, ignorePathErrorCb) {
     let errors = []
 
-    if (res.response === undefined || res.response.data.errors === undefined) {
-      if (res.response.status === 429) {
+    if (
+      res?.response === undefined ||
+      res?.response?.data?.errors === undefined
+    ) {
+      if (vuex.state.site.release === "dev") {
+        console.error(res)
+      }
+      if (res?.response?.status === 429) {
         vuex._vm.$toast.error(
           "You are being rate limited, retry in " +
             res.response.headers["ratelimit-reset"] +

@@ -4,17 +4,37 @@ import Vuetify from "../plugins/vuetify"
 import AjaxErrorHandler from "@/lib/errorHandler"
 
 Vue.use(Vuex)
-
+function getDirectRecipient(context, item) {
+  let user = item.chat.users.find((user) => user.id !== context.state.user.id)
+  if (user) {
+    if (user.nickname?.nickname) {
+      user.name = user.nickname.nickname
+    } else {
+      user.name = user.username
+    }
+    return user
+  } else {
+    let user = item.chat.users[0]
+    if (user.nickname?.nickname) {
+      user.name = user.nickname.nickname
+    } else {
+      user.name = user.username
+    }
+    return user
+  }
+}
 export default new Vuex.Store({
   state: {
     online: true,
     selectedChat: null,
     chats: [],
+    baseURL: process.env.VUE_APP_BASE_URL,
     versioning: {
       date: process.env.VUE_APP_BUILD_DATE,
       version: process.env.VUE_APP_VERSION,
       release: process.env.RELEASE
     },
+    drawer: true,
     site: {
       release: "stable",
       loading: true
@@ -97,7 +117,7 @@ export default new Vuex.Store({
       state.modals.search = value
     },
     addChat(state, chat) {
-      state.chats.push(chat)
+      state.chats.unshift(chat)
     },
     updateQuickSwitchCache(state, value) {
       state.quickSwitchCache.push({
@@ -119,34 +139,16 @@ export default new Vuex.Store({
       })
     },
     getCommunicationsUnread(context) {
-      Vue.axios.defaults.headers.common["Authorization"] =
-        localStorage.getItem("session")
-      Vue.axios.get("/api/v1/communications").then((res) => {
-        context.state.communicationNotifications = 0
-        res.data.forEach((item) => {
-          const message = item.chat.lastMessages.find(
-            (message) => message.id === item.lastRead
-          )
-          const lastMessage = item.chat.lastMessages.find(
-            (message) => message.userId !== context.state.user.id
-          )
-          let count
-          if (message && lastMessage) {
-            const index = item.chat.lastMessages.indexOf(message)
-            const indexLast = item.chat.lastMessages.indexOf(lastMessage)
-            let value = index - indexLast
-            if (value < 0) {
-              value = 0
-            }
-            count = value
-          } else if (!message) {
-            count = item.chat.lastMessages.length
-          } else {
-            count = 0
-          }
-          context.state.communicationNotifications += count
+      Vue.axios
+        .get(process.env.VUE_APP_BASE_URL + "/api/v1/communications")
+        .then((res) => {
+          context.commit("setChats", res.data)
+          context.dispatch("updateQuickSwitch")
+          context.state.communicationNotifications = 0
+          res.data.forEach((item) => {
+            context.state.communicationNotifications += item.unread
+          })
         })
-      })
     },
     discardTheme(context) {
       context.state.themeEngine.theme = {
@@ -323,9 +325,12 @@ export default new Vuex.Store({
       })
       context.state.chats.forEach((chat) => {
         context.commit("updateQuickSwitchCache", {
-          ...chat,
-          customType: 2,
-          route: "/communications/" + chat.id
+          id: chat.id,
+          subjectLongName:
+            chat.chat.type === "group"
+              ? chat.chat.name
+              : getDirectRecipient(context, chat).name,
+          customType: 3
         })
       })
     },

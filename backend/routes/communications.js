@@ -8,7 +8,8 @@ const {
   ChatAssociation,
   Message,
   Friend,
-  Attachment
+  Attachment,
+  Nickname
 } = require("../models")
 const { Op } = require("sequelize")
 const rateLimit = require("express-rate-limit")
@@ -57,25 +58,62 @@ router.get("/", auth, async (req, res, next) => {
         {
           model: Chat,
           as: "chat",
+          attributes: [
+            "id",
+            "name",
+            "updatedAt",
+            "createdAt",
+            "userId",
+            "type"
+          ],
           include: [
+            {
+              model: User,
+              as: "users",
+              attributes: ["username", "avatar", "id", "status", "bot"],
+              include: [
+                {
+                  model: Nickname,
+                  as: "nickname",
+                  required: false,
+                  attributes: ["nickname"],
+                  where: {
+                    userId: req.user.id
+                  }
+                }
+              ]
+            },
             {
               model: ChatAssociation,
               as: "associations",
-              attributes: {
-                exclude: ["lastRead"]
-              },
+              order: [["lastRead", "DESC"]],
               include: [
                 {
                   model: User,
                   as: "user",
                   attributes: [
                     "username",
-                    "name",
                     "avatar",
                     "id",
                     "createdAt",
                     "updatedAt",
-                    "status"
+
+                    "status",
+
+                    "admin",
+                    "status",
+                    "bot"
+                  ],
+                  include: [
+                    {
+                      model: Nickname,
+                      as: "nickname",
+                      attributes: ["nickname"],
+                      required: false,
+                      where: {
+                        userId: req.user.id
+                      }
+                    }
                   ]
                 }
               ]
@@ -83,42 +121,136 @@ router.get("/", auth, async (req, res, next) => {
             {
               model: Message,
               as: "lastMessages",
-              limit: 50,
+              limit: 30,
               order: [["id", "DESC"]],
-              attributes: ["id", "content", "createdAt", "updatedAt", "userId"]
-            },
-            {
-              model: User,
-              as: "users",
-              attributes: [
-                "username",
-                "name",
-                "avatar",
-                "id",
-                "createdAt",
-                "updatedAt",
-                "status"
-              ]
+              attributes: ["id", "createdAt", "updatedAt", "userId"]
             }
           ]
         },
         {
           model: User,
           as: "user",
-          attributes: ["id", "username", "name", "createdAt", "updatedAt"]
+          attributes: ["id", "username", "createdAt", "updatedAt", "status"],
+          include: [
+            {
+              model: Nickname,
+              as: "nickname",
+              attributes: ["nickname"],
+              required: false,
+              where: {
+                userId: req.user.id
+              }
+            }
+          ]
+        }
+      ]
+    })
+    chats.sort((a, b) => {
+      if (a.chat.lastMessages.length > 0 && b.chat.lastMessages.length > 0) {
+        return b.chat.lastMessages[0].id - a.chat.lastMessages[0].id
+      } else if (a.chat.lastMessages.length > 0) {
+        return -1
+      } else if (b.chat.lastMessages.length > 0) {
+        return 1
+      } else {
+        return b.chat.id - a.chat.id
+      }
+    })
+    res.json(
+      chats.map((chat) => {
+        return {
+          ...chat.dataValues,
+          unread: chat.chat.lastMessages.filter(
+            (message) => message.id > chat.lastRead
+          ).length,
+          chat: {
+            ...chat.chat.dataValues,
+            lastMessages: null
+          }
+        }
+      })
+    )
+  } catch (err) {
+    next(err)
+  }
+})
+
+router.get("/mutual/:id/friends", auth, async (req, res, next) => {
+  try {
+    const userFriends = await Friend.findAll({
+      where: {
+        userId: req.params.id
+      }
+    })
+    const friends = await Friend.findAll({
+      where: {
+        friendId: userFriends.map((friend) => friend.friendId),
+        userId: req.user.id
+      },
+      include: [
+        {
+          model: User,
+          as: "user2",
+          attributes: [
+            "id",
+            "username",
+            "avatar",
+
+            "createdAt",
+            "updatedAt",
+
+            "admin",
+
+            "status"
+          ],
+          include: [
+            {
+              model: Nickname,
+              as: "nickname",
+              attributes: ["nickname"],
+              required: false,
+              where: {
+                userId: req.user.id
+              }
+            }
+          ]
+        }
+      ]
+    })
+    res.json(friends.map((friend) => friend.user2))
+  } catch (err) {
+    next(err)
+  }
+})
+
+router.get("/mutual/:id/groups", auth, async (req, res, next) => {
+  try {
+    const userGroups = await ChatAssociation.findAll({
+      where: {
+        userId: req.params.id
+      }
+    })
+    // find all groups that the req.params.id is a member of and that the req.user.id is a member of
+    const groups = await ChatAssociation.findAll({
+      where: {
+        userId: req.user.id,
+        chatId: userGroups.map((group) => group.chatId)
+      },
+      include: [
+        {
+          model: Chat,
+          as: "chat",
+          where: {
+            type: "group"
+          }
         }
       ]
     })
     res.json(
-      chats.sort((a, b) => {
-        if (a.chat.lastMessages.length > 0 && b.chat.lastMessages.length > 0) {
-          return b.chat.lastMessages[0].id - a.chat.lastMessages[0].id
-        } else if (a.chat.lastMessages.length > 0) {
-          return -1
-        } else if (b.chat.lastMessages.length > 0) {
-          return 1
-        } else {
-          return b.chat.id - a.chat.id
+      groups.map((group) => {
+        return {
+          ...group.dataValues.chat.dataValues,
+          associationId: group.id
         }
       })
     )
@@ -132,6 +264,7 @@ router.delete(
   auth,
   async (req, res, next) => {
     try {
+      const io = req.app.get("io")
       const chat = await ChatAssociation.findOne({
         where: {
           id: req.params.id,
@@ -146,7 +279,7 @@ router.delete(
               {
                 model: User,
                 as: "users",
-                attributes: ["id", "username", "name", "createdAt", "updatedAt"]
+                attributes: ["id", "username", "createdAt", "updatedAt"]
               }
             ]
           }
@@ -156,7 +289,14 @@ router.delete(
         where: {
           id: req.params.associationId,
           chatId: chat.chat.id
-        }
+        },
+        include: [
+          {
+            model: User,
+            as: "user",
+            attributes: ["id", "username", "createdAt", "updatedAt"]
+          }
+        ]
       })
       if (!chat) {
         throw Errors.chatNotFoundOrNotAdmin
@@ -166,6 +306,100 @@ router.delete(
       }
       await association.destroy()
       res.sendStatus(204)
+      const message = await Message.create({
+        userId: 0,
+        chatId: chat.chat.id,
+        content: `${association.user.username} has been removed by ${req.user.username}.`,
+        type: "leave"
+      })
+      const associations = await ChatAssociation.findAll({
+        where: {
+          chatId: chat.chat.id
+        },
+        include: [
+          {
+            model: User,
+            as: "user",
+            attributes: [
+              "username",
+              "name",
+              "avatar",
+              "id",
+              "createdAt",
+              "updatedAt"
+            ]
+          }
+        ]
+      })
+      const messageLookup = await Message.findOne({
+        where: {
+          id: message.id
+        },
+        include: [
+          {
+            model: Attachment,
+            as: "attachments"
+          },
+          {
+            model: Message,
+            as: "reply",
+            include: [
+              {
+                model: User,
+                as: "user",
+                attributes: [
+                  "username",
+                  "name",
+
+                  "avatar",
+                  "id",
+                  "createdAt",
+                  "updatedAt"
+                ]
+              }
+            ]
+          },
+          {
+            model: Chat,
+            as: "chat",
+            include: [
+              {
+                model: User,
+                as: "users",
+                attributes: [
+                  "username",
+                  "name",
+
+                  "avatar",
+                  "id",
+                  "createdAt",
+                  "updatedAt"
+                ]
+              }
+            ]
+          },
+          {
+            model: User,
+            as: "user",
+            attributes: [
+              "username",
+              "name",
+
+              "avatar",
+              "id",
+              "createdAt",
+              "updatedAt"
+            ]
+          }
+        ]
+      })
+      associations.forEach((association) => {
+        io.to(association.userId).emit("message", {
+          ...messageLookup.dataValues,
+          associationId: association.id,
+          keyId: `${message.id}-${message.updatedAt.toISOString()}`
+        })
+      })
     } catch (err) {
       next(err)
     }
@@ -187,7 +421,7 @@ router.put("/association/:id/:associationId", auth, async (req, res, next) => {
             {
               model: User,
               as: "users",
-              attributes: ["id", "username", "name", "createdAt", "updatedAt"]
+              attributes: ["id", "username", "createdAt", "updatedAt"]
             }
           ]
         }
@@ -234,7 +468,7 @@ router.post("/association/:id", auth, async (req, res, next) => {
             {
               model: User,
               as: "users",
-              attributes: ["id", "username", "name", "createdAt", "updatedAt"]
+              attributes: ["id", "username", "createdAt", "updatedAt"]
             }
           ]
         }
@@ -284,6 +518,26 @@ router.post("/association/:id", auth, async (req, res, next) => {
           "One or more users are already in this chat"
         )
       }
+      const associations = await ChatAssociation.findAll({
+        where: {
+          chatId: chat.chatId
+        },
+        include: [
+          {
+            model: User,
+            as: "user",
+            attributes: [
+              "username",
+              "name",
+
+              "avatar",
+              "id",
+              "createdAt",
+              "updatedAt"
+            ]
+          }
+        ]
+      })
       for (let i = 0; i < req.body.users.length; i++) {
         const c1 = await ChatAssociation.create({
           chatId: chat.chat.id,
@@ -305,11 +559,12 @@ router.post("/association/:id", auth, async (req, res, next) => {
                   attributes: [
                     "username",
                     "name",
+
                     "avatar",
                     "id",
                     "createdAt",
                     "updatedAt",
-                    ,
+
                     "status"
                   ]
                 }
@@ -318,11 +573,86 @@ router.post("/association/:id", auth, async (req, res, next) => {
             {
               model: User,
               as: "user",
-              attributes: ["id", "username", "name", "createdAt", "updatedAt"]
+              attributes: ["id", "username", "createdAt", "updatedAt"]
             }
           ]
         })
         io.to(req.body.users[i]).emit("chatAdded", association)
+        const message = await Message.create({
+          userId: 0,
+          chatId: chat.chatId,
+          content: `${association.user.username} has been added by ${req.user.username}.`,
+          type: "join"
+        })
+        const messageLookup = await Message.findOne({
+          where: {
+            id: message.id
+          },
+          include: [
+            {
+              model: Attachment,
+              as: "attachments"
+            },
+            {
+              model: Message,
+              as: "reply",
+              include: [
+                {
+                  model: User,
+                  as: "user",
+                  attributes: [
+                    "username",
+                    "name",
+
+                    "avatar",
+                    "id",
+                    "createdAt",
+                    "updatedAt"
+                  ]
+                }
+              ]
+            },
+            {
+              model: Chat,
+              as: "chat",
+              include: [
+                {
+                  model: User,
+                  as: "users",
+                  attributes: [
+                    "username",
+                    "name",
+
+                    "avatar",
+                    "id",
+                    "createdAt",
+                    "updatedAt"
+                  ]
+                }
+              ]
+            },
+            {
+              model: User,
+              as: "user",
+              attributes: [
+                "username",
+                "name",
+
+                "avatar",
+                "id",
+                "createdAt",
+                "updatedAt"
+              ]
+            }
+          ]
+        })
+        associations.forEach((association) => {
+          io.to(association.userId).emit("message", {
+            ...messageLookup.dataValues,
+            associationId: association.id,
+            keyId: `${message.id}-${message.updatedAt.toISOString()}`
+          })
+        })
       }
       res.sendStatus(204)
     } else {
@@ -343,26 +673,12 @@ router.get("/friends", auth, async (req, res, next) => {
         {
           model: User,
           as: "user",
-          attributes: [
-            "id",
-            "username",
-            "name",
-            "avatar",
-            "createdAt",
-            "updatedAt"
-          ]
+          attributes: ["id", "username", "avatar", "createdAt", "updatedAt"]
         },
         {
           model: User,
           as: "user2",
-          attributes: [
-            "id",
-            "username",
-            "name",
-            "avatar",
-            "createdAt",
-            "updatedAt"
-          ]
+          attributes: ["id", "username", "avatar", "createdAt", "updatedAt"]
         }
       ]
     })
@@ -383,23 +699,10 @@ router.get("/users", auth, async (req, res, next) => {
         "avatar",
         "createdAt",
         "updatedAt",
+
         "status",
         "admin"
-      ],
-      where: {
-        [Op.or]: [
-          {
-            privacy: {
-              communications: {
-                enabled: true
-              }
-            }
-          },
-          {
-            admin: true
-          }
-        ]
-      }
+      ]
     })
     res.json(users)
   } catch (err) {
@@ -511,12 +814,12 @@ router.put("/friends/:id", auth, async (req, res, next) => {
           {
             model: User,
             as: "user",
-            attributes: ["id", "username", "name", "createdAt", "updatedAt"]
+            attributes: ["id", "username", "createdAt", "updatedAt"]
           },
           {
             model: User,
             as: "user2",
-            attributes: ["id", "username", "name", "createdAt", "updatedAt"]
+            attributes: ["id", "username", "createdAt", "updatedAt"]
           }
         ]
       })
@@ -549,12 +852,12 @@ router.get("/search", auth, async (req, res, next) => {
         {
           model: User,
           as: "user",
-          attributes: ["id", "username", "name", "createdAt", "updatedAt"]
+          attributes: ["id", "username", "createdAt", "updatedAt"]
         },
         {
           model: User,
           as: "user2",
-          attributes: ["id", "username", "name", "createdAt", "updatedAt"]
+          attributes: ["id", "username", "createdAt", "updatedAt"]
         }
       ]
     })
@@ -608,7 +911,7 @@ router.get("/:id", auth, async (req, res, next) => {
         {
           model: User,
           as: "user",
-          attributes: ["id", "username", "name", "createdAt", "updatedAt"]
+          attributes: ["id", "username", "createdAt", "updatedAt"]
         }
       ]
     })
@@ -726,7 +1029,18 @@ router.put("/:id/message/edit", auth, async (req, res, next) => {
             {
               model: User,
               as: "users",
-              attributes: ["id"]
+              attributes: ["id"],
+              include: [
+                {
+                  model: Nickname,
+                  as: "nickname",
+                  required: false,
+                  attributes: ["nickname"],
+                  where: {
+                    userId: req.user.id
+                  }
+                }
+              ]
             },
             {
               model: Message,
@@ -872,6 +1186,7 @@ router.get("/:id/search", auth, async (req, res, next) => {
 
 router.delete("/association/:id", auth, async (req, res, next) => {
   try {
+    const io = req.app.get("io")
     const chat = await ChatAssociation.findOne({
       where: {
         userId: req.user.id,
@@ -881,6 +1196,101 @@ router.delete("/association/:id", auth, async (req, res, next) => {
     if (chat) {
       await chat.destroy()
       res.sendStatus(204)
+      const message = await Message.create({
+        userId: 0,
+        chatId: chat.chatId,
+        content: `${req.user.username} has left the group.`,
+        type: "leave"
+      })
+      const associations = await ChatAssociation.findAll({
+        where: {
+          chatId: chat.chatId
+        },
+        include: [
+          {
+            model: User,
+            as: "user",
+            attributes: [
+              "username",
+              "name",
+
+              "avatar",
+              "id",
+              "createdAt",
+              "updatedAt"
+            ]
+          }
+        ]
+      })
+      const messageLookup = await Message.findOne({
+        where: {
+          id: message.id
+        },
+        include: [
+          {
+            model: Attachment,
+            as: "attachments"
+          },
+          {
+            model: Message,
+            as: "reply",
+            include: [
+              {
+                model: User,
+                as: "user",
+                attributes: [
+                  "username",
+                  "name",
+
+                  "avatar",
+                  "id",
+                  "createdAt",
+                  "updatedAt"
+                ]
+              }
+            ]
+          },
+          {
+            model: Chat,
+            as: "chat",
+            include: [
+              {
+                model: User,
+                as: "users",
+                attributes: [
+                  "username",
+                  "name",
+
+                  "avatar",
+                  "id",
+                  "createdAt",
+                  "updatedAt"
+                ]
+              }
+            ]
+          },
+          {
+            model: User,
+            as: "user",
+            attributes: [
+              "username",
+              "name",
+
+              "avatar",
+              "id",
+              "createdAt",
+              "updatedAt"
+            ]
+          }
+        ]
+      })
+      associations.forEach((association) => {
+        io.to(association.userId).emit("message", {
+          ...messageLookup.dataValues,
+          associationId: association.id,
+          keyId: `${message.id}-${message.updatedAt.toISOString()}`
+        })
+      })
     } else {
       throw Errors.invalidParameter("chat association id")
     }
@@ -1053,6 +1463,17 @@ router.post(
                     "id",
                     "createdAt",
                     "updatedAt"
+                  ],
+                  include: [
+                    {
+                      model: Nickname,
+                      as: "nickname",
+                      required: false,
+                      attributes: ["nickname"],
+                      where: {
+                        userId: req.user.id
+                      }
+                    }
                   ]
                 }
               ]
@@ -1087,16 +1508,24 @@ router.post(
                 "id",
                 "createdAt",
                 "updatedAt"
+              ],
+              include: [
+                {
+                  model: Nickname,
+                  as: "nickname",
+                  required: false,
+                  attributes: ["nickname"],
+                  where: {
+                    userId: req.user.id
+                  }
+                }
               ]
             }
           ]
         })
         const associations = await ChatAssociation.findAll({
           where: {
-            chatId: chat.chat.id,
-            userId: {
-              [Op.ne]: req.user.id
-            }
+            chatId: chat.chat.id
           },
           include: [
             {
@@ -1110,17 +1539,38 @@ router.post(
                 "id",
                 "createdAt",
                 "updatedAt"
+              ],
+              include: [
+                {
+                  model: Nickname,
+                  as: "nickname",
+                  required: false,
+                  attributes: ["nickname"],
+                  where: {
+                    userId: req.user.id
+                  }
+                }
               ]
             }
           ]
         })
-        associations.forEach((association) => {
+        for (const association of associations) {
           io.to(association.userId).emit("message", {
             ...messageLookup.dataValues,
+            user: {
+              ...messageLookup.user.dataValues,
+              nickname: await Nickname.findOne({
+                where: {
+                  userId: association.userId,
+                  friendId: messageLookup.dataValues.user.dataValues.id
+                },
+                attributes: ["nickname"]
+              })
+            },
             associationId: association.id,
             keyId: `${message.id}-${message.updatedAt.toISOString()}`
           })
-        })
+        }
         res.json({
           ...messageLookup.dataValues,
           keyId: `${message.id}-${message.updatedAt.toISOString()}`
@@ -1189,7 +1639,9 @@ router.post("/:id/message", auth, limiter, async (req, res, next) => {
                 "avatar",
                 "id",
                 "createdAt",
-                "updatedAt"
+                "updatedAt",
+
+                "bot"
               ]
             }
           ]
@@ -1200,10 +1652,13 @@ router.post("/:id/message", auth, limiter, async (req, res, next) => {
           attributes: [
             "username",
             "name",
+
             "avatar",
             "id",
             "createdAt",
-            "updatedAt"
+            "updatedAt",
+
+            "bot"
           ]
         }
       ]
@@ -1223,12 +1678,18 @@ router.post("/:id/message", auth, limiter, async (req, res, next) => {
           throw Errors.invalidParameter("reply id")
         }
       }
+      let embeds
+      if (req.user.bot) {
+        embeds = req.body.embeds
+      } else {
+        embeds = []
+      }
       const message = await Message.create({
         content: req.body.message,
         userId: req.user.id,
         chatId: chat.chat.id,
         attachments: [],
-        embeds: [],
+        embeds,
         replyId: reply.id
       })
       const messageLookup = await Message.findOne({
@@ -1254,7 +1715,20 @@ router.post("/:id/message", auth, limiter, async (req, res, next) => {
                   "avatar",
                   "id",
                   "createdAt",
-                  "updatedAt"
+                  "updatedAt",
+
+                  "bot"
+                ],
+                include: [
+                  {
+                    model: Nickname,
+                    as: "nickname",
+                    required: false,
+                    attributes: ["nickname"],
+                    where: {
+                      userId: req.user.id
+                    }
+                  }
                 ]
               },
               {
@@ -1277,7 +1751,9 @@ router.post("/:id/message", auth, limiter, async (req, res, next) => {
                   "avatar",
                   "id",
                   "createdAt",
-                  "updatedAt"
+                  "updatedAt",
+
+                  "bot"
                 ]
               }
             ]
@@ -1292,17 +1768,27 @@ router.post("/:id/message", auth, limiter, async (req, res, next) => {
               "avatar",
               "id",
               "createdAt",
-              "updatedAt"
+              "updatedAt",
+
+              "bot"
+            ],
+            include: [
+              {
+                model: Nickname,
+                as: "nickname",
+                required: false,
+                attributes: ["nickname"],
+                where: {
+                  userId: req.user.id
+                }
+              }
             ]
           }
         ]
       })
       const associations = await ChatAssociation.findAll({
         where: {
-          chatId: chat.chat.id,
-          userId: {
-            [Op.ne]: req.user.id
-          }
+          chatId: chat.chat.id
         },
         include: [
           {
@@ -1315,7 +1801,9 @@ router.post("/:id/message", auth, limiter, async (req, res, next) => {
               "avatar",
               "id",
               "createdAt",
-              "updatedAt"
+              "updatedAt",
+
+              "bot"
             ]
           }
         ]
@@ -1325,13 +1813,23 @@ router.post("/:id/message", auth, limiter, async (req, res, next) => {
           chatId: chat.chat.id
         }
       })
-      associations.forEach((association) => {
+      for (const association of associations) {
         io.to(association.userId).emit("message", {
           ...messageLookup.dataValues,
+          user: {
+            ...messageLookup.user.dataValues,
+            nickname: await Nickname.findOne({
+              where: {
+                userId: association.userId,
+                friendId: messageLookup.dataValues.user.dataValues.id
+              },
+              attributes: ["nickname"]
+            })
+          },
           associationId: association.id,
           keyId: `${message.id}-${message.updatedAt.toISOString()}`
         })
-      })
+      }
       res.json({
         ...messageLookup.dataValues,
         keyId: `${message.id}-${message.updatedAt.toISOString()}`
@@ -1350,6 +1848,58 @@ router.post("/:id/message", auth, limiter, async (req, res, next) => {
         .catch(() => {})
     } else {
       throw Errors.invalidParameter("chat association id")
+    }
+  } catch (err) {
+    next(err)
+  }
+})
+
+router.post("/nickname/:id", auth, async (req, res, next) => {
+  try {
+    const user = await User.findOne({
+      where: {
+        id: req.params.id
+      }
+    })
+    if (!user) {
+      throw Errors.invalidParameter("user id")
+    }
+    if (!req.body.nickname?.length) {
+      await Nickname.destroy({
+        where: {
+          userId: req.user.id,
+          friendId: req.params.id
+        }
+      })
+      res.json({
+        nickname: user.username,
+        userId: user.id
+      })
+      return
+    }
+    if (req.body.nickname.length > 20) {
+      throw Errors.invalidParameter("nickname", "Maximum length is 20")
+    }
+    const nickname = await Nickname.findOne({
+      where: {
+        userId: req.user.id,
+        friendId: req.params.id
+      }
+    })
+    if (nickname) {
+      await nickname.update({
+        nickname: req.body.nickname
+      })
+      res.json({
+        nickname: req.body.nickname
+      })
+    } else {
+      const nickname = await Nickname.create({
+        userId: req.user.id,
+        friendId: req.params.id,
+        nickname: req.body.nickname
+      })
+      res.json(nickname)
     }
   } catch (err) {
     next(err)
@@ -1378,7 +1928,10 @@ router.get("/:id/messages", auth, async (req, res, next) => {
                 "avatar",
                 "id",
                 "createdAt",
-                "updatedAt"
+                "updatedAt",
+
+                "admin",
+                "bot"
               ]
             }
           ]
@@ -1386,7 +1939,7 @@ router.get("/:id/messages", auth, async (req, res, next) => {
         {
           model: User,
           as: "user",
-          attributes: ["id", "username", "name", "createdAt", "updatedAt"]
+          attributes: ["id", "username", "createdAt", "updatedAt"]
         }
       ]
     })
@@ -1410,7 +1963,20 @@ router.get("/:id/messages", auth, async (req, res, next) => {
               "avatar",
               "id",
               "createdAt",
-              "updatedAt"
+              "updatedAt",
+
+              "bot"
+            ],
+            include: [
+              {
+                model: Nickname,
+                as: "nickname",
+                attributes: ["nickname"],
+                required: false,
+                where: {
+                  userId: req.user.id
+                }
+              }
             ]
           },
           {
@@ -1427,7 +1993,9 @@ router.get("/:id/messages", auth, async (req, res, next) => {
                   "avatar",
                   "id",
                   "createdAt",
-                  "updatedAt"
+                  "updatedAt",
+
+                  "bot"
                 ]
               },
               {
@@ -1487,7 +2055,7 @@ router.put("/:id/typing", auth, async (req, res, next) => {
         {
           model: User,
           as: "user",
-          attributes: ["id", "username", "name", "createdAt", "updatedAt"]
+          attributes: ["id", "username", "createdAt", "updatedAt"]
         }
       ]
     })
@@ -1549,6 +2117,34 @@ router.post("/create", auth, async (req, res, next) => {
         status: "accepted"
       }
     })
+    if (type === "direct") {
+      const chats = await Chat.findAll({
+        where: {
+          userId: req.user.id,
+          type: "direct"
+        },
+        include: [
+          {
+            model: ChatAssociation,
+            as: "associations"
+          }
+        ]
+      })
+      const chat = chats.find((chat) => {
+        return chat.associations.find((association) => {
+          return association.userId === req.body.users[0]
+        })
+      })
+      if (chat) {
+        res.json({
+          ...chat.associations.find((association) => {
+            return association.userId === req.user.id
+          }).dataValues,
+          existing: true
+        })
+        return
+      }
+    }
     if (friends.length !== req.body.users.length) {
       throw Errors.invalidParameter(
         "User",
@@ -1587,6 +2183,39 @@ router.post("/create", auth, async (req, res, next) => {
             as: "chat",
             include: [
               {
+                model: ChatAssociation,
+                as: "associations",
+                order: [["lastRead", "DESC"]],
+                include: [
+                  {
+                    model: User,
+                    as: "user",
+                    attributes: [
+                      "username",
+                      "avatar",
+                      "id",
+                      "createdAt",
+                      "updatedAt",
+
+                      "status",
+
+                      "admin"
+                    ],
+                    include: [
+                      {
+                        model: Nickname,
+                        as: "nickname",
+                        attributes: ["nickname"],
+                        required: false,
+                        where: {
+                          userId: req.user.id
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
                 model: User,
                 as: "users",
                 attributes: [
@@ -1597,6 +2226,7 @@ router.post("/create", auth, async (req, res, next) => {
                   "id",
                   "createdAt",
                   "updatedAt",
+
                   "status"
                 ]
               }
@@ -1605,13 +2235,80 @@ router.post("/create", auth, async (req, res, next) => {
           {
             model: User,
             as: "user",
-            attributes: ["id", "username", "name", "createdAt", "updatedAt"]
+            attributes: ["id", "username", "createdAt", "updatedAt"]
           }
         ]
       })
       io.to(req.body.users[i]).emit("chatAdded", association)
     }
-    res.json(chat)
+    const association = await ChatAssociation.findOne({
+      where: {
+        userId: req.user.id,
+        chatId: chat.id
+      },
+      include: [
+        {
+          model: Chat,
+          as: "chat",
+          include: [
+            {
+              model: ChatAssociation,
+              as: "associations",
+              order: [["lastRead", "DESC"]],
+              include: [
+                {
+                  model: User,
+                  as: "user",
+                  attributes: [
+                    "username",
+                    "avatar",
+                    "id",
+                    "createdAt",
+                    "updatedAt",
+
+                    "status",
+
+                    "admin"
+                  ],
+                  include: [
+                    {
+                      model: Nickname,
+                      as: "nickname",
+                      attributes: ["nickname"],
+                      required: false,
+                      where: {
+                        userId: req.user.id
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              model: User,
+              as: "users",
+              attributes: [
+                "username",
+                "name",
+
+                "avatar",
+                "id",
+                "createdAt",
+                "updatedAt",
+
+                "status"
+              ]
+            }
+          ]
+        },
+        {
+          model: User,
+          as: "user",
+          attributes: ["id", "username", "createdAt", "updatedAt"]
+        }
+      ]
+    })
+    res.json(association)
   } catch (err) {
     next(err)
   }

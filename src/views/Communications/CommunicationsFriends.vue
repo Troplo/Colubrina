@@ -21,16 +21,13 @@
                   <v-list-item-avatar
                     @click="userProfile(user)"
                     style="cursor: pointer"
+                    :color="$vuetify.theme.themes.dark.primary"
                   >
-                    <v-list-item-avatar
-                      :color="$vuetify.theme.themes.dark.primary"
-                    >
-                      <v-img
-                        :src="'/usercontent/' + user.avatar"
-                        v-if="user.avatar"
-                      />
-                      <v-icon v-else> mdi-account </v-icon>
-                    </v-list-item-avatar>
+                    <v-img
+                      :src="'/usercontent/' + user.avatar"
+                      v-if="user.avatar"
+                    />
+                    <v-icon v-else> mdi-account </v-icon>
                   </v-list-item-avatar>
 
                   <v-list-item-content
@@ -90,16 +87,15 @@
                   v-for="friend in computePendingIncoming"
                   :key="friend.id"
                 >
-                  <v-list-item-avatar @click="userProfile(friend.user2)">
-                    <v-list-item-avatar
-                      :color="$vuetify.theme.themes.dark.primary"
-                    >
-                      <img
-                        :src="'/usercontent/' + friend.user2.avatar"
-                        v-if="friend.user2.avatar"
-                      />
-                      <v-icon v-else> mdi-account </v-icon>
-                    </v-list-item-avatar>
+                  <v-list-item-avatar
+                    @click="userProfile(friend.user2)"
+                    :color="$vuetify.theme.themes.dark.primary"
+                  >
+                    <v-img
+                      :src="'/usercontent/' + friend.user2.avatar"
+                      v-if="friend.user2.avatar"
+                    />
+                    <v-icon v-else> mdi-account </v-icon>
                   </v-list-item-avatar>
 
                   <v-list-item-content @click="userProfile(friend.user2)">
@@ -136,16 +132,13 @@
                   <v-list-item-avatar
                     @click="userProfile(friend.user2)"
                     style="cursor: pointer"
+                    :color="$vuetify.theme.themes.dark.primary"
                   >
-                    <v-list-item-avatar
-                      :color="$vuetify.theme.themes.dark.primary"
-                    >
-                      <img
-                        :src="'/usercontent/' + friend.user2.avatar"
-                        v-if="friend.user2.avatar"
-                      />
-                      <v-icon v-else> mdi-account </v-icon>
-                    </v-list-item-avatar>
+                    <v-img
+                      :src="'/usercontent/' + friend.user2.avatar"
+                      v-if="friend.user2.avatar"
+                    />
+                    <v-icon v-else> mdi-account </v-icon>
                   </v-list-item-avatar>
 
                   <v-list-item-content
@@ -175,16 +168,13 @@
                   <v-list-item-avatar
                     @click="userProfile(friend.user2)"
                     style="cursor: pointer"
+                    :color="$vuetify.theme.themes.dark.primary"
                   >
-                    <v-list-item-avatar
-                      :color="$vuetify.theme.themes.dark.primary"
-                    >
-                      <img
-                        :src="'/usercontent/' + friend.user2.avatar"
-                        v-if="friend.user2.avatar"
-                      />
-                      <v-icon v-else> mdi-account </v-icon>
-                    </v-list-item-avatar>
+                    <v-img
+                      :src="'/usercontent/' + friend.user2.avatar"
+                      v-if="friend.user2.avatar"
+                    />
+                    <v-icon v-else> mdi-account </v-icon>
                   </v-list-item-avatar>
 
                   <v-list-item-content>
