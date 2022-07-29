@@ -4,14 +4,14 @@
 
 This is currently beta software, and may not work as expected. Please file an issue if you encounter any.
 
-Colubrina is a simple self hostable chatting platform written in Vue, and Vuetify for the frontend, and Node.js, Sequelize and Socket.io for the backend.
+Colubrina is a simple self-hostable chatting platform written in Vue, and Vuetify for the frontend, and Node.js, Sequelize and Socket.io for the backend.
 
 ### Checklist
 - [x] Messaging
 - [x] Authentication
 - [x] Admin panel
 - [x] CLI
-- [ ] Message history
+- [ ] Scroll up to see more messages/jump to searched message
 - [x] User profile cards
 - [x] Group creation and modification
 - [x] Direct message groups
