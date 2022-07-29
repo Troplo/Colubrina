@@ -298,7 +298,7 @@
     <v-app-bar app color="bg">
       <v-app-bar-nav-icon
         @click.stop="$store.state.drawer = !$store.state.drawer"
-        v-if="$vuetify.breakpoint.mobile"
+        v-if="$vuetify.breakpoint.mobile || !$store.state.drawer"
       ></v-app-bar-nav-icon>
       <button
         style="display: none"

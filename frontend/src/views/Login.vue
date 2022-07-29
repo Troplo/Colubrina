@@ -119,6 +119,7 @@ export default {
           Vue.axios.defaults.headers.common["Authorization"] = res.data.session
           this.$store.commit("setToken", res.data.session)
           await this.$store.dispatch("getUserInfo")
+          this.$store.dispatch("getChats")
           this.loading = false
           this.$socket.disconnect()
           this.$socket.connect()

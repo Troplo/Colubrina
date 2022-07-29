@@ -196,7 +196,7 @@ async function configureDotEnv() {
     }
 
     // write everything back to the file system
-    fs.writeFileSync("../.env", ENV_VARS.join(os.EOL))
+    fs.writeFileSync("../backend/.env", ENV_VARS.join(os.EOL))
   }
   if (!fs.existsSync("../backend/.env")) {
     fs.writeFileSync("../backend/.env", "")
@@ -250,7 +250,7 @@ async function init() {
       execSync("cd ../frontend && yarn install --frozen-lockfile",  () => {
        console.log("yarn install complete (frontend)")
       })
-      if (fs.existsSync(path.join(__dirname, "../.env"))) {
+      if (fs.existsSync(path.join(__dirname, "../backend/.env"))) {
         const option = await input.confirm(".env already exists, overwrite?", {
           default: false
         })
@@ -300,9 +300,8 @@ async function init() {
             }
           }
         )
-      } catch (e) {
-        console.log(e)
-        console.log("Users already exist.")
+      } catch {
+        console.log("System user already exists.")
       }
       console.log("DB templates applied")
       console.log("Admin user creation")
