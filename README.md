@@ -15,6 +15,8 @@ Colubrina is a simple self hostable chatting platform written in Vue, and Vuetif
 - [x] Direct message groups
 - [x] Friending
 - [x] Searching
+- [x] Friend nicknames
+- [x] Embeds & MediaProxy
 - [ ] Clean-up/refactor code
 
 <img src="https://i.troplo.com/i/d608273e066c.png" alt="Chat" width="45%"></img>
