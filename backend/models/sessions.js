@@ -14,10 +14,7 @@ module.exports = (sequelize, DataTypes) => {
   Session.init(
     {
       session: DataTypes.STRING,
-      compassUserId: DataTypes.BIGINT,
-      sussiId: DataTypes.STRING,
       other: DataTypes.JSON,
-      instance: DataTypes.STRING,
       userId: DataTypes.BIGINT,
       expiredAt: DataTypes.DATE
     },

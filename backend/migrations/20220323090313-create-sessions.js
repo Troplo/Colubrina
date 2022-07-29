@@ -11,17 +11,11 @@ module.exports = {
       session: {
         type: Sequelize.STRING
       },
-      compassUserId: {
-        type: Sequelize.BIGINT
-      },
-      sussiId: {
-        type: Sequelize.STRING
-      },
       other: {
         type: Sequelize.JSON
       },
-      instance: {
-        type: Sequelize.STRING
+      expiredAt: {
+        type: Sequelize.DATE
       },
       createdAt: {
         allowNull: false,

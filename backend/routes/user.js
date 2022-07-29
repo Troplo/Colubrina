@@ -68,12 +68,8 @@ router.post("/login", async (req, res, next) => {
         .catch(() => {})
       const session = await Session.create({
         userId: user.id,
-        instance: req.body.instance || "",
         session: "COLUBRINA-" + cryptoRandomString({ length: 128 }),
-        compassUserId: user.compassUserId,
-        sussiId: user.sussiId,
         expiredAt: new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * 30),
-        compassSession: user.compassSession,
         other: {
           ip: req.header("x-real-ip") || req.ip,
           location: ip.country
@@ -113,6 +109,7 @@ router.post("/login", async (req, res, next) => {
       }
     })
     if (user) {
+      if (user.banned) throw Errors.banned
       if (await checkPassword(req.body.password, user.password)) {
         if (user.totpEnabled) {
           const verified = speakeasy.totp.verify({
@@ -160,12 +157,8 @@ router.post("/register", async (req, res, next) => {
         .catch(() => {})
       const session = await Session.create({
         userId: user.id,
-        instance: req.body.instance || "",
         session: "COLUBRINA-" + cryptoRandomString({ length: 128 }),
-        compassUserId: user.compassUserId,
-        sussiId: user.sussiId,
         expiredAt: new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * 30),
-        compassSession: user.compassSession,
         other: {
           ip: req.header("x-real-ip") || req.ip,
           location: ip.country

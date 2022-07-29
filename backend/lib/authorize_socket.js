@@ -30,17 +30,21 @@ module.exports = async function (socket, next) {
           raw: true
         })
         if (user) {
-          socket.user = user
-          next()
+          if (user.banned) {
+            socket.user = {
+              id: null,
+              username: "Not Authenticated"
+            }
+            next()
+          } else {
+            socket.user = user
+            next()
+          }
         }
       } else {
         socket.user = {
           id: null,
           username: "Not Authenticated"
-        }
-        socket.compassUser = {
-          id: null,
-          username: "BC-NOAUTH"
         }
         next()
       }
@@ -49,20 +53,12 @@ module.exports = async function (socket, next) {
         id: null,
         username: "Not Authenticated"
       }
-      socket.compassUser = {
-        id: null,
-        username: "BC-NOAUTH"
-      }
       next()
     }
   } catch (error) {
     socket.user = {
       id: null,
       username: "Not Authenticated"
-    }
-    socket.compassUser = {
-      id: null,
-      username: "BC-NOAUTH"
     }
     next()
   }

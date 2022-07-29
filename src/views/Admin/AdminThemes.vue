@@ -44,7 +44,7 @@ export default {
           value: "name"
         },
         {
-          text: "Compass User ID",
+          text: "User ID",
           value: "user.id"
         },
         {

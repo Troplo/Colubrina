@@ -19,6 +19,10 @@ module.exports = async function (req, res, next) {
           ]
         })
         if (user) {
+          if (user.banned) {
+            res.status(401).json(Errors.banned)
+            return
+          }
           await user.update({
             lastSeenAt: new Date().toISOString()
           })

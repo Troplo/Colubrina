@@ -37,7 +37,8 @@ let Errors = {
   registrationsDisabled: [
     "Registrations are currently disabled on this instance. Please try again later.",
     400
-  ]
+  ],
+  banned: ["You are banned from this instance.", 400]
 }
 
 function processErrors(errorName) {

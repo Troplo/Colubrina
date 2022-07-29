@@ -47,6 +47,7 @@ const upload = multer({
 
 const resolveEmbeds = require("../lib/resolveEmbeds.js")
 const paginate = require("jw-paginate")
+
 async function createMessage(req, type, content, association, userId) {
   const io = req.app.get("io")
   const message = await Message.create({
@@ -133,6 +134,7 @@ async function createMessage(req, type, content, association, userId) {
     })
   })
 }
+
 router.get("/", auth, async (req, res, next) => {
   try {
     let chats = await ChatAssociation.findAll({
@@ -748,31 +750,6 @@ router.post("/association/:id", auth, async (req, res, next) => {
   }
 })
 
-router.get("/friends", auth, async (req, res, next) => {
-  try {
-    let friends = await Friend.findAll({
-      where: {
-        userId: req.user.id
-      },
-      include: [
-        {
-          model: User,
-          as: "user",
-          attributes: ["id", "username", "avatar", "createdAt", "updatedAt"]
-        },
-        {
-          model: User,
-          as: "user2",
-          attributes: ["id", "username", "avatar", "createdAt", "updatedAt"]
-        }
-      ]
-    })
-    res.json(friends)
-  } catch (err) {
-    next(err)
-  }
-})
-
 router.get("/users", auth, async (req, res, next) => {
   try {
     const users = await User.findAll({
@@ -780,151 +757,14 @@ router.get("/users", auth, async (req, res, next) => {
         "id",
         "username",
         "name",
-
         "avatar",
         "createdAt",
         "updatedAt",
-
         "status",
         "admin"
       ]
     })
     res.json(users)
-  } catch (err) {
-    next(err)
-  }
-})
-
-router.post("/friends", auth, async (req, res, next) => {
-  try {
-    const io = req.app.get("io")
-    let friendRes
-    try {
-      friendRes = req.body.friend.split(":")
-    } catch {
-      friendRes = req.body.friend
-    }
-    const user = await User.findOne({
-      where: {
-        username: friendRes[0] || friendRes
-      }
-    })
-    if (user) {
-      const friend = await Friend.findOne({
-        where: {
-          userId: req.user.id,
-          friendId: user.id
-        }
-      })
-      if (friend) {
-        throw Errors.friendAlreadyFriends
-      } else {
-        if (!user.privacy.communications.enabled) {
-          throw Errors.communicationsUserNotOptedIn
-        } else {
-          const newFriend = await Friend.create({
-            userId: req.user.id,
-            friendId: user.id
-          })
-          const remoteFriend = await Friend.create({
-            userId: user.id,
-            friendId: req.user.id,
-            status: "pendingCanAccept"
-          })
-          io.to(user.id).emit("friendUpdate", {})
-          io.to(req.user.id).emit("friendUpdate", {})
-          io.to(user.id).emit("friendRequest", {
-            ...remoteFriend.dataValues,
-            user: {
-              username: req.user.username,
-              discussionsImage: req.user.discussionsImage,
-              avatar: req.user.avatar,
-              id: req.user.id
-            }
-          })
-          res.json(newFriend)
-        }
-      }
-    } else {
-      throw Errors.communicationsUserNotFound
-    }
-  } catch (err) {
-    next(err)
-  }
-})
-
-router.delete("/friends/:id", auth, async (req, res, next) => {
-  try {
-    const io = req.app.get("io")
-    const friend = await Friend.findOne({
-      where: {
-        userId: req.user.id,
-        id: req.params.id
-      }
-    })
-    if (friend) {
-      await friend.destroy()
-      await Friend.destroy({
-        where: {
-          userId: friend.friendId,
-          friendId: req.user.id
-        }
-      })
-      io.to(friend.friendId).emit("friendUpdate", {})
-      io.to(req.user.id).emit("friendUpdate", {})
-      res.sendStatus(204)
-    } else {
-      throw Errors.friendNotFound
-    }
-  } catch (err) {
-    next(err)
-  }
-})
-
-router.put("/friends/:id", auth, async (req, res, next) => {
-  try {
-    const io = req.app.get("io")
-    const friend = await Friend.findOne({
-      where: {
-        id: req.params.id,
-        userId: req.user.id,
-        status: "pendingCanAccept"
-      }
-    })
-    if (friend) {
-      await friend.update({
-        status: "accepted"
-      })
-      const remoteFriend = await Friend.findOne({
-        where: {
-          userId: friend.friendId,
-          friendId: friend.userId
-        },
-        include: [
-          {
-            model: User,
-            as: "user",
-            attributes: ["id", "username", "createdAt", "updatedAt"]
-          },
-          {
-            model: User,
-            as: "user2",
-            attributes: ["id", "username", "createdAt", "updatedAt"]
-          }
-        ]
-      })
-      await remoteFriend.update({
-        status: "accepted"
-      })
-      io.to(friend.userId).emit("friendUpdate", {})
-      io.to(remoteFriend.userId).emit("friendUpdate", {})
-      io.to(remoteFriend.userId).emit("friendAccepted", {
-        ...remoteFriend.dataValues
-      })
-      res.json(friend)
-    } else {
-      throw Errors.friendNotFound
-    }
   } catch (err) {
     next(err)
   }
@@ -988,7 +828,6 @@ router.get("/:id", auth, async (req, res, next) => {
               attributes: [
                 "username",
                 "name",
-
                 "avatar",
                 "id",
                 "createdAt",
@@ -1230,7 +1069,6 @@ router.get("/:id/search", auth, async (req, res, next) => {
             attributes: [
               "username",
               "name",
-
               "avatar",
               "id",
               "createdAt",
@@ -1247,7 +1085,6 @@ router.get("/:id/search", auth, async (req, res, next) => {
                 attributes: [
                   "username",
                   "name",
-
                   "avatar",
                   "id",
                   "createdAt",
@@ -1309,7 +1146,6 @@ router.delete("/association/:id", auth, async (req, res, next) => {
             attributes: [
               "username",
               "name",
-
               "avatar",
               "id",
               "createdAt",
@@ -1337,7 +1173,6 @@ router.delete("/association/:id", auth, async (req, res, next) => {
                 attributes: [
                   "username",
                   "name",
-
                   "avatar",
                   "id",
                   "createdAt",
@@ -1356,7 +1191,6 @@ router.delete("/association/:id", auth, async (req, res, next) => {
                 attributes: [
                   "username",
                   "name",
-
                   "avatar",
                   "id",
                   "createdAt",
@@ -1371,7 +1205,6 @@ router.delete("/association/:id", auth, async (req, res, next) => {
             attributes: [
               "username",
               "name",
-
               "avatar",
               "id",
               "createdAt",

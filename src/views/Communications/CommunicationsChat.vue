@@ -300,29 +300,6 @@
                                   </p>
                                 </v-col>
                               </v-row>
-                              <v-row
-                                v-else-if="embed.type === 'compass'"
-                                @click="$router.push(embed.path)"
-                                style="cursor: pointer"
-                              >
-                                <v-container
-                                  :style="
-                                    'background: url(/' +
-                                    embed.compass.banner +
-                                    ')'
-                                  "
-                                  style="color: white"
-                                  class="rounded"
-                                >
-                                  <h4>BetterCompass</h4>
-                                  <h3>
-                                    {{ embed.compass.name }}
-                                  </h3>
-                                  <p>
-                                    {{ embed.compass.displayName }}
-                                  </p>
-                                </v-container>
-                              </v-row>
                               <template v-else-if="embed.type === 'image'">
                                 <v-hover v-slot="{ hover }">
                                   <div>
@@ -1107,27 +1084,6 @@
                                   {{ embed.openGraph.ogDescription }}
                                 </p>
                               </v-col>
-                            </v-row>
-                            <v-row
-                              v-if="embed.type === 'compass'"
-                              @click="$router.push(embed.path)"
-                              style="cursor: pointer"
-                            >
-                              <v-container
-                                :style="
-                                  'background: url(/' +
-                                  embed.compass.banner +
-                                  ')'
-                                "
-                              >
-                                <h4>BetterCompass</h4>
-                                <h3>
-                                  {{ embed.compass.name }}
-                                </h3>
-                                <p>
-                                  {{ embed.compass.displayName }}
-                                </p>
-                              </v-container>
                             </v-row>
                             <template v-else-if="embed.type === 'image'">
                               <v-hover v-slot="{ hover }">

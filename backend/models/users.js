@@ -153,6 +153,11 @@ module.exports = (sequelize, DataTypes) => {
       lastSeenAt: {
         type: DataTypes.DATE,
         allowNull: true
+      },
+      banned: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
       }
     },
     {

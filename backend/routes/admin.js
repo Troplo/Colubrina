@@ -58,7 +58,7 @@ router.get("/metrics", auth, async (req, res, next) => {
         createdAt: createdAt
       },
       attributes: {
-        exclude: ["totp", "compassSession", "password"]
+        exclude: ["totp", "password"]
       }
     })
     const messages = await Message.findAll({
@@ -66,7 +66,7 @@ router.get("/metrics", auth, async (req, res, next) => {
         createdAt: createdAt
       },
       attributes: {
-        exclude: ["totp", "compassSession", "password"]
+        exclude: ["totp", "password"]
       }
     })
 
@@ -137,7 +137,7 @@ router.get("/users", auth, async (req, res, next) => {
         }
       ],
       attributes: {
-        exclude: ["totp", "compassSession", "password"]
+        exclude: ["totp", "password"]
       }
     })
     res.json(users)
@@ -154,7 +154,7 @@ router.get("/themes", auth, async (req, res, next) => {
           model: User,
           as: "user",
           attributes: {
-            exclude: ["totp", "compassSession", "password"]
+            exclude: ["totp", "password"]
           }
         },
         {

@@ -281,7 +281,7 @@ export default {
     },
     acceptFriend(friend) {
       this.axios
-        .put("/api/v1/communications/friends/" + friend.id, {
+        .put("/api/v1/friends/" + friend.id, {
           friend: friend.id,
           status: "accepted"
         })
@@ -294,7 +294,7 @@ export default {
     },
     removeFriend(friend) {
       this.axios
-        .delete("/api/v1/communications/friends/" + friend.id)
+        .delete("/api/v1/friends/" + friend.id)
         .then(() => {
           this.getFriends()
         })
@@ -305,7 +305,7 @@ export default {
     addFriend(user) {
       if (user) {
         this.axios
-          .post("/api/v1/communications/friends", {
+          .post("/api/v1/friends", {
             friend: user.username + ":" + user.instance
           })
           .then(() => {
@@ -317,7 +317,7 @@ export default {
           })
       } else {
         this.axios
-          .post("/api/v1/communications/friends", {
+          .post("/api/v1/friends", {
             friend: this.friend
           })
           .then(() => {
@@ -330,7 +330,7 @@ export default {
       }
     },
     getFriends() {
-      this.axios.get("/api/v1/communications/friends").then((res) => {
+      this.axios.get("/api/v1/friends").then((res) => {
         this.friends = res.data
       })
     }

@@ -277,7 +277,8 @@ async function init() {
           username: "Colubrina",
           id: 0,
           bot: true,
-          email: "colubrina@troplo.com"
+          email: "colubrina@troplo.com",
+          banned: true
         })
         await User.update(
           {
