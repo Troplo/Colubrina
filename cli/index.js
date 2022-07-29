@@ -158,6 +158,7 @@ async function createUser() {
       })
     )
   }
+  const { User } = require("../backend/models")
   await User.create(user)
   console.log("User created")
 }
