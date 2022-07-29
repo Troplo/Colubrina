@@ -181,7 +181,7 @@ module.exports = {
         type: Sequelize.DATE
       }
     })
-    await queryInterface.addColumn("users", "privacy", {
+    await queryInterface.addColumn("Users", "privacy", {
       type: Sequelize.JSON,
       defaultValue: {
         communications: {
@@ -193,7 +193,7 @@ module.exports = {
       },
       allowNull: false
     })
-    await queryInterface.createTable("friends", {
+    await queryInterface.createTable("Friends", {
       id: {
         allowNull: false,
         autoIncrement: true,

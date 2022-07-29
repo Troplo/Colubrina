@@ -2,7 +2,7 @@
 
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.addColumn("messages", "replyId", {
+    await queryInterface.addColumn("Messages", "replyId", {
       type: Sequelize.BIGINT,
       defaultValue: null
     })

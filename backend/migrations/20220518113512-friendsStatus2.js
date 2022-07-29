@@ -2,8 +2,7 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    // modify status column
-    await queryInterface.changeColumn("friends", "status", {
+    await queryInterface.changeColumn("Friends", "status", {
       type: Sequelize.ENUM([
         "pending",
         "pendingCanAccept",

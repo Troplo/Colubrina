@@ -2,7 +2,7 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.addColumn("friends", "status", {
+    await queryInterface.addColumn("Friends", "status", {
       type: Sequelize.ENUM(["pending", "accepted", "declined"]),
       allowNull: false,
       defaultValue: "pending"
