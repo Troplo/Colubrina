@@ -229,7 +229,7 @@ router.put("/state", auth, async (req, res, next) => {
     io.emit("siteState", {
       notification: req.body.notification,
       notificationType: req.body.notificationType,
-      latestVersion: require("../../package.json").version,
+      latestVersion: require("../../frontend/package.json").version,
       allowRegistrations: req.body.allowRegistrations
     })
     res.sendStatus(204)

@@ -27,7 +27,7 @@ app.get("/api/v1/state", async (req, res) => {
     loading: true,
     notification: process.env.NOTIFICATION,
     notificationType: process.env.NOTIFICATION_TYPE,
-    latestVersion: require("../package.json").version,
+    latestVersion: require("../frontend/package.json").version,
     name: process.env.SITE_NAME,
     allowRegistrations: JSON.parse(process.env.ALLOW_REGISTRATIONS)
   })

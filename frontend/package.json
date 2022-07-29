@@ -2,10 +2,11 @@
   "name": "colubrina-chat",
   "version": "1.0.1",
   "private": true,
+  "author": "Troplo <troplo@troplo.com>",
   "license": "GPL-3.0",
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build --no-clean",
+    "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
     "postinstall": "patch-package"
   },

@@ -22,7 +22,7 @@ module.exports = {
           release: process.env.RELEASE,
           notification: process.env.NOTIFICATION,
           notificationType: process.env.NOTIFICATION_TYPE,
-          latestVersion: require("../../package.json").version
+          latestVersion: require("../../frontend/package.json").version
         })
         const friends = await Friend.findAll({
           where: {
@@ -114,7 +114,7 @@ module.exports = {
           release: process.env.RELEASE,
           notification: process.env.NOTIFICATION,
           notificationType: process.env.NOTIFICATION_TYPE,
-          latestVersion: require("../../package.json").version
+          latestVersion: require("../../frontend/package.json").version
         })
         socket.emit("unauthorized", {
           message: "Please reauth."

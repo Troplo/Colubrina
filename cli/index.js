@@ -4,13 +4,13 @@ const path = require("path")
 const { Umzug, SequelizeStorage } = require("umzug")
 const { Sequelize } = require("sequelize")
 const argon2 = require("argon2")
-const { production: config } = require("../config/config.json")
-const { User } = require("../models")
+const { User } = require("../backend/models")
 const axios = require("axios")
 const os = require("os")
+const { execSync } = require('child_process');
 
 console.log("Troplo/Colubrina CLI")
-console.log("Colubrina version", require("../../package.json").version)
+console.log("Colubrina version", require("../frontend/package.json").version)
 async function checkForUpdates() {
   await axios
     .get("https://services.troplo.com/api/v1/state", {
@@ -20,7 +20,7 @@ async function checkForUpdates() {
       timeout: 800
     })
     .then((res) => {
-      if (require("../../package.json").version !== res.data.latestVersion) {
+      if (require("frontend/package.json").version !== res.data.latestVersion) {
         console.log("A new version of Colubrina is available!")
         console.log("Latest version:", res.data.latestVersion)
       } else {
@@ -40,7 +40,8 @@ let state = {
     username: "colubrina",
     password: null,
     database: "colubrina",
-    storage: "./storage.db"
+    storage: "../backend/storage.db",
+    dialect: "mariadb"
   },
   dbConfig: {}
 }
@@ -127,18 +128,18 @@ async function testDB() {
 async function dbSetup() {
   await doSetupDB()
   fs.writeFileSync(
-    path.join(__dirname, "../config/config.json"),
+    path.join(__dirname, "../backend/config/config.json"),
     JSON.stringify(state.dbConfig)
   )
   console.log("config/config.json overwritten")
 }
 async function runMigrations() {
   console.log("Running migrations")
-  const config = require("../config/config.json").production
+  const config = require("../backend/config/config.json").production
   const sequelize = new Sequelize(config)
 
   const umzug = new Umzug({
-    migrations: { glob: "../migrations/*.js" },
+    migrations: { glob: "../backend/migrations/*.js" },
     context: sequelize.getQueryInterface(),
     storage: new SequelizeStorage({ sequelize }),
     logger: console,
@@ -170,7 +171,7 @@ async function createUser() {
 }
 async function configureDotEnv() {
   function setEnvValue(key, value) {
-    const ENV_VARS = fs.readFileSync("../.env", "utf8").split(os.EOL)
+    const ENV_VARS = fs.readFileSync("../backend/.env", "utf8").split(os.EOL)
 
     // find the env we want based on the key
     const target = ENV_VARS.indexOf(
@@ -197,8 +198,8 @@ async function configureDotEnv() {
     // write everything back to the file system
     fs.writeFileSync("../.env", ENV_VARS.join(os.EOL))
   }
-  if (!fs.existsSync("../.env")) {
-    fs.writeFileSync("../.env", "")
+  if (!fs.existsSync("../backend/.env")) {
+    fs.writeFileSync("../backend/.env", "")
   }
   setEnvValue(
     "HOSTNAME",
@@ -236,10 +237,19 @@ async function init() {
       "Run migrations",
       "Update/create config file",
       "Check for updates",
+      "Build frontend for production",
       "Exit"
     ])
 
     if (option === "Setup") {
+      // run yarn install in ../backend
+      console.log("Running yarn install")
+      execSync("cd ../backend && yarn install --frozen-lockfile", () => {
+        console.log("yarn install complete (backend)")
+      })
+      execSync("cd ../frontend && yarn install --frozen-lockfile",  () => {
+       console.log("yarn install complete (frontend)")
+      })
       if (fs.existsSync(path.join(__dirname, "../.env"))) {
         const option = await input.confirm(".env already exists, overwrite?", {
           default: false
@@ -250,7 +260,7 @@ async function init() {
       } else {
         await configureDotEnv()
       }
-      if (fs.existsSync(path.join(__dirname, "../config/config.json"))) {
+      if (fs.existsSync(path.join(__dirname, "../backend/config/config.json"))) {
         const option = await input.select(
           `config/config.json already exists. Do you want to overwrite it?`,
           ["Yes", "No"]
@@ -262,7 +272,7 @@ async function init() {
         await dbSetup()
       }
       await runMigrations()
-      const { User, Theme } = require("../models")
+      const { User, Theme } = require("../backend/models")
       try {
         await Theme.bulkCreate(
           JSON.parse(
@@ -313,6 +323,11 @@ async function init() {
       await runMigrations()
     } else if (option === "Check for updates") {
       await checkForUpdates()
+    } else if(option === "Build frontend for production") {
+      console.log("Building...")
+      execSync("cd ../frontend && yarn install --frozen-lockfile && yarn build",  () => {
+        console.log("yarn build complete")
+      })
     } else if (option === "Exit") {
       process.exit(0)
     }
