@@ -48,8 +48,8 @@ export default {
           value: "user.id"
         },
         {
-          text: "Sussi Auth ID",
-          value: "user.sussiId"
+          text: "Username",
+          value: "user.username"
         },
         {
           text: "Created At",

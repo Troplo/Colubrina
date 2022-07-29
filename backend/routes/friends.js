@@ -32,15 +32,9 @@ router.get("/", auth, async (req, res, next) => {
 router.post("/", auth, async (req, res, next) => {
   try {
     const io = req.app.get("io")
-    let friendRes
-    try {
-      friendRes = req.body.friend.split(":")
-    } catch {
-      friendRes = req.body.friend
-    }
     const user = await User.findOne({
       where: {
-        username: friendRes[0] || friendRes
+        username: req.body.friend
       }
     })
     if (user) {

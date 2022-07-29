@@ -306,7 +306,7 @@ export default {
       if (user) {
         this.axios
           .post("/api/v1/friends", {
-            friend: user.username + ":" + user.instance
+            friend: user.username
           })
           .then(() => {
             this.getFriends()

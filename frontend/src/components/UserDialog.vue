@@ -38,8 +38,8 @@
           </v-tooltip>
           <div class="subheading subtitle-1 text--lighten-2">
             <template v-if="user.item.nickname"
-              >{{ user.item.username }}:</template
-            >{{ user.item.instance }}
+              >{{ user.item.username }}</template
+            >
           </div>
         </v-toolbar-title>
       </v-toolbar>
