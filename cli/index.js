@@ -139,21 +139,9 @@ async function dbSetup() {
 }
 async function runMigrations() {
   console.log("Running migrations")
-  const config = require("../backend/config/config.json").production
-  const sequelize = new Sequelize(config)
-
-  const umzug = new Umzug({
-    migrations: { glob: "../backend/migrations/*.js" },
-    context: sequelize.getQueryInterface(),
-    storage: new SequelizeStorage({ sequelize }),
-    logger: console,
-    logging: true
+  execSync("cd ../backend && sequelize db:migrate",  () => {
+    console.log("Migrations applied")
   })
-
-  await (async () => {
-    await umzug.up()
-  })()
-  console.log("Migrations applied")
 }
 async function createUser() {
   const user = {
