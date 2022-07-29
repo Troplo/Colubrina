@@ -29,7 +29,7 @@
       outlined
       append-outer-icon="mdi-send"
       auto-grow
-      @keyup.up="editLastMessage"
+      @keyup.up="handleEditMessage"
       @keyup.esc="handleEsc"
       @click:append-outer="handleMessage()"
       @keydown.enter.exact.prevent="handleMessage()"
@@ -111,6 +111,11 @@ export default {
     }
   },
   methods: {
+    handleEditMessage() {
+      if(!this.message?.length) {
+        this.editLastMessage()
+      }
+    },
     handleMessage() {
       if (this.edit) {
         this.editMessage()
@@ -134,7 +139,6 @@ export default {
           .then(() => {
             this.edit.editing = false
             this.edit.id = null
-            this.edit.content = ""
             this.focusInput()
             this.endEdit()
             // response will be handled via WebSocket
@@ -234,7 +238,6 @@ export default {
             )
             .then(() => {
               this.focusInput()
-              this.message = ""
               this.autoScroll()
               this.endSend()
             })
@@ -264,7 +267,6 @@ export default {
             )
             .then(() => {
               this.focusInput()
-              this.message = ""
               this.autoScroll()
               this.endSend()
               this.file = null

@@ -26,10 +26,7 @@
           <v-list-item-title>Group Settings</v-list-item-title>
         </v-list-item>
         <v-list-item
-          @click="
-            leave.item = context.user.item
-            leave.dialog = true
-          "
+          @click="groupLeave(context.user.id)"
           color="error"
         >
           <v-list-item-title>Leave Group</v-list-item-title>
@@ -679,6 +676,12 @@ export default {
       )
       this.settings.dialog = true
     },
+    groupLeave(id) {
+      this.leave.item = this.$store.state.chats.find(
+          (chat) => chat.id === id
+      )
+      this.leave.dialog = true
+    },
     show(e, context, item, id) {
       e.preventDefault()
       this.context[context].value = false
@@ -817,9 +820,11 @@ export default {
         .delete("/api/v1/communications/association/" + this.leave.item.id)
         .then(() => {
           this.leave.dialog = false
+          this.$store.state.chats = this.$store.state.chats.filter(
+              (chat) => chat.id !== this.leave.item.id
+          )
+          this.$router.push("/communications/friends")
           this.leave.item = null
-          this.getChats()
-          this.$router.push("/communications/home")
         })
         .catch((e) => {
           AjaxErrorHandler(this.$store)(e)

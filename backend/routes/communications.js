@@ -379,6 +379,10 @@ router.delete(
         },
         include: [
           {
+            model: Chat,
+            as: "chat"
+          },
+          {
             model: User,
             as: "user",
             attributes: ["id", "username", "createdAt", "updatedAt"]
@@ -390,6 +394,9 @@ router.delete(
       }
       if (!association) {
         throw Errors.chatNotFoundOrNotAdmin
+      }
+      if(association.chat.type === "direct") {
+        throw Errors.invalidParameter("association id", "You cannot leave direct messages")
       }
       await association.destroy()
       res.sendStatus(204)

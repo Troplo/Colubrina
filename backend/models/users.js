@@ -41,8 +41,8 @@ module.exports = (sequelize, DataTypes) => {
             msg: "Username is required"
           },
           len: {
-            args: [2, 12],
-            msg: "Username must be between 2 and 12 characters"
+            args: [2, 16],
+            msg: "Username must be between 2 and 16 characters"
           },
           regex: {
             args: /^[a-z0-9_-]+$/i,

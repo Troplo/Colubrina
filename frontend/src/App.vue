@@ -534,7 +534,7 @@ export default {
           ).unread += 1
           if (
             (message.userId !== this.$store.state.user.id &&
-              this.$route.params?.id !== message.associationId &&
+              parseInt(this.$route.params?.id) !== message.associationId &&
               this.$store.state.user?.storedStatus !== "busy") ||
             (message.userId !== this.$store.state.user.id &&
               this.$store.state.user?.storedStatus !== "busy" &&
