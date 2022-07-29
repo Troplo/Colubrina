@@ -237,7 +237,7 @@ async function configureDotEnv() {
 async function init() {
   while (true) {
     const option = await input.select(`Please select an option`, [
-      "Setup",
+      "First-time setup",
       "Create user",
       "Run migrations",
       "Update/create config file",
@@ -246,7 +246,7 @@ async function init() {
       "Exit"
     ])
 
-    if (option === "Setup") {
+    if (option === "First-time setup") {
       // run yarn install in ../backend
       console.log("Running yarn install")
       execSync("cd ../backend && yarn install --frozen-lockfile", () => {
