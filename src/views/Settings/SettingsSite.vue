@@ -1,5 +1,5 @@
 <template>
-  <div id="settings-site">
+  <div id="settings-site" v-if="$store.state.user?.id">
     <v-card-text>
       <div class="d-flex">
         <v-hover v-slot="{ hover }">
@@ -65,6 +65,15 @@
       >
         Save
       </v-btn>
+      <v-btn
+        color="red"
+        text
+        @click="
+          $store.dispatch('logout')
+          $router.push('/login')
+        "
+        >Logout</v-btn
+      >
     </v-card-actions>
   </div>
 </template>

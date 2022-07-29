@@ -24,6 +24,11 @@ module.exports = (sequelize, DataTypes) => {
   }
   User.init(
     {
+      id: {
+        type: DataTypes.BIGINT,
+        primaryKey: true,
+        autoIncrement: true
+      },
       username: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -112,7 +117,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       font: {
         type: DataTypes.STRING,
-        defaultValue: "Roboto",
+        defaultValue: "Inter",
         allowNull: false
       },
       status: {
@@ -144,6 +149,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.BOOLEAN,
         allowNull: false,
         defaultValue: false
+      },
+      lastSeenAt: {
+        type: DataTypes.DATE,
+        allowNull: true
       }
     },
     {

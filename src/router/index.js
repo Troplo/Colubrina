@@ -15,7 +15,7 @@ const routes = [
     children: [
       {
         path: "friends",
-        name: "Friends - Communications",
+        name: "Friends",
         component: () =>
           import(
             /* webpackChunkName: "communicationsFriends" */ "../views/Communications/CommunicationsFriends"
@@ -85,7 +85,7 @@ const routes = [
       },
       {
         path: "communications",
-        name: "Communications",
+        name: "Communications Settings",
         component: () =>
           import(
             /* webpackChunkName: "settingsCommunications" */ "../views/Settings/SettingsCommunications"
@@ -114,14 +114,6 @@ const routes = [
         component: () =>
           import(
             /* webpackChunkName: "adminUsers" */ "../views/Admin/AdminUsers.vue"
-          )
-      },
-      {
-        path: "feedback",
-        name: "Feedback",
-        component: () =>
-          import(
-            /* webpackChunkName: "adminFeedback" */ "../views/Admin/AdminFeedback.vue"
           )
       },
       {
@@ -165,5 +157,12 @@ const router = new VueRouter({
   base: process.env.BASE_URL,
   routes
 })
+
+const originalPush = router.push
+router.push = function push(location, onResolve, onReject) {
+  if (onResolve || onReject)
+    return originalPush.call(this, location, onResolve, onReject)
+  return originalPush.call(this, location).catch((err) => err)
+}
 
 export default router

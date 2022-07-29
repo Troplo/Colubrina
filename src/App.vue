@@ -506,6 +506,108 @@ export default {
     }
   },
   methods: {
+    registerSocket() {
+      if (!this.$store.state.wsRegistered) {
+        this.$store.state.wsRegistered = true
+        this.$store.dispatch("getCommunicationsUnread")
+        this.$socket.on("friendAccepted", (message) => {
+          this.$notification.show(
+            message.user.username,
+            {
+              body:
+                message.user2.username + " has accepted your friend request",
+              icon: message.user2.avatar
+                ? "/usercontent/" + message.user2.avatar
+                : null
+            },
+            {}
+          )
+          new Audio(require("@/assets/audio/message.wav")).play()
+          this.$toast.success(
+            "Friend request accepted by " + message.user2.username
+          )
+        })
+        this.$socket.on("message", (message) => {
+          this.$store.state.communicationNotifications += 1
+          this.$store.state.chats.find(
+            (chat) => chat.id === message.associationId
+          ).unread += 1
+          if (
+            (message.userId !== this.$store.state.user.id &&
+              this.$route.params?.id !== message.associationId &&
+              this.$store.state.user?.storedStatus !== "busy") ||
+            (message.userId !== this.$store.state.user.id &&
+              this.$store.state.user?.storedStatus !== "busy" &&
+              !document.hasFocus())
+          ) {
+            if (localStorage.getItem("messageAudio")) {
+              if (JSON.parse(localStorage.getItem("messageAudio"))) {
+                new Audio(require("@/assets/audio/message.wav")).play()
+              }
+            } else {
+              new Audio(require("@/assets/audio/message.wav")).play()
+            }
+            this.$notification.show(
+              message.user.username + " (" + message.chat.name + ")",
+              {
+                body: message.content,
+                icon: message.user.avatar
+                  ? "/usercontent/" + message.user.avatar
+                  : null
+              },
+              {}
+            )
+            this.$toast.info(
+              "Message: " +
+                message.content +
+                "\n\n" +
+                "From: " +
+                message.user.username +
+                "\n" +
+                "Sent in: " +
+                message.chat.name,
+              {
+                onClick: () => {
+                  this.$router.push("/communications/" + message.associationId)
+                }
+              }
+            )
+          }
+        })
+        if (this.$store.state.user.storedStatus !== "busy") {
+          this.$socket.on("friendRequest", (message) => {
+            this.$notification.show(
+              message.user.username,
+              {
+                body: message.user.username + " has sent a friend request",
+                icon: message.user.avatar
+                  ? "/usercontent/" + message.user.avatar
+                  : null
+              },
+              {}
+            )
+            new Audio(require("@/assets/audio/message.wav")).play()
+            this.$toast.info("Friend request sent by " + message.user.username)
+          })
+        }
+        this.$store.commit("setWSConnected", true)
+        this.$socket.on("disconnect", () => {
+          this.$store.commit("setWSConnected", false)
+        })
+        this.$socket.on("connect", () => {
+          this.$store.commit("setWSConnected", true)
+        })
+        this.$socket.on("siteState", (state) => {
+          this.$store.state.site.latestVersion = state.latestVersion
+          this.$store.state.site.notification = state.notification
+          this.$store.state.site.notificationType = state.notificationType
+        })
+        // eslint-disable-next-line no-undef
+        this.$store.dispatch("updateQuickSwitch")
+      } else {
+        console.info("Socket already registered.")
+      }
+    },
     communicationsIdleCheck() {
       let time
       let idle = false
@@ -652,103 +754,18 @@ export default {
     this.$socket.connect()
     document.title = this.$route.name
       ? this.$route.name + " - " + this.$store.state.site.name
-      : this.$store.state.site.name
+      : this.$store.state.site.name || "Colubrina"
     this.$store.commit("setLoading", true)
     this.$vuetify.theme.dark = this.$store.state.user?.theme === "dark" || true
     this.$store.dispatch("getState")
-    this.$store.dispatch("checkAuth").catch(() => {
-      this.$store.dispatch("logout")
-      this.$router.push("/login")
-    })
     this.getThemes()
-    this.$store
-      .dispatch("getUserInfo")
-      .then(() => {
-        this.communicationsIdleCheck()
-        this.$store.dispatch("getCommunicationsUnread")
-        this.$socket.on("message", (message) => {
-          this.$store.state.communicationNotifications += 1
-          if (
-            (this.$route.name !== "Communications" &&
-              this.$store.state.user.storedStatus !== "busy") ||
-            (this.$route.name === "Communications" &&
-              !document.hasFocus() &&
-              this.$store.state.user.storedStatus !== "busy")
-          ) {
-            if (localStorage.getItem("messageAudio")) {
-              if (JSON.parse(localStorage.getItem("messageAudio"))) {
-                new Audio(require("@/assets/audio/message.wav")).play()
-              }
-            } else {
-              new Audio(require("@/assets/audio/message.wav")).play()
-            }
-            this.$notification.show(
-              message.user.username + " (" + message.chat.name + ")",
-              {
-                body: message.content,
-                icon: message.user.avatar
-                  ? "/usercontent/" + message.user.avatar
-                  : null
-              },
-              {}
-            )
-            this.$toast.info(
-              "Message: " +
-                message.content +
-                "\n\n" +
-                "From: " +
-                message.user.username +
-                "\n" +
-                "Sent in: " +
-                message.chat.name,
-              {
-                onClick: () => {
-                  this.$router.push("/communications/" + message.associationId)
-                }
-              }
-            )
-          }
-        })
-        if (this.$store.state.user.storedStatus !== "busy") {
-          this.$socket.on("friendRequest", (message) => {
-            this.$notification.show(
-              message.user.username,
-              {
-                body: message.user.username + " has sent a friend request",
-                icon: message.user.avatar
-                  ? "/usercontent/" + message.user.avatar
-                  : null
-              },
-              {}
-            )
-            new Audio(require("@/assets/audio/message.wav")).play()
-            this.$toast.info("Friend request sent by " + message.user.username)
-          })
-        }
-        this.$store.commit("setWSConnected", true)
-        this.$socket.on("disconnect", () => {
-          this.$store.commit("setWSConnected", false)
-        })
-        this.$socket.on("connect", () => {
-          this.$store.commit("setWSConnected", true)
-        })
-        this.$socket.on("siteState", (state) => {
-          this.$store.state.site.latestVersion = state.latestVersion
-          this.$store.state.site.notification = state.notification
-          this.$store.state.site.notificationType = state.notificationType
-        })
-        // eslint-disable-next-line no-undef
-        if (JSON.parse(process.env.VUE_APP_MATOMO_ENABLED)) {
-          // eslint-disable-next-line no-undef
-          _paq.push(["setUserId", this.$store.state.user.id])
-          // eslint-disable-next-line no-undef
-          _paq.push(["trackPageView"])
-        }
-        this.$store.dispatch("updateQuickSwitch")
-      })
-      .catch(() => {
+    this.communicationsIdleCheck()
+    this.$store.dispatch("getUserInfo").catch(() => {
+      if (!["/login", "/register"].includes(this.$route.path)) {
         this.$router.push("/login")
-      })
+      }
+    })
+    this.registerSocket()
   },
   watch: {
     "$store.state.userPanel"(val) {

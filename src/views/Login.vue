@@ -30,7 +30,8 @@
               <v-form ref="form" class="pa-4 pt-6">
                 <p class="text-center text-h4">
                   Login to
-                  <span class="troplo-title">{{ $store.state.site.name }}</span>
+                  <span class="troplo-title">{{ $store.state.site.name }}</span
+                  ><small style="font-size: 15px">beta</small>
                 </p>
                 <v-text-field
                   @keyup.enter="doLogin()"
@@ -61,6 +62,7 @@
                     color="primary"
                     text
                     @click="$router.push('/register')"
+                    v-if="$store.state.site.allowRegistrations"
                   >
                     Register
                   </v-btn>

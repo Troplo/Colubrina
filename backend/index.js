@@ -27,7 +27,8 @@ app.get("/api/v1/state", async (req, res) => {
     notification: process.env.NOTIFICATION,
     notificationType: process.env.NOTIFICATION_TYPE,
     latestVersion: require("../package.json").version,
-    name: "Colubrina"
+    name: process.env.SITE_NAME,
+    allowRegistrations: JSON.parse(process.env.ALLOW_REGISTRATIONS)
   })
 })
 

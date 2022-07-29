@@ -33,187 +33,11 @@
         </v-list-item>
       </v-list>
     </v-menu>
-    <v-dialog v-model="context.userPopout.value" max-width="650px">
-      <v-card v-if="context.userPopout.item" class="user-popout" height="600px">
-        <v-toolbar color="toolbar" height="100">
-          <v-avatar size="64" class="mr-3 mb-2 mt-2">
-            <v-img
-              :src="
-                $store.state.baseURL +
-                '/usercontent/' +
-                context.userPopout.item.avatar
-              "
-              v-if="context.userPopout.item.avatar"
-              class="elevation-1"
-            />
-            <v-icon v-else class="elevation-1"> mdi-account </v-icon>
-          </v-avatar>
-          <v-toolbar-title>
-            {{ getName(context.userPopout.item) }}
-            <v-tooltip top v-if="context.userPopout.item.admin">
-              <template v-slot:activator="{ on }">
-                <v-btn icon v-on="on" small>
-                  <v-icon> mdi-crown </v-icon>
-                </v-btn>
-              </template>
-              <span>Colubrina Instance Administrator</span>
-            </v-tooltip>
-            <v-tooltip top v-if="context.userPopout.item.id < 35">
-              <template v-slot:activator="{ on }">
-                <v-btn icon v-on="on" small>
-                  <v-icon> mdi-alpha-a-circle </v-icon>
-                </v-btn>
-              </template>
-              <span>Early User</span>
-            </v-tooltip>
-            <v-tooltip top v-if="context.userPopout.item.bot">
-              <template v-slot:activator="{ on }">
-                <v-btn icon v-on="on" small>
-                  <v-icon> mdi-robot </v-icon>
-                </v-btn>
-              </template>
-              <span>Bot</span>
-            </v-tooltip>
-            <div class="subheading subtitle-1 text--lighten-2">
-              <template v-if="context.userPopout.item.nickname"
-                >{{ context.userPopout.item.username }}:</template
-              >{{ context.userPopout.item.instance }}
-            </div>
-          </v-toolbar-title>
-        </v-toolbar>
-        <v-tabs :show-arrows="false" fixed-tabs background-color="card">
-          <v-tab>
-            <v-icon>mdi-account-multiple</v-icon>&nbsp; Mutual Friends
-          </v-tab>
-          <v-tab>
-            <v-icon>mdi-account-group</v-icon>&nbsp; Mutual Groups
-          </v-tab>
-          <v-tab-item
-            :style="
-              'background-color: ' +
-              $vuetify.theme.themes[$vuetify.theme.dark ? 'dark' : 'light'].card
-            "
-          >
-            <v-list
-              :height="400"
-              :style="
-                'background-color: ' +
-                $vuetify.theme.themes[$vuetify.theme.dark ? 'dark' : 'light']
-                  .card
-              "
-            >
-              <v-overlay
-                :value="context.userPopout.item.loading.mutualFriends"
-                absolute
-              >
-                <v-progress-circular
-                  indeterminate
-                  size="64"
-                ></v-progress-circular>
-              </v-overlay>
-              <v-list-item
-                v-for="item in context.userPopout.item.mutualFriends"
-                :key="item.id"
-                @click="openUserPanel(item)"
-              >
-                <v-list-item-title>
-                  <v-avatar size="24">
-                    <v-img
-                      :src="
-                        $store.state.baseURL + '/usercontent/' + item.avatar
-                      "
-                      v-if="item.avatar"
-                      class="elevation-1"
-                    />
-                    <v-icon v-else class="elevation-1"> mdi-account </v-icon>
-                  </v-avatar>
-                  {{ getName(item) }}
-                </v-list-item-title>
-              </v-list-item>
-            </v-list>
-          </v-tab-item>
-          <v-tab-item
-            :style="
-              'background-color: ' +
-              $vuetify.theme.themes[$vuetify.theme.dark ? 'dark' : 'light'].card
-            "
-          >
-            <v-list
-              :height="400"
-              :style="
-                'background-color: ' +
-                $vuetify.theme.themes[$vuetify.theme.dark ? 'dark' : 'light']
-                  .card
-              "
-            >
-              <v-overlay
-                :value="context.userPopout.item.loading.mutualFriends"
-                absolute
-              >
-                <v-progress-circular
-                  indeterminate
-                  size="64"
-                ></v-progress-circular>
-              </v-overlay>
-              <v-list-item
-                v-for="item in context.userPopout.item.mutualGroups"
-                :key="item.id"
-                @click="$router.push('/communications/' + item.associationId)"
-              >
-                <v-list-item-title>
-                  {{ item.name }}
-                </v-list-item-title>
-              </v-list-item>
-            </v-list>
-          </v-tab-item>
-        </v-tabs>
-        <v-card-actions
-          :style="
-            'background-color: ' +
-            $vuetify.theme.themes[$vuetify.theme.dark ? 'dark' : 'light'].card
-          "
-        >
-          <v-spacer></v-spacer>
-          <v-btn color="primary" text @click="context.userPopout.value = false">
-            Close
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-    <v-dialog v-model="nickname.dialog" width="500px">
-      <v-card>
-        <v-card-title>
-          <span class="headline">{{ nickname.user.username }}</span>
-        </v-card-title>
-        <v-card-text>
-          <v-text-field
-            v-model="nickname.nickname"
-            label="Nickname"
-            required
-            @keyup.enter="setFriendNickname"
-            autofocus
-          ></v-text-field>
-          <small>Friend nicknames only show to you.</small>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn
-            color="blue darken-1"
-            text
-            @click="
-              nickname.dialog = false
-              nickname.nickname = ''
-              nickname.user = {}
-            "
-          >
-            Cancel
-          </v-btn>
-          <v-btn color="blue darken-1" text @click="setFriendNickname">
-            Apply
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <UserDialog
+      :user="context.userPopout"
+      :key="context.userPopout.item?.id || 0"
+    ></UserDialog>
+    <NicknameDialog :nickname="context.nickname" />
     <v-dialog
       v-model="preview.dialog"
       elevation="0"
@@ -906,6 +730,128 @@
                     </v-list-item-action>
                   </v-list-item>
                 </template>
+                <template v-else-if="message.type === 'rename'">
+                  <v-list-item :key="message.keyId" :id="'message-' + index">
+                    <v-icon color="grey" class="mr-2 ml-1"> mdi-pencil </v-icon>
+                    <v-list-item-content>
+                      {{ message.content }}
+                    </v-list-item-content>
+                    <v-list-item-action>
+                      <v-list-item-subtitle>
+                        {{
+                          $date(message.createdAt).format("DD/MM/YYYY hh:mm A")
+                        }}
+                      </v-list-item-subtitle>
+                      <v-list-item-subtitle>
+                        <v-btn
+                          icon
+                          v-if="message.userId === $store.state.user.id"
+                          @click="deleteMessage(message)"
+                        >
+                          <v-icon> mdi-delete </v-icon>
+                        </v-btn>
+                        <v-btn
+                          icon
+                          @click="
+                            edit.content = message.content
+                            edit.editing = true
+                            edit.id = message.id
+                          "
+                          v-if="
+                            message.userId === $store.state.user.id &&
+                            edit.id !== message.id
+                          "
+                        >
+                          <v-icon> mdi-pencil </v-icon>
+                        </v-btn>
+                        <v-btn
+                          icon
+                          @click="
+                            edit.content = ''
+                            edit.editing = false
+                            edit.id = null
+                          "
+                          v-if="
+                            message.userId === $store.state.user.id &&
+                            edit.id === message.id
+                          "
+                        >
+                          <v-icon> mdi-close </v-icon>
+                        </v-btn>
+                        <v-btn
+                          icon
+                          @click="
+                            replying = message
+                            focusInput()
+                          "
+                        >
+                          <v-icon> mdi-reply </v-icon>
+                        </v-btn>
+                      </v-list-item-subtitle>
+                    </v-list-item-action>
+                  </v-list-item>
+                </template>
+                <template v-else-if="message.type === 'system'">
+                  <v-list-item :key="message.keyId" :id="'message-' + index">
+                    <v-icon color="grey" class="mr-2 ml-1"> mdi-pencil </v-icon>
+                    <v-list-item-content>
+                      {{ message.content }}
+                    </v-list-item-content>
+                    <v-list-item-action>
+                      <v-list-item-subtitle>
+                        {{
+                          $date(message.createdAt).format("DD/MM/YYYY hh:mm A")
+                        }}
+                      </v-list-item-subtitle>
+                      <v-list-item-subtitle>
+                        <v-btn
+                          icon
+                          v-if="message.userId === $store.state.user.id"
+                          @click="deleteMessage(message)"
+                        >
+                          <v-icon> mdi-delete </v-icon>
+                        </v-btn>
+                        <v-btn
+                          icon
+                          @click="
+                            edit.content = message.content
+                            edit.editing = true
+                            edit.id = message.id
+                          "
+                          v-if="
+                            message.userId === $store.state.user.id &&
+                            edit.id !== message.id
+                          "
+                        >
+                          <v-icon> mdi-pencil </v-icon>
+                        </v-btn>
+                        <v-btn
+                          icon
+                          @click="
+                            edit.content = ''
+                            edit.editing = false
+                            edit.id = null
+                          "
+                          v-if="
+                            message.userId === $store.state.user.id &&
+                            edit.id === message.id
+                          "
+                        >
+                          <v-icon> mdi-close </v-icon>
+                        </v-btn>
+                        <v-btn
+                          icon
+                          @click="
+                            replying = message
+                            focusInput()
+                          "
+                        >
+                          <v-icon> mdi-reply </v-icon>
+                        </v-btn>
+                      </v-list-item-subtitle>
+                    </v-list-item-action>
+                  </v-list-item>
+                </template>
               </template>
             </v-list>
           </v-card-text>
@@ -965,23 +911,32 @@
           </v-card-text>
         </v-card>
       </v-col>
+      <v-divider
+        vertical
+        style="z-index: 2; padding-right: 3px; padding-left: 3px"
+        v-if="
+          ($store.state.userPanel && !$vuetify.breakpoint.mobile) ||
+          ($store.state.searchPanel && !$vuetify.breakpoint.mobile)
+        "
+      ></v-divider>
       <v-col
         cols="3"
         class=""
         id="search-col"
-        v-if="searchPanel && !$vuetify.breakpoint.mobile"
+        v-if="$store.state.searchPanel && !$vuetify.breakpoint.mobile"
       >
         <v-card
-          class="d-flex flex-column fill-height rounded-xl"
+          class="d-flex flex-column fill-height"
           style="overflow: scroll; height: calc(100vh - 24px - 40px - 40px)"
           color="card"
+          elevation="0"
         >
-          <v-toolbar color="transparent" class="flex-grow-0 flex-shrink-0">
+          <v-toolbar color="toolbar" class="flex-grow-0 flex-shrink-0">
             <v-toolbar-title>
               Search ({{ search.pager.totalItems || 0 }})
             </v-toolbar-title>
             <v-spacer></v-spacer>
-            <v-btn icon @click="searchPanel = false">
+            <v-btn icon @click="$store.state.searchPanel = false">
               <v-icon>mdi-close</v-icon>
             </v-btn>
           </v-toolbar>
@@ -1330,10 +1285,14 @@
         </v-card>
       </v-col>
       <v-col
-        cols="3"
+        :cols="$vuetify.breakpoint.xl ? 2 : 3"
         class="ml-2"
         id="user-col"
-        v-if="$store.state.userPanel && !$vuetify.breakpoint.mobile"
+        v-if="
+          $store.state.userPanel &&
+          !$vuetify.breakpoint.mobile &&
+          !$store.state.searchPanel
+        "
       >
         <v-card
           class="d-flex flex-column fill-height rounded-xl"
@@ -1363,17 +1322,6 @@
               </v-list-item>
             </v-list>
           </v-menu>
-          <v-toolbar
-            color="transparent"
-            class="flex-grow-0 flex-shrink-0"
-            elevation="2"
-          >
-            <v-toolbar-title> Members </v-toolbar-title>
-            <v-spacer></v-spacer>
-            <v-btn icon @click="$store.state.userPanel = false">
-              <v-icon>mdi-close</v-icon>
-            </v-btn>
-          </v-toolbar>
           <v-list two-line color="card">
             <v-list-item-group class="rounded-xl">
               <template v-for="item in associations">
@@ -1460,6 +1408,8 @@ import {
   PointElement,
   LineElement
 } from "chart.js"
+import NicknameDialog from "@/components/NicknameDialog"
+import UserDialog from "@/components/UserDialog"
 
 ChartJS.register(
   Title,
@@ -1472,7 +1422,7 @@ ChartJS.register(
 )
 export default {
   name: "CommunicationsChat",
-  components: { CommsInput, Chart },
+  components: { UserDialog, NicknameDialog, CommsInput, Chart },
   props: ["chat", "loading", "items"],
   data: () => ({
     graphOptions: {
@@ -1615,41 +1565,7 @@ export default {
     },
     openUserPanel(user) {
       this.context.userPopout.item = user
-      this.context.userPopout.item.mutualGroups = []
-      this.context.userPopout.item.mutualFriends = []
-      this.context.userPopout.item.loading = {
-        mutualGroups: true,
-        mutualFriends: true
-      }
       this.context.userPopout.value = true
-      this.axios
-        .get(
-          process.env.VUE_APP_BASE_URL +
-            "/api/v1/communications/mutual/" +
-            user.id +
-            "/groups"
-        )
-        .then((res) => {
-          this.context.userPopout.item.mutualGroups = res.data
-          this.context.userPopout.item.loading.mutualGroups = false
-        })
-        .catch((e) => {
-          AjaxErrorHandler(this.$store)(e)
-        })
-      this.axios
-        .get(
-          process.env.VUE_APP_BASE_URL +
-            "/api/v1/communications/mutual/" +
-            user.id +
-            "/friends"
-        )
-        .then((res) => {
-          this.context.userPopout.item.mutualFriends = res.data
-          this.context.userPopout.item.loading.mutualFriends = false
-        })
-        .catch((e) => {
-          AjaxErrorHandler(this.$store)(e)
-        })
     },
     getName(user) {
       if (user.nickname?.nickname) {
@@ -1757,7 +1673,6 @@ export default {
       img.src = link
     },
     handleDrag(e) {
-      console.log(1)
       if (e.dataTransfer.files.length) {
         this.file = e.dataTransfer.files[0]
       }
@@ -1919,7 +1834,6 @@ export default {
       this.message = drafts[this.$route.params.id]
     }
     this.$socket.on("message", (message) => {
-      console.log(this.chat)
       if (message.chatId === this.chat.chatId) {
         this.messages.push(message)
         this.autoScroll()

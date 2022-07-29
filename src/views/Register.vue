@@ -8,10 +8,11 @@
               <v-form ref="form" class="pa-4 pt-6">
                 <p class="text-center text-h4">
                   Login to
-                  <span class="troplo-title">{{ $store.state.site.name }}</span>
+                  <span class="troplo-title">{{ $store.state.site.name }}</span
+                  ><small style="font-size: 15px">beta</small>
                 </p>
                 <v-text-field
-                  @keyup.enter="doLogin()"
+                  @keyup.enter="doRegister()"
                   class="rounded-xl"
                   v-model="username"
                   label="Username"
@@ -19,7 +20,7 @@
                   type="email"
                 ></v-text-field>
                 <v-text-field
-                  @keyup.enter="doLogin()"
+                  @keyup.enter="doRegister()"
                   class="rounded-xl"
                   v-model="email"
                   label="Email"
@@ -27,7 +28,7 @@
                   type="email"
                 ></v-text-field>
                 <v-text-field
-                  @keyup.enter="doLogin()"
+                  @keyup.enter="doRegister()"
                   class="rounded-xl"
                   v-model="password"
                   color="blue accent-7"

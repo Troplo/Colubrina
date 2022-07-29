@@ -29,18 +29,6 @@
         <v-col>
           <v-card color="card" class="rounded-xl">
             <v-toolbar color="toolbar">
-              <v-toolbar-title> Feedback </v-toolbar-title>
-            </v-toolbar>
-            <v-container>
-              <h1 class="text-center" style="font-size: 69px">
-                {{ admin.feedback }}
-              </h1>
-            </v-container>
-          </v-card>
-        </v-col>
-        <v-col>
-          <v-card color="card" class="rounded-xl">
-            <v-toolbar color="toolbar">
               <v-toolbar-title> Active Users (Today) </v-toolbar-title>
             </v-toolbar>
             <v-container>

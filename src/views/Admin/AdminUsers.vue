@@ -42,20 +42,12 @@ export default {
           value: "id"
         },
         {
-          text: "Compass User ID",
-          value: "compassUserId"
-        },
-        {
-          text: "Sussi Auth ID",
-          value: "sussiId"
-        },
-        {
           text: "Username",
-          value: "displayCode"
+          value: "username"
         },
         {
-          text: "Instance",
-          value: "instance"
+          text: "Email",
+          value: "email"
         },
         {
           text: "Created At",
@@ -68,10 +60,6 @@ export default {
         {
           text: "Base Theme",
           value: "theme"
-        },
-        {
-          text: "Communications",
-          value: "privacy.communications.enabled"
         },
         {
           text: "Theme",

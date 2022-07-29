@@ -60,6 +60,7 @@ export default new Vuex.Store({
     },
     communicationNotifications: 0,
     wsConnected: false,
+    wsRegistered: false,
     lastChat: "friends",
     searchPanel: false,
     userPanel: false
@@ -258,7 +259,7 @@ export default new Vuex.Store({
         document.head.appendChild(style)
       }
     },
-    checkAuth(context) {
+    checkAuth() {
       return new Promise((resolve, reject) => {
         Vue.axios.defaults.headers.common["Authorization"] =
           localStorage.getItem("session")
@@ -270,7 +271,6 @@ export default new Vuex.Store({
           .catch((e) => {
             if (e?.response?.status === 401) {
               reject(false)
-              context.dispatch("logout")
             } else {
               AjaxErrorHandler(this.$store)(e)
             }
@@ -321,7 +321,7 @@ export default new Vuex.Store({
       context.commit("updateQuickSwitchCache", {
         subjectLongName: "Home",
         customType: 1,
-        route: "/"
+        route: "/communications/friends"
       })
       context.state.chats.forEach((chat) => {
         context.commit("updateQuickSwitchCache", {
@@ -417,7 +417,6 @@ div {
             resolve(res.data)
           })
           .catch((e) => {
-            console.log(e)
             if (JSON.parse(localStorage.getItem("userCache"))?.id) {
               const user = JSON.parse(localStorage.getItem("userCache"))
               const name = user.themeObject.id
@@ -475,12 +474,7 @@ div {
                   sheet: "#181818",
                   text: "#000000",
                   dark: "#151515",
-                  bg: "#151515",
-                  calendarNormalActivity: "#3f51b5",
-                  calendarActivityType7: "#f44336",
-                  calendarActivityType8: "#4caf50",
-                  calendarActivityType10: "#ff9800",
-                  calendarExternalActivity: "#2196f3"
+                  bg: "#151515"
                 },
                 light: {
                   primary: "#0190ea",
@@ -495,12 +489,7 @@ div {
                   sheet: "#f8f8f8",
                   text: "#000000",
                   dark: "#f8f8f8",
-                  bg: "#f8f8f8",
-                  calendarNormalActivity: "#3f51b5",
-                  calendarActivityType7: "#f44336",
-                  calendarActivityType8: "#4caf50",
-                  calendarActivityType10: "#ff9800",
-                  calendarExternalActivity: "#2196f3"
+                  bg: "#f8f8f8"
                 }
               }
               const name = theme.id

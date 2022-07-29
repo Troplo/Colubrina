@@ -2,7 +2,7 @@ const express = require("express")
 const router = express.Router()
 const Errors = require("../lib/errors.js")
 const auth = require("../lib/authorize.js")
-const { User, Theme, Feedback, Message } = require("../models")
+const { User, Theme, Message } = require("../models")
 const { Op } = require("sequelize")
 const dayjs = require("dayjs")
 const fs = require("fs")
@@ -25,7 +25,6 @@ router.get("/", auth, async (req, res, next) => {
     res.json({
       users: await User.count(),
       themes: await Theme.count(),
-      feedback: await Feedback.count(),
       messages: await Message.count(),
       usersToday: await User.count({
         where: {
@@ -62,6 +61,14 @@ router.get("/metrics", auth, async (req, res, next) => {
         exclude: ["totp", "compassSession", "password"]
       }
     })
+    const messages = await Message.findAll({
+      where: {
+        createdAt: createdAt
+      },
+      attributes: {
+        exclude: ["totp", "compassSession", "password"]
+      }
+    })
 
     const registrationGraphInterim = registrationStats.reduce(function (
       result,
@@ -76,18 +83,14 @@ router.get("/metrics", auth, async (req, res, next) => {
     },
     {})
 
-    const activeUsersGraphInterim = registrationStats.reduce(function (
-      result,
-      user
-    ) {
-      let day = dayjs(user.lastSeenAt).format("YYYY-MM-DD")
+    const messagesGraphInterim = messages.reduce(function (result, message) {
+      let day = dayjs(message.createdAt).format("YYYY-MM-DD")
       if (!result[day]) {
         result[day] = 0
       }
       result[day]++
       return result
-    },
-    {})
+    }, {})
 
     const usersGraph = {
       labels: Object.keys(registrationGraphInterim),
@@ -102,12 +105,12 @@ router.get("/metrics", auth, async (req, res, next) => {
       ]
     }
 
-    const activeUsersGraph = {
-      labels: Object.keys(activeUsersGraphInterim),
+    const messagesGraph = {
+      labels: Object.keys(messagesGraphInterim),
       datasets: [
         {
-          data: Object.values(activeUsersGraphInterim),
-          label: "Active Users",
+          data: Object.values(messagesGraphInterim),
+          label: "Messages",
           borderColor: "#3e95cd",
           pointBackgroundColor: "#FFFFFF",
           backgroundColor: "transparent"
@@ -117,7 +120,7 @@ router.get("/metrics", auth, async (req, res, next) => {
 
     res.json({
       users: usersGraph,
-      activeUsers: activeUsersGraph
+      activeUsers: messagesGraph
     })
   } catch (err) {
     return next(err)
@@ -184,23 +187,6 @@ router.put("/themes/apply", auth, async (req, res, next) => {
   }
 })
 
-router.get("/feedback", auth, async (req, res, next) => {
-  try {
-    const feedback = await Feedback.findAndCountAll({
-      order: [["createdAt", "DESC"]],
-      include: [
-        {
-          model: User,
-          as: "user"
-        }
-      ]
-    })
-    res.json(feedback)
-  } catch (err) {
-    return next(err)
-  }
-})
-
 router.put("/state", auth, async (req, res, next) => {
   function setEnvValue(key, value) {
     // read file from hdd & split if from a linebreak to a array
@@ -233,6 +219,7 @@ router.put("/state", auth, async (req, res, next) => {
   }
   try {
     const io = req.app.get("io")
+    setEnvValue("ALLOW_REGISTRATIONS", req.body.allowRegistrations)
     if (req.body.broadcastType === "permanent") {
       setEnvValue("NOTIFICATION", req.body.notification)
       setEnvValue("NOTIFICATION_TYPE", req.body.notificationType)
@@ -242,7 +229,8 @@ router.put("/state", auth, async (req, res, next) => {
     io.emit("siteState", {
       notification: req.body.notification,
       notificationType: req.body.notificationType,
-      latestVersion: require("../../package.json").version
+      latestVersion: require("../../package.json").version,
+      allowRegistrations: req.body.allowRegistrations
     })
     res.sendStatus(204)
   } catch (err) {

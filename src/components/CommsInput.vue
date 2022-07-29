@@ -165,7 +165,7 @@ export default {
       reader.readAsDataURL(file)
     },
     handleChange() {
-      if (this.$store.state.user.bcUser.storedStatus !== "invisible") {
+      if (this.$store.state.user.storedStatus !== "invisible") {
         if (this.typingDate) {
           const now = new Date()
           if (now - this.typingDate > 5000) {

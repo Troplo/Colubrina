@@ -1,6 +1,6 @@
 <template>
   <div id="communications-friends">
-    <v-card color="card" class="rounded-xl" :height="viewport()">
+    <v-card color="card" class="rounded-xl" :height="viewport()" elevation="0">
       <v-tabs centered background-color="card" v-model="tab">
         <v-tab :key="0">Users</v-tab>
         <v-tab :key="1"> Friends </v-tab>
@@ -339,6 +339,12 @@ export default {
     this.getFriends()
     this.getUsers()
     this.$socket.on("friendRequest", () => {
+      this.getFriends()
+    })
+    this.$socket.on("friendUpdate", () => {
+      this.getFriends()
+    })
+    this.$socket.on("friendAccepted", () => {
       this.getFriends()
     })
   }

@@ -150,8 +150,8 @@ export default {
       css: "",
       autoCSS: false,
       fonts: [
-        "Roboto",
         "Inter",
+        "Roboto",
         "JetBrains Mono",
         "Montserrat",
         "Ubuntu",

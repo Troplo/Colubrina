@@ -17,10 +17,6 @@
             <v-icon>mdi-account-multiple</v-icon>&nbsp;
             <span>Users</span>
           </v-tab>
-          <v-tab to="/admin/feedback">
-            <v-icon>mdi-bug</v-icon>&nbsp;
-            <span>Feedback</span>
-          </v-tab>
           <v-tab to="/admin/themes">
             <v-icon>mdi-brush</v-icon>&nbsp;
             <span>Themes</span>

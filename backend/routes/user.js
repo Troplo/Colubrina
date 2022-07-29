@@ -199,6 +199,9 @@ router.post("/register", async (req, res, next) => {
     }
   }
   try {
+    if (!JSON.parse(process.env.ALLOW_REGISTRATIONS)) {
+      throw Errors.registrationsDisabled
+    }
     if (req.body.password.length < 8) {
       throw Errors.invalidPassword
     }
@@ -211,7 +214,7 @@ router.post("/register", async (req, res, next) => {
       name: req.body.username,
       admin: false,
       email: req.body.email,
-      font: "Roboto",
+      font: "Inter",
       status: "offline",
       storedStatus: "online",
       experiments: [],
@@ -230,9 +233,7 @@ router.post("/register", async (req, res, next) => {
 router.get("/", auth, (req, res, next) => {
   try {
     res.json(req.user)
-  } catch (e) {
-    console.log(1)
-  }
+  } catch {}
 })
 
 router.get("/sessions", auth, async (req, res, next) => {

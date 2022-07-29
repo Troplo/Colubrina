@@ -1,0 +1,1 @@
+Message audio sound from jitsi-meet project, https://github.com/jitsi/jitsi-meet/blob/master/LICENSE

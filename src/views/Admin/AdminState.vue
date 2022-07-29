@@ -26,6 +26,12 @@
       text-value="value"
     >
     </v-select>
+    <v-switch
+      inset
+      class="mx-3"
+      label="Allow registrations"
+      v-model="allowRegistrations"
+    ></v-switch>
     <v-btn text class="mx-3 mb-3" color="primary" @click="updateState"
       >Save</v-btn
     >
@@ -40,6 +46,7 @@ export default {
     return {
       notification: "",
       notificationType: "info",
+      allowRegistrations: true,
       notificationTypes: [
         { text: "Info", value: "info" },
         { text: "Success", value: "success" },
@@ -65,7 +72,8 @@ export default {
         .put("/api/v1/admin/state", {
           notification: this.notification,
           notificationType: this.notificationType,
-          broadcastType: this.broadcastType
+          broadcastType: this.broadcastType,
+          allowRegistrations: this.allowRegistrations
         })
         .then(() => {
           this.$toast.success("State updated")
@@ -78,6 +86,7 @@ export default {
   mounted() {
     this.notification = this.$store.state.site.notification
     this.notificationType = this.$store.state.site.notificationType
+    this.allowRegistrations = this.$store.state.site.allowRegistrations
   }
 }
 </script>

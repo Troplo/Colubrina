@@ -405,10 +405,11 @@
               background-color="toolbar"
               style="margin-bottom: -18px"
               elevation="2"
+              v-model="search"
             ></v-text-field>
             <v-toolbar color="toolbar" class="rounded-xl mb-3" elevation="2">
               <v-toolbar-title class="subtitle-1">
-                CHATS ({{ $store.state.chats.length }})
+                CHATS ({{ chats.length }})
               </v-toolbar-title>
               <v-spacer></v-spacer>
               <v-btn icon @click="dialogs.new = true">
@@ -416,7 +417,7 @@
               </v-btn>
             </v-toolbar></template
           >
-          <v-list v-for="item in $store.state.chats" :key="item.id">
+          <v-list v-for="item in chats" :key="item.id">
             <template>
               <v-list-item
                 :to="'/communications/' + item.id"
@@ -556,7 +557,7 @@
                 <v-list-item-content
                   @click="copyUsername"
                   v-bind="attrs"
-                  style="cursor: pointer"
+                  style="cursor: pointer; min-width: 100px"
                 >
                   <v-list-item-title>
                     {{ $store.state.user.username }}
@@ -569,6 +570,15 @@
               <span>Copied!</span>
             </v-tooltip>
             <v-spacer></v-spacer>
+            <v-btn
+              icon
+              text
+              to="/admin"
+              v-if="$store.state.user.admin"
+              style="margin-right: 0; padding-right: 0"
+            >
+              <v-icon>mdi-gavel</v-icon>
+            </v-btn>
             <v-btn icon text to="/settings">
               <v-icon>mdi-cog</v-icon>
             </v-btn>
@@ -589,6 +599,7 @@ export default {
   components: { NicknameDialog },
   data() {
     return {
+      search: "",
       nickname: {
         dialog: false,
         nickname: "",
@@ -642,6 +653,23 @@ export default {
       dialogs: {
         new: false
       }
+    }
+  },
+  computed: {
+    chats() {
+      if (!this.search?.length) {
+        return this.$store.state.chats
+      }
+      return this.$store.state.chats.filter((item) => {
+        return (
+          (item.chat.type === "group" &&
+            item.chat.name.toLowerCase().includes(this.search.toLowerCase())) ||
+          (item.chat.type === "direct" &&
+            this.getDirectRecipient(item)
+              .name.toLowerCase()
+              .includes(this.search.toLowerCase()))
+        )
+      })
     }
   },
   methods: {
@@ -875,14 +903,15 @@ export default {
     createConversation() {
       this.newConversation.loading = true
       this.axios
-        .post("/api/v1/communications/create", {
+        .post(process.env.VUE_APP_BASE_URL + "/api/v1/communications/create", {
           users: this.newConversation.users
         })
-        .then(() => {
+        .then((res) => {
           this.newConversation.name = ""
           this.newConversation.users = []
           this.newConversation.loading = false
-          this.newConversation.results = []
+          this.dialogs.new = false
+          this.$router.push("/communications/" + res.data.id)
         })
         .catch((e) => {
           this.newConversation.loading = false
@@ -927,6 +956,10 @@ export default {
     this.searchUsers()
     this.searchUsersForGroupAdmin()
     this.$store.dispatch("getChats")
+    this.$socket.on("friendUpdate", () => {
+      this.searchUsers()
+      this.searchUsersForGroupAdmin()
+    })
     this.$socket.on("userSettings", () => {
       this.$store.dispatch("getChats")
     })

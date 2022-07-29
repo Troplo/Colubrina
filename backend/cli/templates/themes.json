@@ -1,0 +1,133 @@
+[
+  {
+    "id": 1,
+    "name": "Colubrina Classic",
+    "userId": 0,
+    "public": true,
+    "theme": {
+      "id": 1,
+      "name": "Colubrina Classic",
+      "primaryType": "all",
+      "dark": {
+        "primary": "#0190ea",
+        "secondary": "#757575",
+        "accent": "#000000",
+        "error": "#ff1744",
+        "info": "#2196F3",
+        "success": "#4CAF50",
+        "warning": "#ff9800",
+        "card": "#151515",
+        "toolbar": "#191919",
+        "sheet": "#181818",
+        "text": "#000000",
+        "dark": "#151515",
+        "bg": "#151515"
+      },
+      "light": {
+        "primary": "#0190ea",
+        "secondary": "#757575",
+        "accent": "#000000",
+        "error": "#ff1744",
+        "info": "#2196F3",
+        "success": "#4CAF50",
+        "warning": "#ff9800",
+        "card": "#f8f8f8",
+        "toolbar": "#f8f8f8",
+        "sheet": "#f8f8f8",
+        "text": "#000000",
+        "dark": "#f8f8f8",
+        "bg": "#f8f8f8"
+      }
+    },
+    "createdAt": "2022-03-26 23:23:29",
+    "updatedAt": "2022-03-26 23:23:29"
+  },
+  {
+    "id": 2,
+    "name": "Colubrina Gray",
+    "userId": 0,
+    "public": true,
+    "theme": {
+      "id": 2,
+      "name": "Colubrina Gray",
+      "primaryType": "all",
+      "user": {
+        "sussiId": "asdasd"
+      },
+      "dark": {
+        "primary": "#0190ea",
+        "secondary": "#757575",
+        "accent": "#000000",
+        "error": "#ff1744",
+        "info": "#2196F3",
+        "success": "#4CAF50",
+        "warning": "#ff9800",
+        "card": "#262626",
+        "toolbar": "#262626",
+        "sheet": "#262626",
+        "text": "#000000",
+        "dark": "#262626",
+        "bg": "#191919"
+      },
+      "light": {
+        "primary": "#0190ea",
+        "secondary": "#757575",
+        "accent": "#000000",
+        "error": "#ff1744",
+        "info": "#2196F3",
+        "success": "#4CAF50",
+        "warning": "#ff9800",
+        "card": "#dedede",
+        "toolbar": "#dedede",
+        "sheet": "#dedede",
+        "text": "#000000",
+        "dark": "#dedede",
+        "bg": "#e7e7e7"
+      }
+    },
+    "createdAt": "2022-03-26 23:25:12",
+    "updatedAt": "2022-03-26 23:25:12"
+  },
+  {
+    "id": 3,
+    "name": "Colubrina AMOLED (Black)",
+    "userId": 0,
+    "public": true,
+    "theme": {
+      "id": 3,
+      "name": "Colubrina AMOLED",
+      "primaryType": "dark",
+      "dark": {
+        "primary": "#0190ea",
+        "secondary": "#757575",
+        "accent": "#000000",
+        "error": "#ff1744",
+        "info": "#2196F3",
+        "success": "#4CAF50",
+        "warning": "#ff9800",
+        "card": "#000000",
+        "toolbar": "#121212",
+        "sheet": "#000000",
+        "text": "#000000",
+        "dark": "#000000",
+        "bg": "#000000"
+      },
+      "light": {
+        "primary": "#0190ea",
+        "secondary": "#757575",
+        "accent": "#000000",
+        "error": "#ff1744",
+        "info": "#2196F3",
+        "success": "#4CAF50",
+        "warning": "#ff9800",
+        "card": "#f8f8f8",
+        "toolbar": "#f8f8f8",
+        "sheet": "#f8f8f8",
+        "text": "#000000",
+        "dark": "#f8f8f8"
+      }
+    },
+    "createdAt": "2022-03-26 23:25:12",
+    "updatedAt": "2022-03-26 23:25:12"
+  }
+]

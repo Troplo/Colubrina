@@ -47,7 +47,92 @@ const upload = multer({
 
 const resolveEmbeds = require("../lib/resolveEmbeds.js")
 const paginate = require("jw-paginate")
+async function createMessage(req, type, content, association, userId) {
+  const io = req.app.get("io")
+  const message = await Message.create({
+    userId: 0,
+    chatId: association.chatId,
+    content: content,
+    type: type || "system"
+  })
+  const associations = await ChatAssociation.findAll({
+    where: {
+      chatId: association.chatId
+    }
+  })
+  const messageLookup = await Message.findOne({
+    where: {
+      id: message.id
+    },
+    include: [
+      {
+        model: Attachment,
+        as: "attachments"
+      },
+      {
+        model: Message,
+        as: "reply",
+        include: [
+          {
+            model: User,
+            as: "user",
+            attributes: [
+              "username",
+              "name",
 
+              "avatar",
+              "id",
+              "createdAt",
+              "updatedAt"
+            ]
+          }
+        ]
+      },
+      {
+        model: Chat,
+        as: "chat",
+        include: [
+          {
+            model: User,
+            as: "users",
+            attributes: [
+              "username",
+              "name",
+
+              "avatar",
+              "id",
+              "createdAt",
+              "updatedAt"
+            ]
+          }
+        ]
+      },
+      {
+        model: User,
+        as: "user",
+        attributes: [
+          "username",
+          "name",
+
+          "avatar",
+          "id",
+          "createdAt",
+          "updatedAt"
+        ]
+      }
+    ]
+  })
+  associations.forEach((user) => {
+    console.log(user)
+    io.to(user.dataValues.userId).emit("message", {
+      ...messageLookup.dataValues,
+      associationId: user.dataValues.id,
+      keyId: `${
+        message.dataValues.id
+      }-${message.dataValues.updatedAt.toISOString()}`
+    })
+  })
+}
 router.get("/", auth, async (req, res, next) => {
   try {
     let chats = await ChatAssociation.findAll({
@@ -746,6 +831,8 @@ router.post("/friends", auth, async (req, res, next) => {
             friendId: req.user.id,
             status: "pendingCanAccept"
           })
+          io.to(user.id).emit("friendUpdate", {})
+          io.to(req.user.id).emit("friendUpdate", {})
           io.to(user.id).emit("friendRequest", {
             ...remoteFriend.dataValues,
             user: {
@@ -768,6 +855,7 @@ router.post("/friends", auth, async (req, res, next) => {
 
 router.delete("/friends/:id", auth, async (req, res, next) => {
   try {
+    const io = req.app.get("io")
     const friend = await Friend.findOne({
       where: {
         userId: req.user.id,
@@ -782,6 +870,8 @@ router.delete("/friends/:id", auth, async (req, res, next) => {
           friendId: req.user.id
         }
       })
+      io.to(friend.friendId).emit("friendUpdate", {})
+      io.to(req.user.id).emit("friendUpdate", {})
       res.sendStatus(204)
     } else {
       throw Errors.friendNotFound
@@ -826,9 +916,8 @@ router.put("/friends/:id", auth, async (req, res, next) => {
       await remoteFriend.update({
         status: "accepted"
       })
-      io.to(req.user.id).emit("friendAccepted", {
-        ...friend.dataValues
-      })
+      io.to(friend.userId).emit("friendUpdate", {})
+      io.to(remoteFriend.userId).emit("friendUpdate", {})
       io.to(remoteFriend.userId).emit("friendAccepted", {
         ...remoteFriend.dataValues
       })
@@ -1004,6 +1093,13 @@ router.put("/:id", auth, async (req, res, next) => {
           name: req.body.name
         })
       })
+      await createMessage(
+        req,
+        "rename",
+        `${req.user.username} renamed the chat to ${req.body.name}`,
+        association,
+        req.user.id
+      )
       res.sendStatus(204)
     } else {
       throw Errors.chatNotFoundOrNotAdmin
