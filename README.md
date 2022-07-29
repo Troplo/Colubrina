@@ -30,7 +30,9 @@ Colubrina is a simple self-hostable chatting platform written in Vue, and Vuetif
 <img src="https://i.troplo.com/i/b2d6dd14c6b6.png" alt="QuickSwitcher with AMOLED theme" width="45%"></img>
 ## Backend setup
 First, configure a database and user (MariaDB strongly recommended) for Colubrina.<br>
-Please navigate to the `cli` folder, and run the following commands:
+Please navigate to the `backend` folder and run `yarn`.<br>
+
+Then navigate to the `cli` folder, and run the following commands:
 
 ```
 yarn

@@ -4,7 +4,6 @@ const path = require("path")
 const { Umzug, SequelizeStorage } = require("umzug")
 const { Sequelize } = require("sequelize")
 const argon2 = require("argon2")
-const { User } = require("../backend/models")
 const axios = require("axios")
 const os = require("os")
 const { execSync } = require('child_process');
