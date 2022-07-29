@@ -74,7 +74,8 @@ Vue.use(VueNativeNotification, {
 
 Vue.use({
   install(Vue) {
-    Vue.prototype.$socket = SocketIO(process.env.VUE_APP_SOCKET_URL, {
+    Vue.prototype.$socket = SocketIO("", {
+      transports: ["websocket", "polling"],
       headers: {
         Authorization: localStorage.getItem("session")
       }

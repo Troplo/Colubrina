@@ -27,12 +27,7 @@ module.exports = {
               sheet: "#181818",
               text: "#000000",
               dark: "#151515",
-              bg: "#151515",
-              calendarNormalActivity: "#3f51b5",
-              calendarActivityType7: "#f44336",
-              calendarActivityType8: "#4caf50",
-              calendarActivityType10: "#ff9800",
-              calendarExternalActivity: "#2196f3"
+              bg: "#151515"
             },
             light: {
               primary: "#0190ea",
@@ -47,12 +42,7 @@ module.exports = {
               sheet: "#f8f8f8",
               text: "#000000",
               dark: "#f8f8f8",
-              bg: "#f8f8f8",
-              calendarNormalActivity: "#3f51b5",
-              calendarActivityType7: "#f44336",
-              calendarActivityType8: "#4caf50",
-              calendarActivityType10: "#ff9800",
-              calendarExternalActivity: "#2196f3"
+              bg: "#f8f8f8"
             }
           },
           createdAt: "2022-03-26 23:23:29",
@@ -83,12 +73,7 @@ module.exports = {
               sheet: "#262626",
               text: "#000000",
               dark: "#262626",
-              bg: "#191919",
-              calendarNormalActivity: "#3f51b5",
-              calendarActivityType7: "#f44336",
-              calendarActivityType8: "#4caf50",
-              calendarActivityType10: "#ff9800",
-              calendarExternalActivity: "#2196f3"
+              bg: "#191919"
             },
             light: {
               primary: "#0190ea",
@@ -103,12 +88,7 @@ module.exports = {
               sheet: "#dedede",
               text: "#000000",
               dark: "#dedede",
-              bg: "#e7e7e7",
-              calendarNormalActivity: "#3f51b5",
-              calendarActivityType7: "#f44336",
-              calendarActivityType8: "#4caf50",
-              calendarActivityType10: "#ff9800",
-              calendarExternalActivity: "#2196f3"
+              bg: "#e7e7e7"
             }
           },
           createdAt: "2022-03-26 23:25:12",
@@ -136,12 +116,7 @@ module.exports = {
               sheet: "#000000",
               text: "#000000",
               dark: "#000000",
-              bg: "#000000",
-              calendarNormalActivity: "#3f51b5",
-              calendarActivityType7: "#f44336",
-              calendarActivityType8: "#4caf50",
-              calendarActivityType10: "#ff9800",
-              calendarExternalActivity: "#2196f3"
+              bg: "#000000"
             },
             light: {
               primary: "#0190ea",
@@ -155,12 +130,7 @@ module.exports = {
               toolbar: "#f8f8f8",
               sheet: "#f8f8f8",
               text: "#000000",
-              dark: "#f8f8f8",
-              calendarNormalActivity: "#3f51b5",
-              calendarActivityType7: "#f44336",
-              calendarActivityType8: "#4caf50",
-              calendarActivityType10: "#ff9800",
-              calendarExternalActivity: "#2196f3"
+              dark: "#f8f8f8"
             }
           },
           createdAt: "2022-03-26 23:25:12",
@@ -188,12 +158,7 @@ module.exports = {
               sheet: "#181818",
               text: "#000000",
               dark: "#151515",
-              bg: "#151515",
-              calendarNormalActivity: "#565656",
-              calendarActivityType7: "#767676",
-              calendarActivityType8: "#868686",
-              calendarActivityType10: "#A6A6A6",
-              calendarExternalActivity: "#7D7D7D"
+              bg: "#151515"
             },
             light: {
               primary: "#6E6E6E",
@@ -208,12 +173,7 @@ module.exports = {
               sheet: "#f8f8f8",
               text: "#000000",
               dark: "#f8f8f8",
-              bg: "#f8f8f8",
-              calendarNormalActivity: "#565656",
-              calendarActivityType7: "#767676",
-              calendarActivityType8: "#868686",
-              calendarActivityType10: "#A6A6A6",
-              calendarExternalActivity: "#7D7D7D"
+              bg: "#f8f8f8"
             }
           },
           createdAt: "2022-03-26 23:25:12",
@@ -241,12 +201,7 @@ module.exports = {
               sheet: "#181818",
               text: "#000000",
               dark: "#151515",
-              bg: "#151515",
-              calendarNormalActivity: "#0057E9",
-              calendarActivityType7: "#E11845",
-              calendarActivityType8: "#87E911",
-              calendarActivityType10: "#F2CA19",
-              calendarExternalActivity: "#0057E9"
+              bg: "#151515"
             },
             light: {
               primary: "#0057E9",
@@ -261,12 +216,7 @@ module.exports = {
               sheet: "#f8f8f8",
               text: "#000000",
               dark: "#f8f8f8",
-              bg: "#f8f8f8",
-              calendarNormalActivity: "#0057E9",
-              calendarActivityType7: "#E11845",
-              calendarActivityType8: "#87E911",
-              calendarActivityType10: "#F2CA19",
-              calendarExternalActivity: "#0057E9"
+              bg: "#f8f8f8"
             }
           },
           createdAt: "2022-03-26 23:25:12",

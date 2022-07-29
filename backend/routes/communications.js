@@ -762,7 +762,10 @@ router.get("/users", auth, async (req, res, next) => {
         "updatedAt",
         "status",
         "admin"
-      ]
+      ],
+      where: {
+        banned: false
+      }
     })
     res.json(users)
   } catch (err) {

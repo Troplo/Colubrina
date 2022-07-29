@@ -8,7 +8,7 @@
         <v-text-field
           v-model="nickname.nickname"
           label="Nickname"
-          required
+          autofocus
           @keyup.enter="setFriendNickname"
         ></v-text-field>
         <small>Friend nicknames only show to you.</small>

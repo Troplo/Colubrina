@@ -156,40 +156,42 @@ export default {
     }
   },
   mounted() {
-    this.mutualGroups = []
-    this.mutualFriends = []
-    this.loading = {
-      mutualGroups: true,
-      mutualFriends: true
+    if(this.user?.item?.id) {
+      this.mutualGroups = []
+      this.mutualFriends = []
+      this.loading = {
+        mutualGroups: true,
+        mutualFriends: true
+      }
+      this.axios
+          .get(
+              process.env.VUE_APP_BASE_URL +
+              "/api/v1/communications/mutual/" +
+              this.user.item.id +
+              "/groups"
+          )
+          .then((res) => {
+            this.mutualGroups = res.data
+            this.loading.mutualGroups = false
+          })
+          .catch((e) => {
+            AjaxErrorHandler(this.$store)(e)
+          })
+      this.axios
+          .get(
+              process.env.VUE_APP_BASE_URL +
+              "/api/v1/communications/mutual/" +
+              this.user.item.id +
+              "/friends"
+          )
+          .then((res) => {
+            this.mutualFriends = res.data
+            this.loading.mutualFriends = false
+          })
+          .catch((e) => {
+            AjaxErrorHandler(this.$store)(e)
+          })
     }
-    this.axios
-      .get(
-        process.env.VUE_APP_BASE_URL +
-          "/api/v1/communications/mutual/" +
-          this.user.item.id +
-          "/groups"
-      )
-      .then((res) => {
-        this.mutualGroups = res.data
-        this.loading.mutualGroups = false
-      })
-      .catch((e) => {
-        AjaxErrorHandler(this.$store)(e)
-      })
-    this.axios
-      .get(
-        process.env.VUE_APP_BASE_URL +
-          "/api/v1/communications/mutual/" +
-          this.user.item.id +
-          "/friends"
-      )
-      .then((res) => {
-        this.mutualFriends = res.data
-        this.loading.mutualFriends = false
-      })
-      .catch((e) => {
-        AjaxErrorHandler(this.$store)(e)
-      })
   }
 }
 </script>

@@ -37,7 +37,7 @@
       :user="context.userPopout"
       :key="context.userPopout.item?.id || 0"
     ></UserDialog>
-    <NicknameDialog :nickname="context.nickname" />
+    <NicknameDialog :nickname="nickname" />
     <v-dialog
       v-model="preview.dialog"
       elevation="0"

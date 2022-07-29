@@ -8,10 +8,11 @@ Colubrina is a simple chatting platform written in Vue, and Vuetify for the fron
 - [x] Messaging
 - [x] Authentication
 - [x] Admin panel
-- [x] CLI (cli)
+- [x] CLI
 - [ ] Message history
 - [x] User profile cards
 - [x] Group creation and modification
+- [x] Direct message groups
 - [x] Friending
 - [x] Searching
 
@@ -46,11 +47,10 @@ Failed to check for updates, ensure you are connected to the internet, and servi
   Build frontend for production 
   Exit
 ```
-Select setup, and go through the steps. After completing the initial setup, you may run `yarn build` in the frontend folder, or select "Build frontend for production" in the CLI.<br>
-The CLI will populate the database with some default data which are essential for operation.<br>
+Select setup, and go through the steps.<br>After completing the initial setup, you may run `yarn build` in the frontend folder, or select "Build frontend for production" in the CLI.<br>
 The backend service can now be started with `node .` in the `backend` folder which will run on port `23998`.
 
-A systemd service example config file can be found at `colubrina.service` 
+A systemd service example config file can be found at `colubrina.service`, and an `nginx.conf` example.
 ## Frontend setup
 
 Rename .env.example to .env and fill it out with your own information.
