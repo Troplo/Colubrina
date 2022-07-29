@@ -19,7 +19,7 @@
     "dotenv": "^16.0.0",
     "express": "^4.17.1",
     "express-rate-limit": "^6.4.0",
-    "file-type": "16.5.3",
+    "file-type": "16.5.4",
     "http-errors": "~1.6.3",
     "input": "^1.0.1",
     "jade": "~1.11.0",
