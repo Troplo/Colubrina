@@ -12,26 +12,31 @@ const { execSync } = require('child_process');
 console.log("Troplo/Colubrina CLI")
 console.log("Colubrina version", require("../frontend/package.json").version)
 async function checkForUpdates() {
-  await axios
-    .get("https://services.troplo.com/api/v1/state", {
-      headers: {
-        "X-Troplo-Project": "colubrina"
-      },
-      timeout: 800
-    })
-    .then((res) => {
-      if (require("frontend/package.json").version !== res.data.latestVersion) {
-        console.log("A new version of Colubrina is available!")
-        console.log("Latest version:", res.data.latestVersion)
-      } else {
-        console.log("Colubrina is up to date.")
-      }
-    })
-    .catch(() => {
-      console.log(
-        "Failed to check for updates, ensure you are connected to the internet, and services.troplo.com is whitelisted behind any potential firewalls."
-      )
-    })
+  if (!process.argv.includes("--skip-update")) {
+    await axios
+      .get("https://services.troplo.com/api/v1/state", {
+        headers: {
+          "X-Troplo-Project": "colubrina"
+        },
+        timeout: 1000
+      })
+      .then((res) => {
+        if (require("../frontend/package.json").version !== res.data.latestVersion) {
+          console.log("A new version of Colubrina is available!")
+          console.log("Latest version:", res.data.latestVersion)
+        } else {
+          console.log("Colubrina is up to date.")
+        }
+      })
+      .catch((e) => {
+        console.log(e)
+        console.log(
+          "Failed to check for updates, ensure you are connected to the internet, and services.troplo.com is whitelisted behind any potential firewalls."
+        )
+      })
+  } else {
+    console.log("Skipping update check")
+  }
 }
 let state = {
   db: {
