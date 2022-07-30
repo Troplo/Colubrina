@@ -657,17 +657,7 @@ export default {
       }
     },
     friendlyName(index) {
-      if (index === "calendarNormalActivity") {
-        return "Standard Class"
-      } else if (index === "calendarActivityType7") {
-        return "Relief Event"
-      } else if (index === "calendarActivityType8") {
-        return "Generic Type 8"
-      } else if (index === "calendarActivityType10") {
-        return "Learning Task"
-      } else if (index === "calendarExternalActivity") {
-        return "External Activity"
-      } else if (index === "bg") {
+      if (index === "bg") {
         return "Background"
       } else if (index === "dark") {
         return "Sidebar & Header"

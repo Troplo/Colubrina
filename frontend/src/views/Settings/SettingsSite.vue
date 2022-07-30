@@ -160,18 +160,7 @@ export default {
           sheet: "#" + Math.floor(Math.random() * 16777215).toString(16),
           text: "#" + Math.floor(Math.random() * 16777215).toString(16),
           dark: "#" + Math.floor(Math.random() * 16777215).toString(16),
-          bg: "#" + Math.floor(Math.random() * 16777215).toString(16),
-          calendarNormalActivity:
-            "#" + Math.floor(Math.random() * 16777215).toString(16),
-          calendarActivityType7:
-            "#" + Math.floor(Math.random() * 16777215).toString(16),
-          calendarActivityType8:
-            "#" + Math.floor(Math.random() * 16777215).toString(16),
-          calendarActivityType10:
-            "#" + Math.floor(Math.random() * 16777215).toString(16),
-          calendarExternalActivity: Math.floor(
-            Math.random() * 16777215
-          ).toString(16)
+          bg: "#" + Math.floor(Math.random() * 16777215).toString(16)
         }
         this.$vuetify.theme.themes.dark = {
           primary: "#" + Math.floor(Math.random() * 16777215).toString(16),
@@ -186,18 +175,7 @@ export default {
           sheet: "#" + Math.floor(Math.random() * 16777215).toString(16),
           text: "#" + Math.floor(Math.random() * 16777215).toString(16),
           dark: "#" + Math.floor(Math.random() * 16777215).toString(16),
-          bg: "#" + Math.floor(Math.random() * 16777215).toString(16),
-          calendarNormalActivity:
-            "#" + Math.floor(Math.random() * 16777215).toString(16),
-          calendarActivityType7:
-            "#" + Math.floor(Math.random() * 16777215).toString(16),
-          calendarActivityType8:
-            "#" + Math.floor(Math.random() * 16777215).toString(16),
-          calendarActivityType10:
-            "#" + Math.floor(Math.random() * 16777215).toString(16),
-          calendarExternalActivity: Math.floor(
-            Math.random() * 16777215
-          ).toString(16)
+          bg: "#" + Math.floor(Math.random() * 16777215).toString(16)
         }
       }, this.slider)
     },

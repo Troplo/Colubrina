@@ -172,12 +172,7 @@ export default new Vuex.Store({
           sheet: "#181818",
           text: "#000000",
           dark: "#151515",
-          bg: "#151515",
-          calendarNormalActivity: "#3f51b5",
-          calendarActivityType7: "#f44336",
-          calendarActivityType8: "#4caf50",
-          calendarActivityType10: "#ff9800",
-          calendarExternalActivity: "#2196f3"
+          bg: "#151515"
         },
         light: {
           primary: "#0190ea",
@@ -192,12 +187,7 @@ export default new Vuex.Store({
           sheet: "#f8f8f8",
           text: "#000000",
           dark: "#f8f8f8",
-          bg: "#f8f8f8",
-          calendarNormalActivity: "#3f51b5",
-          calendarActivityType7: "#f44336",
-          calendarActivityType8: "#4caf50",
-          calendarActivityType10: "#ff9800",
-          calendarExternalActivity: "#2196f3"
+          bg: "#f8f8f8"
         }
       }
       context.state.themeEngine.type = "create"
