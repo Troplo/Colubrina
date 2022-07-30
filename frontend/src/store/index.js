@@ -38,7 +38,8 @@ export default new Vuex.Store({
     drawer: true,
     site: {
       release: "stable",
-      loading: true
+      loading: true,
+      name: "Colubrina"
     },
     user: {
       bcUser: null,
