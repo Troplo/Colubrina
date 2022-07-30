@@ -367,6 +367,48 @@ export default new Vuex.Store({
       Vue.axios.defaults.headers.common["Authorization"] =
         localStorage.getItem("session")
       return new Promise((resolve, reject) => {
+        try {
+          const user = JSON.parse(localStorage.getItem("userCache"))
+          if (user?.id) {
+            context.commit("setUser", user)
+            const name = user.themeObject.id
+            const dark = user.themeObject.theme.dark
+            const light = user.themeObject.theme.light
+            if (user.accentColor) {
+              user.themeObject.theme.dark.primary = user.accentColor
+              user.themeObject.theme.light.primary = user.accentColor
+            }
+            Vuetify.framework.theme.themes.dark = dark
+            Vuetify.framework.theme.themes.light = light
+            Vuetify.framework.theme.themes.name = name
+            Vuetify.framework.theme.themes.primaryType =
+              user.themeObject.theme.primaryType
+            const themeElement = document.getElementById("user-theme")
+            if (!themeElement) {
+              const style = document.createElement("style")
+              style.id = "user-theme"
+              style.innerHTML = user.themeObject.theme.css
+              document.head.appendChild(style)
+            }
+            const fontElement = document.getElementById("user-font")
+            if (!fontElement) {
+              const style = document.createElement("style")
+              style.id = "user-font"
+              style.innerHTML = `/* Stop from font breaking CSS code editor */
+.ace_editor div {
+ font-family: "JetBrains Mono" !important;
+}
+
+div {
+ font-family: "${user.font}", sans-serif;
+}
+`
+              document.head.appendChild(style)
+            }
+          }
+        } catch {
+          //
+        }
         Vue.axios
           .get("/api/v1/user")
           .then((res) => {
