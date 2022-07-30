@@ -1195,6 +1195,8 @@ export default {
       this.messages = []
       this.usersTyping = []
       this.replying = null
+      this.reachedTop = false
+      this.avoidAutoScroll = false
       this.offset = 0
       this.getMessages()
     }
