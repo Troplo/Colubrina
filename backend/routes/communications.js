@@ -1555,28 +1555,33 @@ router.post("/create", auth, async (req, res, next) => {
       }
     })
     if (type === "direct") {
-      const chats = await Chat.findAll({
+      const chats = await ChatAssociation.findAll({
         where: {
-          userId: req.user.id,
-          type: "direct"
+          userId: req.user.id
         },
         include: [
           {
-            model: ChatAssociation,
-            as: "associations"
+            model: Chat,
+            as: "chat",
+            where: {
+              type: "direct"
+            },
+            include: [
+              {
+                model: User,
+                as: "users"
+              }
+            ]
           }
         ]
       })
       const chat = chats.find((chat) => {
-        return chat.associations.find((association) => {
-          return association.userId === req.body.users[0]
-        })
+        const users = chat.chat.users.map((user) => user.id)
+        return users.includes(req.body.users[0]) && users.includes(req.user.id)
       })
       if (chat) {
         res.json({
-          ...chat.associations.find((association) => {
-            return association.userId === req.user.id
-          }).dataValues,
+          ...chat.dataValues,
           existing: true
         })
         return

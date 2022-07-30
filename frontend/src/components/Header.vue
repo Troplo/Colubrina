@@ -953,6 +953,10 @@ export default {
       this.searchUsers()
       this.searchUsersForGroupAdmin()
     })
+    this.$socket.on("siteState", () => {
+      this.searchUsers()
+      this.searchUsersForGroupAdmin()
+    })
     this.$socket.on("userSettings", () => {
       this.$store.dispatch("getChats")
     })
