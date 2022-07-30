@@ -581,6 +581,7 @@ export default {
                 "Sent in: " +
                 message.chat.name,
               {
+                toastClassName: "message-toast",
                 onClick: () => {
                   this.$router.push("/communications/" + message.associationId)
                 }

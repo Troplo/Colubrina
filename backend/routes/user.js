@@ -14,6 +14,7 @@ const path = require("path")
 const semver = require("semver")
 const multer = require("multer")
 const FileType = require("file-type")
+const rateLimit = require("express-rate-limit")
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -25,6 +26,16 @@ const storage = multer.diskStorage({
       cryptoRandomString({ length: 32 }) + path.extname(file.originalname)
     )
   }
+})
+
+const limiter = rateLimit({
+  windowMs: 5 * 60 * 1000,
+  max: 2,
+  message: Errors.rateLimit,
+  standardHeaders: true,
+  legacyHeaders: false,
+  skipFailedRequests: true,
+  keyGenerator: (req, res) => req.user?.id || req.ip
 })
 
 const whitelist = [
@@ -136,7 +147,7 @@ router.post("/login", async (req, res, next) => {
   }
 })
 
-router.post("/register", async (req, res, next) => {
+router.post("/register", limiter, async (req, res, next) => {
   async function generatePassword(password) {
     try {
       return await argon2.hash(password)

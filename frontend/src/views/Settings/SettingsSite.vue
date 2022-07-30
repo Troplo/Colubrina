@@ -2,6 +2,18 @@
   <div id="settings-site" v-if="$store.state.user?.id">
     <v-card-text>
       <div class="d-flex">
+        <v-btn
+          v-if="$store.state.site.release === 'dev'"
+          @click="
+            $toast.info('Hi', {
+              toastClassName: 'message-toast',
+              timeout: 100000,
+              closeOnClick: false
+            })
+          "
+        >
+          Trigger Toast
+        </v-btn>
         <v-hover v-slot="{ hover }">
           <v-avatar
             :color="$vuetify.theme.themes.dark.primary"

@@ -1,3 +1,6 @@
+.message-toast {
+  background-color: rgba(47, 47, 47, 0.9) !important;
+}
 img.emoji {
   /* Since we are using SVGs, you have to change the width using CSS */
   height: 1.4em;
