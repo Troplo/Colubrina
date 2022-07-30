@@ -98,15 +98,18 @@ module.exports = {
           }
         })
         socket.on("disconnect", async function () {
-          friends.forEach((friend) => {
-            io.to(friend.friendId).emit("userStatus", {
-              userId: user.id,
+          const clients = io.sockets.adapter.rooms.get(user.id) || new Set()
+          if (!clients.size || clients.size === 0) {
+            friends.forEach((friend) => {
+              io.to(friend.friendId).emit("userStatus", {
+                userId: user.id,
+                status: "offline"
+              })
+            })
+            await user.update({
               status: "offline"
             })
-          })
-          await user.update({
-            status: "offline"
-          })
+          }
         })
       } else {
         socket.join(-1)

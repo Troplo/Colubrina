@@ -742,7 +742,7 @@ export default {
     removeUserFromGroup(user) {
       this.axios
         .delete(
-          "/api/v1/communications/association/" +
+          "/api/v1/association/" +
             this.settings.item.id +
             "/" +
             user.id
@@ -757,7 +757,7 @@ export default {
     giveUserAdmin(user) {
       this.axios
         .put(
-          "/api/v1/communications/association/" +
+          "/api/v1/association/" +
             this.settings.item.id +
             "/" +
             user.id,
@@ -798,7 +798,7 @@ export default {
     addMembersToGroup() {
       this.axios
         .post(
-          "/api/v1/communications/association/" + this.settings.item.chat.id,
+          "/api/v1/association/" + this.settings.item.chat.id,
           {
             users: this.settings.addMembers.users
           }
@@ -817,7 +817,7 @@ export default {
     },
     leaveGroup() {
       this.axios
-        .delete("/api/v1/communications/association/" + this.leave.item.id)
+        .delete("/api/v1/association/" + this.leave.item.id)
         .then(() => {
           this.leave.dialog = false
           this.$store.state.chats = this.$store.state.chats.filter(

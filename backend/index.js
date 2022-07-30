@@ -21,6 +21,7 @@ app.use("/api/v1/admin", require("./routes/admin.js"))
 app.use("/usercontent", require("./routes/usercontent.js"))
 app.use("/api/v1/usercontent", require("./routes/usercontent.js"))
 app.use("/api/v1/mediaproxy", require("./routes/mediaproxy.js"))
+app.use("/api/v1/associations", require("./routes/associations.js"))
 app.get("/api/v1/state", async (req, res) => {
   res.json({
     release: process.env.RELEASE,

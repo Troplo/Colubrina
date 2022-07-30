@@ -22,7 +22,7 @@ export default {
     selectedChat() {
       try {
         return this.$store.state.chats.find(
-          (item) => item.id === JSON.parse(this.$route.params.id)
+          (item) => item.id === parseInt(this.$route.params.id)
         )
       } catch {
         return null
