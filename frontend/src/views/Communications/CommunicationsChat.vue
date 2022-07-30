@@ -282,6 +282,7 @@
               outlined
               autofocus
               @keydown.enter="doSearch"
+              @keydown.esc="$store.state.searchPanel = false"
             ></v-text-field>
             <v-list two-line color="card" ref="message-list-search">
               <template v-for="(message, index) in search.results">
@@ -1071,7 +1072,7 @@ export default {
           AjaxErrorHandler(this.$store)(e)
         })
     },
-    jumpToMessage(id) {
+    async jumpToMessage(id) {
       try {
         console.log("Jumping to message", id)
         const index = this.messages.findIndex((message) => message.id === id)
@@ -1086,8 +1087,13 @@ export default {
           setTimeout(() => {
             lastMessage.style.backgroundColor = ""
           }, 1500)
+        } else {
+          this.offset = id
+          await this.getMessages()
+          this.jumpToMessage(id)
         }
-      } catch {
+      } catch (e) {
+        console.log(e)
         console.log("Could not auto scroll (Jump to message)")
       }
     },
@@ -1144,9 +1150,9 @@ export default {
         }
       })
     },
-    getMessages() {
+    async getMessages() {
       this.loadingMessages = true
-      this.axios
+      await this.axios
         .get(
           process.env.VUE_APP_BASE_URL +
             "/api/v1/communications/" +

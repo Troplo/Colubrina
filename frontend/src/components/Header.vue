@@ -25,10 +25,7 @@
         <v-list-item @click="groupSettings(context.user.id)">
           <v-list-item-title>Group Settings</v-list-item-title>
         </v-list-item>
-        <v-list-item
-          @click="groupLeave(context.user.id)"
-          color="error"
-        >
+        <v-list-item @click="groupLeave(context.user.id)" color="error">
           <v-list-item-title>Leave Group</v-list-item-title>
         </v-list-item>
       </v-list>
@@ -324,6 +321,13 @@
         @shortkey="$store.dispatch('toggleCSS')"
       >
         Style Toggle
+      </button>
+      <button
+        style="display: none"
+        v-shortkey="['ctrl', 'f']"
+        @shortkey="$store.state.searchPanel = true"
+      >
+        Debug
       </button>
       <template v-if="$route.name === 'Communications'">
         <v-toolbar-title v-if="$store.state.selectedChat?.chat?.type">
@@ -677,9 +681,7 @@ export default {
       this.settings.dialog = true
     },
     groupLeave(id) {
-      this.leave.item = this.$store.state.chats.find(
-          (chat) => chat.id === id
-      )
+      this.leave.item = this.$store.state.chats.find((chat) => chat.id === id)
       this.leave.dialog = true
     },
     show(e, context, item, id) {
@@ -741,12 +743,7 @@ export default {
     },
     removeUserFromGroup(user) {
       this.axios
-        .delete(
-          "/api/v1/association/" +
-            this.settings.item.id +
-            "/" +
-            user.id
-        )
+        .delete("/api/v1/association/" + this.settings.item.id + "/" + user.id)
         .then(() => {
           this.$toast.success("User has been removed from the group.")
         })
@@ -756,15 +753,9 @@ export default {
     },
     giveUserAdmin(user) {
       this.axios
-        .put(
-          "/api/v1/association/" +
-            this.settings.item.id +
-            "/" +
-            user.id,
-          {
-            rank: "admin"
-          }
-        )
+        .put("/api/v1/association/" + this.settings.item.id + "/" + user.id, {
+          rank: "admin"
+        })
         .then(() => {
           this.$toast.success("User has been promoted to admin.")
         })
@@ -797,12 +788,9 @@ export default {
     },
     addMembersToGroup() {
       this.axios
-        .post(
-          "/api/v1/association/" + this.settings.item.chat.id,
-          {
-            users: this.settings.addMembers.users
-          }
-        )
+        .post("/api/v1/association/" + this.settings.item.chat.id, {
+          users: this.settings.addMembers.users
+        })
         .then(() => {
           this.settings.item.chat.users = this.settings.item.chat.users.concat(
             this.settings.addMembers.users
@@ -821,7 +809,7 @@ export default {
         .then(() => {
           this.leave.dialog = false
           this.$store.state.chats = this.$store.state.chats.filter(
-              (chat) => chat.id !== this.leave.item.id
+            (chat) => chat.id !== this.leave.item.id
           )
           this.$router.push("/communications/friends")
           this.leave.item = null
