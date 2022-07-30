@@ -236,7 +236,12 @@
                           <h3>
                             {{ graph.name }}
                           </h3>
-                          <p>Chart data could not be loaded.</p>
+                          <Chart
+                            :chart-data="graph.data"
+                            v-if="graph.data"
+                            :options="graphOptions"
+                          ></Chart>
+                          <p v-else>Chart data could not be loaded.</p>
                         </v-col>
                       </v-row>
                       <v-row
@@ -655,7 +660,26 @@
 
 <script>
 import CommsInput from "./CommsInput.vue"
-
+import { Line as Chart } from "vue-chartjs/legacy"
+import {
+  Chart as ChartJS,
+  Title,
+  Tooltip,
+  Legend,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement
+} from "chart.js"
+ChartJS.register(
+  Title,
+  Tooltip,
+  Legend,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement
+)
 export default {
   name: "Message",
   props: [
@@ -674,10 +698,18 @@ export default {
     "deleteMessage"
   ],
   components: {
-    CommsInput
+    CommsInput,
+    Chart
   },
   data() {
     return {
+      graphOptions: {
+        responsive: true,
+        maintainAspectRatio: false,
+        title: {
+          display: false
+        }
+      },
       fileTypes: {
         png: "mdi-file-image",
         jpg: "mdi-file-image",
