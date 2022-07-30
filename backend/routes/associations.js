@@ -2,153 +2,155 @@ const express = require("express")
 const router = express.Router()
 const Errors = require("../lib/errors.js")
 const auth = require("../lib/authorize.js")
-const { User, Message, ChatAssociation, Chat, Attachment, Friend} = require("../models")
+const {
+  User,
+  Message,
+  ChatAssociation,
+  Chat,
+  Attachment,
+  Friend
+} = require("../models")
 
-router.delete(
-  "/association/:id/:associationId",
-  auth,
-  async (req, res, next) => {
-    try {
-      const io = req.app.get("io")
-      const chat = await ChatAssociation.findOne({
-        where: {
-          id: req.params.id,
-          userId: req.user.id,
-          rank: "admin"
-        },
-        include: [
-          {
-            model: Chat,
-            as: "chat",
-            include: [
-              {
-                model: User,
-                as: "users",
-                attributes: ["id", "username", "createdAt", "updatedAt"]
-              }
-            ]
-          }
-        ]
-      })
-      const association = await ChatAssociation.findOne({
-        where: {
-          id: req.params.associationId,
-          chatId: chat.chat.id
-        },
-        include: [
-          {
-            model: User,
-            as: "user",
-            attributes: ["id", "username", "createdAt", "updatedAt"]
-          }
-        ]
-      })
-      if (!chat) {
-        throw Errors.chatNotFoundOrNotAdmin
-      }
-      if (!association) {
-        throw Errors.chatNotFoundOrNotAdmin
-      }
-      if(association.chat)
-        await association.destroy()
-      res.sendStatus(204)
-      const message = await Message.create({
-        userId: 0,
-        chatId: chat.chat.id,
-        content: `${association.user.username} has been removed by ${req.user.username}.`,
-        type: "leave"
-      })
-      const associations = await ChatAssociation.findAll({
-        where: {
-          chatId: chat.chat.id
-        },
-        include: [
-          {
-            model: User,
-            as: "user",
-            attributes: [
-              "username",
-              "name",
-              "avatar",
-              "id",
-              "createdAt",
-              "updatedAt"
-            ]
-          }
-        ]
-      })
-      const messageLookup = await Message.findOne({
-        where: {
-          id: message.id
-        },
-        include: [
-          {
-            model: Attachment,
-            as: "attachments"
-          },
-          {
-            model: Message,
-            as: "reply",
-            include: [
-              {
-                model: User,
-                as: "user",
-                attributes: [
-                  "username",
-                  "name",
-                  "avatar",
-                  "id",
-                  "createdAt",
-                  "updatedAt"
-                ]
-              }
-            ]
-          },
-          {
-            model: Chat,
-            as: "chat",
-            include: [
-              {
-                model: User,
-                as: "users",
-                attributes: [
-                  "username",
-                  "name",
-                  "avatar",
-                  "id",
-                  "createdAt",
-                  "updatedAt"
-                ]
-              }
-            ]
-          },
-          {
-            model: User,
-            as: "user",
-            attributes: [
-              "username",
-              "name",
-              "avatar",
-              "id",
-              "createdAt",
-              "updatedAt"
-            ]
-          }
-        ]
-      })
-      associations.forEach((association) => {
-        io.to(association.userId).emit("message", {
-          ...messageLookup.dataValues,
-          associationId: association.id,
-          keyId: `${message.id}-${message.updatedAt.toISOString()}`
-        })
-      })
-    } catch (err) {
-      next(err)
+router.delete("/:id/:associationId", auth, async (req, res, next) => {
+  try {
+    const io = req.app.get("io")
+    const chat = await ChatAssociation.findOne({
+      where: {
+        id: req.params.id,
+        userId: req.user.id,
+        rank: "admin"
+      },
+      include: [
+        {
+          model: Chat,
+          as: "chat",
+          include: [
+            {
+              model: User,
+              as: "users",
+              attributes: ["id", "username", "createdAt", "updatedAt"]
+            }
+          ]
+        }
+      ]
+    })
+    const association = await ChatAssociation.findOne({
+      where: {
+        id: req.params.associationId,
+        chatId: chat.chat.id
+      },
+      include: [
+        {
+          model: User,
+          as: "user",
+          attributes: ["id", "username", "createdAt", "updatedAt"]
+        }
+      ]
+    })
+    if (!chat) {
+      throw Errors.chatNotFoundOrNotAdmin
     }
+    if (!association) {
+      throw Errors.chatNotFoundOrNotAdmin
+    }
+    if (association.chat) await association.destroy()
+    res.sendStatus(204)
+    const message = await Message.create({
+      userId: 0,
+      chatId: chat.chat.id,
+      content: `${association.user.username} has been removed by ${req.user.username}.`,
+      type: "leave"
+    })
+    const associations = await ChatAssociation.findAll({
+      where: {
+        chatId: chat.chat.id
+      },
+      include: [
+        {
+          model: User,
+          as: "user",
+          attributes: [
+            "username",
+            "name",
+            "avatar",
+            "id",
+            "createdAt",
+            "updatedAt"
+          ]
+        }
+      ]
+    })
+    const messageLookup = await Message.findOne({
+      where: {
+        id: message.id
+      },
+      include: [
+        {
+          model: Attachment,
+          as: "attachments"
+        },
+        {
+          model: Message,
+          as: "reply",
+          include: [
+            {
+              model: User,
+              as: "user",
+              attributes: [
+                "username",
+                "name",
+                "avatar",
+                "id",
+                "createdAt",
+                "updatedAt"
+              ]
+            }
+          ]
+        },
+        {
+          model: Chat,
+          as: "chat",
+          include: [
+            {
+              model: User,
+              as: "users",
+              attributes: [
+                "username",
+                "name",
+                "avatar",
+                "id",
+                "createdAt",
+                "updatedAt"
+              ]
+            }
+          ]
+        },
+        {
+          model: User,
+          as: "user",
+          attributes: [
+            "username",
+            "name",
+            "avatar",
+            "id",
+            "createdAt",
+            "updatedAt"
+          ]
+        }
+      ]
+    })
+    associations.forEach((association) => {
+      io.to(association.userId).emit("message", {
+        ...messageLookup.dataValues,
+        associationId: association.id,
+        keyId: `${message.id}-${message.updatedAt.toISOString()}`
+      })
+    })
+  } catch (err) {
+    next(err)
   }
-)
-router.put("/association/:id/:associationId", auth, async (req, res, next) => {
+})
+router.put("/:id/:associationId", auth, async (req, res, next) => {
   try {
     const chat = await ChatAssociation.findOne({
       where: {
@@ -194,7 +196,7 @@ router.put("/association/:id/:associationId", auth, async (req, res, next) => {
   }
 })
 
-router.post("/association/:id", auth, async (req, res, next) => {
+router.post("/:id", auth, async (req, res, next) => {
   try {
     const io = req.app.get("io")
     const chat = await ChatAssociation.findOne({
@@ -400,16 +402,25 @@ router.post("/association/:id", auth, async (req, res, next) => {
   }
 })
 
-router.delete("/association/:id", auth, async (req, res, next) => {
+router.delete("/:id", auth, async (req, res, next) => {
   try {
     const io = req.app.get("io")
     const chat = await ChatAssociation.findOne({
       where: {
         userId: req.user.id,
         id: req.params.id
-      }
+      },
+      include: [
+        {
+          model: Chat,
+          as: "chat"
+        }
+      ]
     })
     if (chat) {
+      if (chat.chat.type === "direct") {
+        throw Errors.leavingDirectChat
+      }
       await chat.destroy()
       res.sendStatus(204)
       const message = await Message.create({
