@@ -1115,32 +1115,34 @@ export default {
       this.focusInput()
     },
     autoScroll(smooth = false) {
-      if (!this.avoidAutoScroll) {
-        try {
-          const lastIndex = this.messages.length - 1
-          const lastMessage = document.querySelector(`#message-${lastIndex}`)
-          if (smooth) {
-            lastMessage.scrollIntoView({
-              behavior: "smooth",
-              block: "nearest",
-              inline: "start"
-            })
-          } else {
-            lastMessage.scrollIntoView()
-          }
-          this.autoScrollRetry = 0
-        } catch (e) {
-          console.log("Could not auto scroll, retrying...")
-          if (this.autoScrollRetry < 20) {
-            setTimeout(() => {
-              this.autoScroll()
-            }, 50)
-            this.autoScrollRetry++
-          } else {
-            console.log("Could not auto scroll, retry limit reached")
+      this.$nextTick(() => {
+        if (!this.avoidAutoScroll) {
+          try {
+            const lastIndex = this.messages.length - 1
+            const lastMessage = document.querySelector(`#message-${lastIndex}`)
+            if (smooth) {
+              lastMessage.scrollIntoView({
+                behavior: "smooth",
+                block: "nearest",
+                inline: "start"
+              })
+            } else {
+              lastMessage.scrollIntoView()
+            }
+            this.autoScrollRetry = 0
+          } catch (e) {
+            console.log("Could not auto scroll, retrying...")
+            if (this.autoScrollRetry < 20) {
+              setTimeout(() => {
+                this.autoScroll()
+              }, 50)
+              this.autoScrollRetry++
+            } else {
+              console.log("Could not auto scroll, retry limit reached")
+            }
           }
         }
-      }
+      })
     },
     getMessages() {
       this.loadingMessages = true
