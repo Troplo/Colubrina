@@ -812,6 +812,33 @@ export default {
     }
   },
   methods: {
+    getDirectRecipient(item) {
+      let user = item.chat.users.find(
+        (user) => user.id !== this.$store.state.user.id
+      )
+      if (user) {
+        if (user.nickname?.nickname) {
+          user.name = user.nickname.nickname
+        } else {
+          user.name = user.username
+        }
+        return {
+          ...user,
+          type: item.chat.type
+        }
+      } else {
+        let user = item.chat.users[0]
+        if (user.nickname?.nickname) {
+          user.name = user.nickname.nickname
+        } else {
+          user.name = user.username
+        }
+        return {
+          ...user,
+          type: item.chat.type
+        }
+      }
+    },
     async scrollEvent(e) {
       this.avoidAutoScroll =
         e.target.scrollTop + e.target.offsetHeight !== e.target.scrollHeight
