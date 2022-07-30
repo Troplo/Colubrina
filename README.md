@@ -2,6 +2,8 @@
 
 ![Wakatime](https://wakatime.troplo.com/api/badge/Troplo/interval:any/project:Colubrina?label=wakatime)
 
+You can try a public instance of Colubrina at [colubrina.troplo.com](https://colubrina.troplo.com/).
+
 This is currently beta software, and may not work as expected. Please file an issue if you encounter any.
 
 Colubrina is a simple self-hostable chatting platform written in Vue, and Vuetify for the frontend, and Node.js, Sequelize and Socket.io for the backend.
