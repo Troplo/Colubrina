@@ -797,7 +797,6 @@ export default {
           )
           this.settings.addMembers.dialog = false
           this.settings.addMembers.users = []
-          this.settings.addMembers.results = []
         })
         .catch((e) => {
           AjaxErrorHandler(this.$store)(e)
@@ -931,14 +930,12 @@ export default {
       this.axios
         .get("/api/v1/communications/search?query=")
         .then((res) => {
-          if (this.settings.item) {
-            this.settings.addMembers.results = res.data
-            this.settings.addMembers.results =
-              this.settings.addMembers.results.filter(
-                (user) =>
-                  !this.settings.item.chat.users.find((u) => u.id === user.id)
-              )
-          }
+          this.settings.addMembers.results = res.data
+          this.settings.addMembers.results =
+            this.settings.addMembers.results.filter(
+              (user) =>
+                !this.settings.item.chat.users.find((u) => u.id === user.id)
+            )
         })
         .catch(() => {})
     }
