@@ -674,6 +674,46 @@ export default {
   components: {
     CommsInput
   },
+  data() {
+    return {
+      fileTypes: {
+        png: "mdi-file-image",
+        jpg: "mdi-file-image",
+        jpeg: "mdi-file-image",
+        gif: "mdi-file-image",
+        mp4: "mdi-file-video",
+        mp3: "mdi-file-music",
+        pdf: "mdi-file-pdf",
+        doc: "mdi-file-word",
+        docx: "mdi-file-word",
+        xls: "mdi-file-excel",
+        xlsx: "mdi-file-excel",
+        ppt: "mdi-file-powerpoint",
+        pptx: "mdi-file-powerpoint",
+        zip: "mdi-file-zip",
+        rar: "mdi-file-zip",
+        txt: "mdi-file-document",
+        csv: "mdi-file-spreadsheet",
+        html: "mdi-file-html",
+        htm: "mdi-file-html",
+        js: "mdi-file-code",
+        json: "mdi-file-code",
+        css: "mdi-file-css",
+        otf: "mdi-file-font",
+        ttf: "mdi-file-font",
+        woff: "mdi-file-font",
+        woff2: "mdi-file-font",
+        otf2: "mdi-file-font",
+        ttf2: "mdi-file-font",
+        eot: "mdi-file-font",
+        svg: "mdi-file-image",
+        ico: "mdi-file-image",
+        webp: "mdi-file-image",
+        other: "mdi-file",
+        xml: "mdi-file-code"
+      }
+    }
+  },
   methods: {
     friendlySize(size) {
       if (size < 1024) {
