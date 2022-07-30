@@ -61,7 +61,7 @@ router.post("/login", async (req, res, next) => {
       const ua = UAParser(req.headers["user-agent"])
       let ip = {}
       await axios
-        .get("http://ip-api.com/json/ " + req.header("x-real-ip") || req.ip)
+        .get("http://ip-api.com/json/ " + req.ip)
         .then((res) => {
           ip = res.data
         })
@@ -71,7 +71,7 @@ router.post("/login", async (req, res, next) => {
         session: "COLUBRINA-" + cryptoRandomString({ length: 128 }),
         expiredAt: new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * 30),
         other: {
-          ip: req.header("x-real-ip") || req.ip,
+          ip: req.ip,
           location: ip.country
             ? `${ip.city} - ${ip.regionName} - ${ip.country}`
             : null,
@@ -150,7 +150,7 @@ router.post("/register", async (req, res, next) => {
       const ua = UAParser(req.headers["user-agent"])
       let ip = {}
       await axios
-        .get("http://ip-api.com/json/ " + req.header("x-real-ip") || req.ip)
+        .get("http://ip-api.com/json/ " + req.ip)
         .then((res) => {
           ip = res.data
         })
@@ -160,7 +160,7 @@ router.post("/register", async (req, res, next) => {
         session: "COLUBRINA-" + cryptoRandomString({ length: 128 }),
         expiredAt: new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * 30),
         other: {
-          ip: req.header("x-real-ip") || req.ip,
+          ip: req.ip,
           location: ip.country
             ? `${ip.city} - ${ip.regionName} - ${ip.country}`
             : null,
