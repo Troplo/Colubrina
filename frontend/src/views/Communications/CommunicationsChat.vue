@@ -812,7 +812,7 @@ export default {
     }
   },
   methods: {
-    scrollEvent(e) {
+    async scrollEvent(e) {
       this.avoidAutoScroll =
         e.target.scrollTop + e.target.offsetHeight !== e.target.scrollHeight
       if (
@@ -824,7 +824,11 @@ export default {
         this.rateLimit = true
         this.offset += 50
         this.loadingMessages = true
-        this.getMessages()
+        const element = document.getElementById("message-0")
+        await this.getMessages()
+        if (element) {
+          element.scrollIntoView()
+        }
         setTimeout(() => {
           this.rateLimit = false
         }, 250)
