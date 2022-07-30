@@ -35,7 +35,6 @@
       @keydown.enter.exact.prevent="handleMessage()"
       v-model="message"
       @paste="handlePaste"
-      @change="handleChange"
       rows="1"
       single-line
       dense
@@ -112,7 +111,7 @@ export default {
   },
   methods: {
     handleEditMessage() {
-      if(!this.message?.length) {
+      if (!this.message?.length) {
         this.editLastMessage()
       }
     },
@@ -282,6 +281,11 @@ export default {
   mounted() {
     if (this.edit) {
       this.message = this.edit.content
+    }
+  },
+  watch: {
+    message() {
+      this.handleChange()
     }
   }
 }

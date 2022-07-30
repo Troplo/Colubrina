@@ -29,6 +29,7 @@ export default new Vuex.Store({
     selectedChat: null,
     chats: [],
     baseURL: process.env.VUE_APP_BASE_URL,
+    lastRoute: null,
     versioning: {
       date: process.env.VUE_APP_BUILD_DATE,
       version: process.env.VUE_APP_VERSION,

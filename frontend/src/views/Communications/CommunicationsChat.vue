@@ -126,38 +126,37 @@
           elevation="0"
         >
           <v-card-text class="flex-grow-1 overflow-y-auto" id="message-list">
-            <v-list two-line color="card" ref="message-list">
-              <v-card-title v-if="reachedTop">
-                Welcome to the start of
-                {{
-                  $store.state.selectedChat?.chat?.type === "direct"
-                    ? getDirectRecipient($store.state.selectedChat).username
-                    : $store.state.selectedChat?.chat?.name
-                }}
-              </v-card-title>
-              <v-progress-circular
-                v-if="loadingMessages"
-                indeterminate
-                size="128"
-                class="justify-center"
-              ></v-progress-circular>
-              <template v-for="(message, index) in messages">
-                <Message
-                  :key="message.keyId"
-                  :message="message"
-                  :jump-to-message="jumpToMessage"
-                  :edit="edit"
-                  :focus-input="focusInput"
-                  :replying="setReply"
-                  :get-name="getName"
-                  :end-edit="endEdit"
-                  :auto-scroll="autoScroll"
-                  :chat="chat"
-                  :index="index"
-                  :show="show"
-                ></Message>
-              </template>
-            </v-list>
+            <v-card-title v-if="reachedTop">
+              Welcome to the start of
+              {{
+                $store.state.selectedChat?.chat?.type === "direct"
+                  ? getDirectRecipient($store.state.selectedChat).username
+                  : $store.state.selectedChat?.chat?.name
+              }}
+            </v-card-title>
+            <v-progress-circular
+              v-if="loadingMessages"
+              indeterminate
+              size="64"
+              style="display: block; width: 100px; margin: 0 auto"
+            ></v-progress-circular>
+            <template v-for="(message, index) in messages">
+              <Message
+                :key="message.keyId"
+                :message="message"
+                :jump-to-message="jumpToMessage"
+                :edit="edit"
+                :focus-input="focusInput"
+                :replying="setReply"
+                :get-name="getName"
+                :end-edit="endEdit"
+                :auto-scroll="autoScroll"
+                :chat="chat"
+                :index="index"
+                :show="show"
+                :set-image-preview="setImagePreview"
+              ></Message>
+            </template>
           </v-card-text>
           <v-card-text>
             <v-toolbar
@@ -167,7 +166,6 @@
               color="card"
               v-if="replying"
               style="cursor: pointer; overflow: hidden"
-              class="mb-2"
             >
               <v-icon class="mr-2">mdi-reply</v-icon>
               <v-avatar size="24" class="mr-2">
@@ -194,17 +192,29 @@
                 <v-icon> mdi-close </v-icon>
               </v-btn>
             </v-toolbar>
-            <v-toolbar
-              height="29"
-              color="transparent"
-              elevation="0"
-              style="margin-bottom: -12px; padding-top: 0"
-            >
-              <p v-if="usersTyping.length" style="float: left">
-                {{ usersTyping.map((user) => getName(user)).join(", ") }}
-                {{ usersTyping.length > 1 ? " are" : " is" }} typing...
-              </p>
-            </v-toolbar>
+            <v-fade-transition v-model="avoidAutoScroll">
+              <v-toolbar
+                height="22"
+                color="toolbar"
+                elevation="0"
+                style="
+                  border-radius: 20px 20px 0 0;
+                  cursor: pointer;
+                  z-index: 50;
+                  position: relative;
+                  top: -30px;
+                  margin-bottom: -27px;
+                "
+                width="100%"
+                @click="forceBottom"
+                v-if="avoidAutoScroll"
+              >
+                <div>
+                  <v-icon size="16px"> mdi-arrow-down </v-icon>
+                  Jump to bottom...
+                </div>
+              </v-toolbar>
+            </v-fade-transition>
             <CommsInput
               :chat="chat"
               :replying="replying"
@@ -212,6 +222,27 @@
               :autoScroll="autoScroll"
               :endSend="endSend"
             ></CommsInput>
+            <v-fade-transition v-model="usersTyping.length">
+              <v-toolbar
+                height="22"
+                elevation="0"
+                style="
+                  border-radius: 0 0 20px 20px;
+                  position: relative;
+                  margin-bottom: -2px;
+                  margin-top: -20px;
+                  bottom: -14px;
+                "
+                width="100%"
+                color="toolbar"
+                v-if="usersTyping.length"
+              >
+                <div style="overflow: hidden">
+                  {{ usersTyping.map((user) => getName(user)).join(", ") }}
+                  {{ usersTyping.length > 1 ? " are" : " is" }} typing...
+                </div>
+              </v-toolbar>
+            </v-fade-transition>
           </v-card-text>
         </v-card>
       </v-col>
@@ -812,6 +843,10 @@ export default {
     }
   },
   methods: {
+    forceBottom() {
+      this.avoidAutoScroll = false
+      this.autoScroll()
+    },
     getDirectRecipient(item) {
       let user = item.chat.users.find(
         (user) => user.id !== this.$store.state.user.id
@@ -841,7 +876,9 @@ export default {
     },
     async scrollEvent(e) {
       this.avoidAutoScroll =
-        e.target.scrollTop + e.target.offsetHeight !== e.target.scrollHeight
+        e.target.scrollHeight -
+          Math.round(e.target.scrollTop + e.target.offsetHeight) >
+        50
       if (
         e.target.scrollTop === 0 &&
         !this.rateLimit &&
@@ -1077,26 +1114,32 @@ export default {
       this.edit.id = ""
       this.focusInput()
     },
-    autoScroll() {
+    autoScroll(smooth = false) {
       if (!this.avoidAutoScroll) {
-        this.$nextTick(() => {
-          try {
-            const lastIndex = this.messages.length - 1
-            const lastMessage = document.querySelector(`#message-${lastIndex}`)
+        try {
+          const lastIndex = this.messages.length - 1
+          const lastMessage = document.querySelector(`#message-${lastIndex}`)
+          if (smooth) {
+            lastMessage.scrollIntoView({
+              behavior: "smooth",
+              block: "nearest",
+              inline: "start"
+            })
+          } else {
             lastMessage.scrollIntoView()
-            this.autoScrollRetry = 0
-          } catch (e) {
-            console.log("Could not auto scroll, retrying...")
-            if (this.autoScrollRetry < 20) {
-              setTimeout(() => {
-                this.autoScroll()
-              }, 50)
-              this.autoScrollRetry++
-            } else {
-              console.log("Could not auto scroll, retry limit reached")
-            }
           }
-        })
+          this.autoScrollRetry = 0
+        } catch (e) {
+          console.log("Could not auto scroll, retrying...")
+          if (this.autoScrollRetry < 20) {
+            setTimeout(() => {
+              this.autoScroll()
+            }, 50)
+            this.autoScrollRetry++
+          } else {
+            console.log("Could not auto scroll, retry limit reached")
+          }
+        }
       }
     },
     getMessages() {
@@ -1107,7 +1150,7 @@ export default {
             "/api/v1/communications/" +
             this.$route.params.id +
             "/messages?limit=50&offset=" +
-            this.offset
+            this.messages[0]?.id || 0
         )
         .then((res) => {
           if (!res.data.length) {
@@ -1132,9 +1175,15 @@ export default {
           "/read"
       )
       this.markAsRead()
+    },
+    focusKey() {
+      if (document.activeElement.tagName === "BODY") {
+        this.focusInput()
+      }
     }
   },
   mounted() {
+    document.addEventListener("keypress", this.focusKey)
     document
       .getElementById("message-list")
       .addEventListener("scroll", this.scrollEvent)
@@ -1231,6 +1280,10 @@ export default {
       this.offset = 0
       this.getMessages()
     }
+  },
+  destroyed() {
+    document.removeEventListener("keypress", this.focusKey)
+    document.removeEventListener("scroll", this.scrollEvent)
   }
 }
 </script>

@@ -386,8 +386,9 @@
             {{ $store.state.site.name }} QuickSwitcher
           </v-toolbar-title>
         </v-toolbar>
-        <v-container>
+        <v-container v-if="$store.state.modals.search">
           <v-autocomplete
+            @keydown.enter="handleEnter"
             auto-select-first
             v-model="search"
             :items="$store.state.quickSwitchCache"
@@ -405,7 +406,10 @@
     <v-main>
       <Header></Header>
       <v-container
-        v-if="$store.state.site.latestVersion > $store.state.versioning.version"
+        v-if="
+          $store.state.site.latestVersion > $store.state.versioning.version &&
+          $store.state.site.release !== 'dev'
+        "
         id="update-notify-banner"
       >
         <v-alert class="mx-4 rounded-xl" type="info" text dismissible>
@@ -506,6 +510,16 @@ export default {
     }
   },
   methods: {
+    handleEnter() {
+      if (
+        !this.searchInput &&
+        this.$store.state.lastRoute &&
+        this.$store.state.lastRoute !== this.$route.path
+      ) {
+        this.$router.push(this.$store.state.lastRoute)
+        this.$store.state.modals.search = false
+      }
+    },
     registerSocket() {
       if (!this.$store.state.wsRegistered) {
         this.$store.state.wsRegistered = true
@@ -797,8 +811,9 @@ export default {
       },
       deep: true
     },
-    $route(to) {
+    $route(to, from) {
       document.title = to.name + " - " + this.$store.state.site.name
+      this.$store.state.lastRoute = from.path
     },
     search() {
       if (this.search) {

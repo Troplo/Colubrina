@@ -16,7 +16,7 @@
               <v-toolbar-title> Users </v-toolbar-title>
             </v-toolbar>
             <v-card color="card" elevation="0">
-              <v-list color="card">
+              <v-list color="card" v-if="$store.state.site.publicUsers">
                 <v-list-item v-for="user in users" :key="user.id">
                   <v-list-item-avatar
                     @click="userProfile(user)"
@@ -68,6 +68,9 @@
                   </v-list-item-action>
                 </v-list-item>
               </v-list>
+              <v-card-title v-else
+                >Public users are not enabled on this instance.</v-card-title
+              >
             </v-card>
           </v-card>
         </v-tab-item>

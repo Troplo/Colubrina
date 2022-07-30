@@ -6,7 +6,7 @@ const { Sequelize } = require("sequelize")
 const argon2 = require("argon2")
 const axios = require("axios")
 const os = require("os")
-const { execSync } = require('child_process');
+const { execSync } = require("child_process")
 
 console.log("Troplo/Colubrina CLI")
 console.log("Colubrina version", require("../frontend/package.json").version)
@@ -15,12 +15,19 @@ async function checkForUpdates() {
     await axios
       .get("https://services.troplo.com/api/v1/state", {
         headers: {
-          "X-Troplo-Project": "colubrina"
+          "X-Troplo-Project": "colubrina",
+          "X-Troplo-Project-Version": require("../frontend/package.json")
+            .version
         },
         timeout: 1000
       })
       .then((res) => {
-        if (require("../frontend/package.json").version !== res.data.latestVersion) {
+        if (res.data.warning) {
+          console.log(res.data.warning)
+        }
+        if (
+          require("../frontend/package.json").version !== res.data.latestVersion
+        ) {
           console.log("A new version of Colubrina is available!")
           console.log("Latest version:", res.data.latestVersion)
         } else {
@@ -139,7 +146,7 @@ async function dbSetup() {
 }
 async function runMigrations() {
   console.log("Running migrations")
-  execSync("cd ../backend && sequelize db:migrate",  () => {
+  execSync("cd ../backend && sequelize db:migrate", () => {
     console.log("Migrations applied")
   })
 }
@@ -218,6 +225,12 @@ async function configureDotEnv() {
       default: false
     })
   )
+  setEnvValue(
+    "PUBLIC_USERS",
+    await input.text("Show instance users publicly", {
+      default: false
+    })
+  )
   setEnvValue("NOTIFICATION", "")
   setEnvValue("NOTIFICATION_TYPE", "info")
   setEnvValue("RELEASE", "stable")
@@ -240,8 +253,8 @@ async function init() {
       execSync("cd ../backend && yarn install --frozen-lockfile", () => {
         console.log("yarn install complete (backend)")
       })
-      execSync("cd ../frontend && yarn install --frozen-lockfile",  () => {
-       console.log("yarn install complete (frontend)")
+      execSync("cd ../frontend && yarn install --frozen-lockfile", () => {
+        console.log("yarn install complete (frontend)")
       })
       if (fs.existsSync(path.join(__dirname, "../backend/.env"))) {
         const option = await input.confirm(".env already exists, overwrite?", {
@@ -253,7 +266,9 @@ async function init() {
       } else {
         await configureDotEnv()
       }
-      if (fs.existsSync(path.join(__dirname, "../backend/config/config.json"))) {
+      if (
+        fs.existsSync(path.join(__dirname, "../backend/config/config.json"))
+      ) {
         const option = await input.select(
           `config/config.json already exists. Do you want to overwrite it?`,
           ["Yes", "No"]
@@ -315,11 +330,14 @@ async function init() {
       await runMigrations()
     } else if (option === "Check for updates") {
       await checkForUpdates()
-    } else if(option === "Build frontend for production") {
+    } else if (option === "Build frontend for production") {
       console.log("Building...")
-      execSync("cd ../frontend && yarn install --frozen-lockfile && yarn build",  () => {
-        console.log("yarn build complete")
-      })
+      execSync(
+        "cd ../frontend && yarn install --frozen-lockfile && yarn build",
+        () => {
+          console.log("yarn build complete")
+        }
+      )
     } else if (option === "Exit") {
       process.exit(0)
     }

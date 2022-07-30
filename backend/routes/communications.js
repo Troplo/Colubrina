@@ -348,22 +348,26 @@ router.get("/mutual/:id/groups", auth, async (req, res, next) => {
 
 router.get("/users", auth, async (req, res, next) => {
   try {
-    const users = await User.findAll({
-      attributes: [
-        "id",
-        "username",
-        "name",
-        "avatar",
-        "createdAt",
-        "updatedAt",
-        "status",
-        "admin"
-      ],
-      where: {
-        banned: false
-      }
-    })
-    res.json(users)
+    if (process.env.PUBLIC_USERS === "true") {
+      const users = await User.findAll({
+        attributes: [
+          "id",
+          "username",
+          "name",
+          "avatar",
+          "createdAt",
+          "updatedAt",
+          "status",
+          "admin"
+        ],
+        where: {
+          banned: false
+        }
+      })
+      res.json(users)
+    } else {
+      res.json([])
+    }
   } catch (err) {
     next(err)
   }
@@ -1361,9 +1365,26 @@ router.get("/:id/messages", auth, async (req, res, next) => {
       ]
     })
     if (chat) {
+      let or
+      if (parseInt(req.query.offset)) {
+        or = {
+          [Op.or]: [
+            {
+              id: {
+                [Op.lt]: parseInt(req.query.offset)
+                  ? parseInt(req.query.offset)
+                  : 0
+              }
+            }
+          ]
+        }
+      } else {
+        or = {}
+      }
       const messages = await Message.findAll({
         where: {
-          chatId: chat.chat.id
+          chatId: chat.chat.id,
+          ...or
         },
         include: [
           {
@@ -1422,7 +1443,6 @@ router.get("/:id/messages", auth, async (req, res, next) => {
             ]
           }
         ],
-        offset: parseInt(req.query.offset) || 0,
         order: [["id", "DESC"]],
         limit: 50
       })

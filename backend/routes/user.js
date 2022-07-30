@@ -192,7 +192,7 @@ router.post("/register", async (req, res, next) => {
     }
   }
   try {
-    if (!JSON.parse(process.env.ALLOW_REGISTRATIONS)) {
+    if (process.env.ALLOW_REGISTRATIONS !== "true") {
       throw Errors.registrationsDisabled
     }
     if (req.body.password.length < 8) {

@@ -669,7 +669,8 @@ export default {
     "endEdit",
     "autoScroll",
     "index",
-    "show"
+    "show",
+    "setImagePreview"
   ],
   components: {
     CommsInput
