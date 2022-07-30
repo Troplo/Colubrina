@@ -670,7 +670,8 @@ export default {
     "autoScroll",
     "index",
     "show",
-    "setImagePreview"
+    "setImagePreview",
+    "deleteMessage"
   ],
   components: {
     CommsInput

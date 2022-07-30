@@ -155,6 +155,7 @@
                 :index="index"
                 :show="show"
                 :set-image-preview="setImagePreview"
+                :delete-message="deleteMessage"
               ></Message>
             </template>
           </v-card-text>
