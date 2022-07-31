@@ -771,6 +771,9 @@ export default {
       this.$store.dispatch("getUserInfo")
     })
     this.$socket.connect()
+    this.$socket.on("unauthorized", () => {
+      this.$socket.emit("token", localStorage.getItem("session"))
+    })
     document.title = this.$route.name
       ? this.$route.name + " - " + this.$store.state.site.name
       : this.$store.state.site.name || "Colubrina"

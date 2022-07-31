@@ -167,6 +167,9 @@ export default {
           } else {
             this.$router.push("/")
           }
+          if (this.isElectron()) {
+            window.location.reload()
+          }
         })
         .catch((e) => {
           if (

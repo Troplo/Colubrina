@@ -201,7 +201,7 @@ router.post("/login", async (req, res, next) => {
       res.cookie("session", session.session, {
         maxAge: 1000 * 60 * 60 * 24 * 365,
         httpOnly: true,
-        secure: true,
+        secure: false,
         sameSite: "strict"
       })
       res.json({
@@ -290,7 +290,7 @@ router.post("/register", limiter, async (req, res, next) => {
       res.cookie("session", session.session, {
         maxAge: 1000 * 60 * 60 * 24 * 365,
         httpOnly: true,
-        secure: true,
+        secure: false,
         sameSite: "strict"
       })
       res.json({

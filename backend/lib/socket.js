@@ -1,5 +1,5 @@
 const auth = require("../lib/authorize_socket.js")
-const { User, Friend } = require("../models")
+const { User, Friend, Session, Theme } = require("../models")
 module.exports = {
   init(app, server) {
     const io = require("socket.io")(server, {
@@ -121,6 +121,127 @@ module.exports = {
         })
         socket.emit("unauthorized", {
           message: "Please reauth."
+        })
+        socket.on("token", async (token) => {
+          const session = await Session.findOne({ where: { session: token } })
+          if (session) {
+            const user = await User.findOne({
+              where: { id: session.userId },
+              attributes: {
+                exclude: ["totp", "password", "emailToken"]
+              },
+              include: [
+                {
+                  model: Theme,
+                  as: "themeObject"
+                }
+              ]
+            })
+            if (user) {
+              socket.user = user
+              socket.join(user.id)
+              socket.emit("authorized")
+              socket.join(user.id)
+              socket.emit("siteState", {
+                release: process.env.RELEASE,
+                notification: process.env.NOTIFICATION,
+                notificationType: process.env.NOTIFICATION_TYPE,
+                latestVersion: require("../../frontend/package.json").version
+              })
+              const friends = await Friend.findAll({
+                where: {
+                  userId: user.id,
+                  status: "accepted"
+                }
+              })
+              await user.update({
+                status:
+                  user.storedStatus === "invisible"
+                    ? "offline"
+                    : user.storedStatus
+              })
+              friends.forEach((friend) => {
+                io.to(friend.friendId).emit("userStatus", {
+                  userId: user.id,
+                  status:
+                    user.storedStatus === "invisible"
+                      ? "offline"
+                      : user.storedStatus
+                })
+              })
+              socket.on("ping", () => {
+                socket.emit("pong")
+              })
+              socket.on("bcBots/deleteMessage", (e) => {
+                if (socket.user.bot) {
+                  socket.to(e.userId).emit("deleteMessage", e)
+                } else {
+                  socket.emit("bcBots/deleteMessage", {
+                    error: "You cannot perform this action."
+                  })
+                }
+              })
+              socket.on("idle", async () => {
+                const user = await User.findOne({
+                  where: {
+                    id: socket.user.id
+                  }
+                })
+                if (user.storedStatus === "online") {
+                  friends.forEach((friend) => {
+                    io.to(friend.friendId).emit("userStatus", {
+                      userId: user.id,
+                      status: "away"
+                    })
+                  })
+                  io.to(user.id).emit("userStatus", {
+                    userId: user.id,
+                    status: "away"
+                  })
+                  await user.update({
+                    status: "away"
+                  })
+                }
+              })
+              socket.on("online", async () => {
+                const user = await User.findOne({
+                  where: {
+                    id: socket.user.id
+                  }
+                })
+                if (user.storedStatus === "online") {
+                  friends.forEach((friend) => {
+                    io.to(friend.friendId).emit("userStatus", {
+                      userId: user.id,
+                      status: "online"
+                    })
+                  })
+                  io.to(user.id).emit("userStatus", {
+                    userId: user.id,
+                    status: "online"
+                  })
+                  await user.update({
+                    status: "online"
+                  })
+                }
+              })
+              socket.on("disconnect", async function () {
+                const clients =
+                  io.sockets.adapter.rooms.get(user.id) || new Set()
+                if (!clients.size || clients.size === 0) {
+                  friends.forEach((friend) => {
+                    io.to(friend.friendId).emit("userStatus", {
+                      userId: user.id,
+                      status: "offline"
+                    })
+                  })
+                  await user.update({
+                    status: "offline"
+                  })
+                }
+              })
+            }
+          }
         })
         console.log("Unauthenticated user")
         socket.on("reAuth", async () => {
