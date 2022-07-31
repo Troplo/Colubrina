@@ -1,6 +1,48 @@
 <template>
   <div id="communications-chat" @dragover.prevent @drop.prevent>
     <v-menu
+      :position-x="$store.state.context.pins.x"
+      :position-y="60"
+      v-model="$store.state.context.pins.value"
+      class="rounded-l"
+      absolute
+      transition="scroll-y-transition"
+      :close-on-content-click="false"
+    >
+      <v-card min-width="350" color="toolbar">
+        <v-toolbar color="toolbar lighten-1">
+          <v-spacer></v-spacer>
+          <v-toolbar-title> Pins </v-toolbar-title>
+          <v-spacer></v-spacer>
+        </v-toolbar>
+        <v-divider></v-divider>
+        <v-container>
+          <v-list dense v-if="pins.length">
+            <v-list-item
+              @click.self="jumpToMessage(pin.message.id)"
+              v-for="(pin, index) in pins"
+              :key="index"
+            >
+              <SimpleMessage
+                :message="pin.message"
+                :index="index"
+                :key="pin.message.keyId"
+              ></SimpleMessage>
+              <v-btn icon text @click="removePin(pin.messageId)">
+                <v-icon> mdi-close </v-icon>
+              </v-btn>
+            </v-list-item>
+          </v-list>
+          <v-list-item v-else-if="pinsLoading">
+            <v-list-item-title> Loading... </v-list-item-title>
+          </v-list-item>
+          <v-list-item v-else>
+            <v-list-item-title> This chat has no pins yet. </v-list-item-title>
+          </v-list-item>
+        </v-container>
+      </v-card>
+    </v-menu>
+    <v-menu
       v-model="context.message.value"
       :position-x="context.message.x"
       :position-y="context.message.y"
@@ -126,8 +168,20 @@
           elevation="0"
         >
           <v-card-text class="flex-grow-1 overflow-y-auto" id="message-list">
-            <v-card-title v-if="reachedTop">
+            <v-card-title
+              v-if="
+                reachedTop && $store.state.selectedChat?.chat?.type === 'group'
+              "
+            >
               Welcome to the start of
+              {{
+                $store.state.selectedChat?.chat?.type === "direct"
+                  ? getDirectRecipient($store.state.selectedChat).username
+                  : $store.state.selectedChat?.chat?.name
+              }}
+            </v-card-title>
+            <v-card-title v-else-if="reachedTop">
+              Welcome to the start of the conversation with
               {{
                 $store.state.selectedChat?.chat?.type === "direct"
                   ? getDirectRecipient($store.state.selectedChat).username
@@ -141,22 +195,63 @@
               style="display: block; width: 100px; margin: 0 auto"
             ></v-progress-circular>
             <template v-for="(message, index) in messages">
-              <Message
-                :key="message.keyId"
-                :message="message"
-                :jump-to-message="jumpToMessage"
-                :edit="edit"
-                :focus-input="focusInput"
-                :replying="setReply"
-                :get-name="getName"
-                :end-edit="endEdit"
-                :auto-scroll="autoScroll"
-                :chat="chat"
-                :index="index"
-                :show="show"
-                :set-image-preview="setImagePreview"
-                :delete-message="deleteMessage"
-              ></Message>
+              <div :key="'div-' + message.keyId">
+                <Message
+                  :key="message.keyId"
+                  :message="message"
+                  :jump-to-message="jumpToMessage"
+                  :edit="edit"
+                  :focus-input="focusInput"
+                  :replying="setReply"
+                  :get-name="getName"
+                  :end-edit="endEdit"
+                  :auto-scroll="autoScroll"
+                  :chat="chat"
+                  :index="index"
+                  :show="show"
+                  :set-image-preview="setImagePreview"
+                  :delete-message="deleteMessage"
+                ></Message>
+              </div>
+              <div
+                :key="'div2-' + message.keyId"
+                v-if="message.readReceipts.length"
+              >
+                <v-tooltip
+                  v-for="association in message.readReceipts"
+                  :key="association.id"
+                  top
+                >
+                  <template v-slot:activator="{ on }">
+                    <v-btn
+                      icon
+                      small
+                      fab
+                      width="20"
+                      height="20"
+                      class="ml-2 mt-2"
+                      style="float: right"
+                      @click="openUserPanel(association.user)"
+                    >
+                      <v-avatar size="20" v-on="on" color="primary">
+                        <img
+                          v-if="association.user.avatar"
+                          :src="'/usercontent/' + association.user.avatar"
+                          alt="avatar"
+                        />
+                        <span v-else>{{
+                          association.user.username[0].toUpperCase()
+                        }}</span>
+                      </v-avatar>
+                    </v-btn>
+                  </template>
+                  <span>
+                    {{ association.user.username }} has read up to this point.
+                  </span>
+                </v-tooltip>
+                <br />
+                <br v-if="index + 1 <= messages.length" />
+              </div>
             </template>
           </v-card-text>
           <v-card-text>
@@ -716,12 +811,21 @@ import CommsInput from "@/components/CommsInput"
 import NicknameDialog from "@/components/NicknameDialog"
 import UserDialog from "@/components/UserDialog"
 import Message from "@/components/Message"
+import SimpleMessage from "@/components/SimpleMessage"
 
 export default {
   name: "CommunicationsChat",
-  components: { Message, UserDialog, NicknameDialog, CommsInput },
+  components: {
+    SimpleMessage,
+    Message,
+    UserDialog,
+    NicknameDialog,
+    CommsInput
+  },
   props: ["chat", "loading", "items"],
   data: () => ({
+    pins: [],
+    pinsLoading: true,
     reachedTop: false,
     graphOptions: {
       responsive: true,
@@ -824,7 +928,8 @@ export default {
     userPanel: true,
     rateLimit: false,
     loadingMessages: true,
-    avoidAutoScroll: false
+    avoidAutoScroll: false,
+    lastRead: 0
   }),
   computed: {
     associations() {
@@ -845,6 +950,35 @@ export default {
     }
   },
   methods: {
+    removePin(id) {
+      this.axios
+        .post(`/api/v1/communications/${this.chat.id}/pins`, {
+          messageId: id
+        })
+        .then(() => {
+          this.getPins()
+        })
+        .catch((e) => {
+          AjaxErrorHandler(this.$store)(e)
+        })
+    },
+    getPins() {
+      this.pinsLoading = true
+      this.axios
+        .get(
+          process.env.VUE_APP_BASE_URL +
+            "/api/v1/communications/" +
+            this.$route.params.id +
+            "/pins"
+        )
+        .then((res) => {
+          this.pins = res.data
+          this.pinsLoading = false
+        })
+        .catch((e) => {
+          AjaxErrorHandler(this.$store)(e)
+        })
+    },
     forceBottom() {
       this.avoidAutoScroll = false
       this.autoScroll()
@@ -1198,6 +1332,12 @@ export default {
       .addEventListener("scroll", this.scrollEvent)
     setInterval(() => {
       this.typing()
+      if (
+        document.hasFocus() &&
+        this.messages[this.messages.length - 1]?.id !== this.lastRead
+      ) {
+        this.markRead()
+      }
     }, 1000)
     this.getMessages()
     if (localStorage.getItem("userPanel")) {
@@ -1212,11 +1352,35 @@ export default {
     if (drafts[this.$route.params.id]) {
       this.message = drafts[this.$route.params.id]
     }
+    this.$socket.on("readChat", (data) => {
+      if (data.id === this.chat.id) {
+        this.lastRead = data.lastRead
+      }
+    })
+    this.$socket.on("readReceipt", (data) => {
+      if (
+        data.messageId &&
+        data.chatId === this.chat.chatId &&
+        this.messages?.length
+      ) {
+        this.messages.forEach((message) => {
+          message.readReceipts = message.readReceipts.filter(
+            (readReceipt) => readReceipt.id !== data.id
+          )
+        })
+        this.messages
+          .find((message) => message.id === data.messageId)
+          .readReceipts?.push(data)
+        this.autoScroll()
+      }
+    })
     this.$socket.on("message", (message) => {
       if (message.chatId === this.chat.chatId) {
         this.messages.push(message)
         this.autoScroll()
-        this.markRead()
+        if (document.hasFocus()) {
+          this.markRead()
+        }
         if (this.messages.length > 50 && !this.avoidAutoScroll) {
           this.messages.shift()
           this.reachedTop = false
@@ -1265,6 +1429,11 @@ export default {
     })
   },
   watch: {
+    "$store.state.context.pins.value"(val) {
+      if (val) {
+        this.getPins()
+      }
+    },
     userPanel() {
       localStorage.setItem("userPanel", JSON.stringify(this.userPanel))
     },
@@ -1287,6 +1456,7 @@ export default {
       this.reachedTop = false
       this.avoidAutoScroll = false
       this.offset = 0
+      this.pins = []
       this.getMessages()
     }
   },

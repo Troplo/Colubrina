@@ -22,6 +22,10 @@ module.exports = (sequelize, DataTypes) => {
         as: "attachments",
         foreignKey: "messageId"
       })
+      Message.hasMany(models.ChatAssociation, {
+        as: "readReceipts",
+        foreignKey: "lastRead"
+      })
     }
   }
   Message.init(

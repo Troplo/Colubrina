@@ -35,6 +35,13 @@ export default new Vuex.Store({
       version: process.env.VUE_APP_VERSION,
       release: process.env.RELEASE
     },
+    context: {
+      pins: {
+        x: null,
+        y: null,
+        value: false
+      }
+    },
     drawer: true,
     site: {
       release: "stable",

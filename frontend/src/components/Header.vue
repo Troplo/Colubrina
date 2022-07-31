@@ -340,12 +340,20 @@
         <v-spacer></v-spacer>
         <v-btn
           icon
+          v-model="$store.state.context.pins.value"
+          @click="show($event, 'pins', null, null, true)"
+          id="pin-button"
+        >
+          <v-icon>mdi-pin-outline</v-icon>
+        </v-btn>
+        <v-btn
+          icon
           @click="$store.state.searchPanel = !$store.state.searchPanel"
         >
           <v-icon>mdi-magnify</v-icon>
         </v-btn>
         <v-btn icon @click="$store.state.userPanel = !$store.state.userPanel">
-          <v-icon>mdi-account-group</v-icon>
+          <v-icon>mdi-account-group-outline</v-icon>
         </v-btn>
       </template>
       <template v-else>
@@ -636,7 +644,8 @@ export default {
           value: false,
           x: null,
           y: null,
-          item: null
+          item: null,
+          id: 0
         }
       },
       selected: [2],
@@ -684,16 +693,28 @@ export default {
       this.leave.item = this.$store.state.chats.find((chat) => chat.id === id)
       this.leave.dialog = true
     },
-    show(e, context, item, id) {
-      e.preventDefault()
-      this.context[context].value = false
-      this.context[context].x = e.clientX
-      this.context[context].y = e.clientY
-      this.context[context].item = item
-      this.context[context].id = id
-      this.$nextTick(() => {
-        this.context[context].value = true
-      })
+    show(e, context, item, id, state) {
+      if (!state) {
+        e.preventDefault()
+        this.context[context].value = false
+        this.context[context].x = e.clientX
+        this.context[context].y = e.clientY
+        this.context[context].item = item
+        this.context[context].id = id
+        this.$nextTick(() => {
+          this.context[context].value = true
+        })
+      } else {
+        e.preventDefault()
+        this.$store.state.context[context].value = false
+        this.$store.state.context[context].x = e.clientX
+        this.$store.state.context[context].y = e.clientY
+        this.$store.state.context[context].item = item
+        this.$store.state.context[context].id = id
+        this.$nextTick(() => {
+          this.$store.state.context[context].value = true
+        })
+      }
     },
     setStatus(status) {
       const previousStatus = {

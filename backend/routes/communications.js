@@ -6,6 +6,7 @@ const {
   User,
   Chat,
   ChatAssociation,
+  Pin,
   Message,
   Friend,
   Attachment,
@@ -67,6 +68,18 @@ async function createMessage(req, type, content, association, userId) {
     },
     include: [
       {
+        model: ChatAssociation,
+        as: "readReceipts",
+        attributes: ["id"],
+        include: [
+          {
+            model: User,
+            as: "user",
+            attributes: ["username", "name", "avatar", "id"]
+          }
+        ]
+      },
+      {
         model: Attachment,
         as: "attachments"
       },
@@ -124,7 +137,6 @@ async function createMessage(req, type, content, association, userId) {
     ]
   })
   associations.forEach((user) => {
-    console.log(user)
     io.to(user.dataValues.userId).emit("message", {
       ...messageLookup.dataValues,
       associationId: user.dataValues.id,
@@ -196,9 +208,7 @@ router.get("/", auth, async (req, res, next) => {
                     "id",
                     "createdAt",
                     "updatedAt",
-
                     "status",
-
                     "admin",
                     "status",
                     "bot"
@@ -468,6 +478,170 @@ router.get("/:id", auth, async (req, res, next) => {
   }
 })
 
+router.get("/:id/pins", auth, async (req, res, next) => {
+  try {
+    let chat = await ChatAssociation.findOne({
+      where: {
+        userId: req.user.id,
+        id: req.params.id
+      },
+      include: [
+        {
+          model: Chat,
+          as: "chat"
+        }
+      ]
+    })
+    if (chat) {
+      const pins = await Pin.findAll({
+        where: {
+          chatId: chat.chat.id
+        },
+        include: [
+          {
+            model: User,
+            as: "pinnedBy",
+            required: false,
+            attributes: [
+              "username",
+              "name",
+              "avatar",
+              "id",
+              "createdAt",
+              "updatedAt"
+            ],
+            include: [
+              {
+                model: Nickname,
+                as: "nickname",
+                attributes: ["nickname"],
+                required: false,
+                where: {
+                  userId: req.user.id
+                }
+              }
+            ]
+          },
+          {
+            model: Message,
+            as: "message",
+            include: [
+              {
+                model: User,
+                as: "user",
+                attributes: [
+                  "username",
+                  "name",
+                  "avatar",
+                  "id",
+                  "createdAt",
+                  "updatedAt"
+                ],
+                include: [
+                  {
+                    model: Nickname,
+                    as: "nickname",
+                    attributes: ["nickname"],
+                    required: false,
+                    where: {
+                      userId: req.user.id
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        order: [["id", "DESC"]]
+      })
+      res.json(
+        pins.map((pin) => {
+          const message = pin.dataValues.message.dataValues
+          return {
+            ...pin.dataValues,
+            message: {
+              ...pin.dataValues.message.dataValues,
+              keyId: `${message.id}-${message.updatedAt.toISOString()}`
+            }
+          }
+        })
+      )
+    } else {
+      throw Errors.invalidParameter("chat association id")
+    }
+  } catch (err) {
+    next(err)
+  }
+})
+
+router.post("/:id/pins", auth, async (req, res, next) => {
+  try {
+    const io = req.app.get("io")
+    const chat = await ChatAssociation.findOne({
+      where: {
+        userId: req.user.id,
+        id: req.params.id
+      },
+      include: [
+        {
+          model: Chat,
+          as: "chat",
+          include: [
+            {
+              model: User,
+              as: "users",
+              attributes: ["id"]
+            }
+          ]
+        }
+      ]
+    })
+    if (chat?.chat?.type === "direct" || chat?.rank === "admin") {
+      const message = await Message.findOne({
+        where: {
+          id: req.body.messageId,
+          chatId: chat.chat.id
+        }
+      })
+      if (message) {
+        const checkPin = await Pin.findOne({
+          where: {
+            messageId: message.id,
+            chatId: chat.chat.id
+          }
+        })
+        if (checkPin) {
+          await checkPin.destroy()
+          res.json({
+            message: "Message unpinned successfully."
+          })
+          return
+        }
+        const pin = await Pin.create({
+          chatId: chat.chat.id,
+          messageId: req.body.messageId,
+          pinnedById: req.user.id
+        })
+        await createMessage(
+          req,
+          "pin",
+          `${req.user.username} pinned a message to the chat.`,
+          chat,
+          req.user.id
+        )
+        res.json({
+          ...pin.dataValues,
+          message: "Message pinned successfully."
+        })
+      }
+    } else {
+      throw Errors.invalidParameter("chat association id")
+    }
+  } catch (e) {
+    next(e)
+  }
+})
+
 router.put("/:id/read", auth, async (req, res, next) => {
   try {
     const io = req.app.get("io")
@@ -481,6 +655,11 @@ router.put("/:id/read", auth, async (req, res, next) => {
           model: Chat,
           as: "chat",
           include: [
+            {
+              model: User,
+              as: "users",
+              attributes: ["id"]
+            },
             {
               model: Message,
               as: "lastMessages",
@@ -501,6 +680,20 @@ router.put("/:id/read", auth, async (req, res, next) => {
         lastRead: chat.chat.lastMessages[0]?.id || null
       })
       res.sendStatus(204)
+      for (const user of chat.chat.users) {
+        io.to(user.id).emit("readReceipt", {
+          id: chat.id,
+          messageId: chat.chat.lastMessages[0]?.id || null,
+          userId: req.user.id,
+          chatId: chat.chat.id,
+          user: {
+            username: req.user.username,
+            avatar: req.user.avatar,
+            id: req.user.id
+          },
+          previousMessageId: chat.lastRead
+        })
+      }
     } else {
       throw Errors.invalidParameter("chat association id")
     }
@@ -878,6 +1071,18 @@ router.post(
           },
           include: [
             {
+              model: ChatAssociation,
+              as: "readReceipts",
+              attributes: ["id"],
+              include: [
+                {
+                  model: User,
+                  as: "user",
+                  attributes: ["username", "name", "avatar", "id"]
+                }
+              ]
+            },
+            {
               model: Attachment,
               as: "attachments"
             },
@@ -1130,6 +1335,18 @@ router.post("/:id/message", auth, limiter, async (req, res, next) => {
           id: message.id
         },
         include: [
+          {
+            model: ChatAssociation,
+            as: "readReceipts",
+            attributes: ["id"],
+            include: [
+              {
+                model: User,
+                as: "user",
+                attributes: ["username", "name", "avatar", "id"]
+              }
+            ]
+          },
           {
             model: Attachment,
             as: "attachments"
@@ -1400,6 +1617,18 @@ router.get("/:id/messages", auth, async (req, res, next) => {
         },
         include: [
           {
+            model: ChatAssociation,
+            as: "readReceipts",
+            attributes: ["id"],
+            include: [
+              {
+                model: User,
+                as: "user",
+                attributes: ["username", "name", "avatar", "id"]
+              }
+            ]
+          },
+          {
             model: Attachment,
             as: "attachments"
           },
@@ -1409,12 +1638,10 @@ router.get("/:id/messages", auth, async (req, res, next) => {
             attributes: [
               "username",
               "name",
-
               "avatar",
               "id",
               "createdAt",
               "updatedAt",
-
               "bot"
             ],
             include: [
@@ -1439,12 +1666,10 @@ router.get("/:id/messages", auth, async (req, res, next) => {
                 attributes: [
                   "username",
                   "name",
-
                   "avatar",
                   "id",
                   "createdAt",
                   "updatedAt",
-
                   "bot"
                 ]
               },
