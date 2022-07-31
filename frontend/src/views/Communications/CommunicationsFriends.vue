@@ -86,6 +86,13 @@
             </v-toolbar>
             <v-card color="card" elevation="0">
               <v-list color="card">
+                <v-list-item v-if="computePendingIncoming.length === 0">
+                  <v-list-item-content>
+                    <v-list-item-title>
+                      You currently do not have any incoming friend requests.
+                    </v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
                 <v-list-item
                   v-for="friend in computePendingIncoming"
                   :key="friend.id"
@@ -128,6 +135,13 @@
             </v-toolbar>
             <v-card color="card" elevation="0">
               <v-list color="card">
+                <v-list-item v-if="computePendingOutgoing.length === 0">
+                  <v-list-item-content>
+                    <v-list-item-title>
+                      You currently do not have any outgoing friend requests.
+                    </v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
                 <v-list-item
                   v-for="friend in computePendingOutgoing"
                   :key="friend.id"
@@ -167,6 +181,13 @@
             </v-toolbar>
             <v-card color="card" elevation="0">
               <v-list color="card">
+                <v-list-item v-if="computeAccepted.length === 0">
+                  <v-list-item-content>
+                    <v-list-item-title>
+                      You currently do not have any friends.
+                    </v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
                 <v-list-item v-for="friend in computeAccepted" :key="friend.id">
                   <v-list-item-avatar
                     @click="userProfile(friend.user2)"
