@@ -35,6 +35,10 @@
                   label="Password"
                   type="password"
                 ></v-text-field>
+                <small v-if="$store.state.site.emailVerification"
+                  >This instance has email verification enforced, ensure your
+                  email is correct.</small
+                >
                 <v-card-actions>
                   <v-spacer></v-spacer>
                   <v-btn
@@ -102,7 +106,14 @@ export default {
           this.loading = false
           this.$socket.disconnect()
           this.$socket.connect()
-          this.$router.push("/")
+          if (
+            this.$store.state.site.emailVerification &&
+            !this.$store.state.user.emailVerified
+          ) {
+            this.$router.push("/email/verify")
+          } else {
+            this.$router.push("/")
+          }
         })
         .catch((e) => {
           if (

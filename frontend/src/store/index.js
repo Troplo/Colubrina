@@ -39,7 +39,8 @@ export default new Vuex.Store({
     site: {
       release: "stable",
       loading: true,
-      name: "Colubrina"
+      name: "Colubrina",
+      emailVerification: false
     },
     user: {
       bcUser: null,
@@ -135,11 +136,14 @@ export default new Vuex.Store({
     getChats(context) {
       Vue.axios.defaults.headers.common["Authorization"] =
         localStorage.getItem("session")
-      Vue.axios.get("/api/v1/communications").then((res) => {
-        context.commit("setChats", res.data)
-        context.dispatch("getCommunicationsUnread")
-        context.dispatch("updateQuickSwitch")
-      })
+      Vue.axios
+        .get("/api/v1/communications")
+        .then((res) => {
+          context.commit("setChats", res.data)
+          context.dispatch("getCommunicationsUnread")
+          context.dispatch("updateQuickSwitch")
+        })
+        .catch(() => {})
     },
     getCommunicationsUnread(context) {
       Vue.axios
@@ -152,6 +156,7 @@ export default new Vuex.Store({
             context.state.communicationNotifications += item.unread
           })
         })
+        .catch(() => {})
     },
     discardTheme(context) {
       context.state.themeEngine.theme = {

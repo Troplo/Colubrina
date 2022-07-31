@@ -123,7 +123,14 @@ export default {
           this.loading = false
           this.$socket.disconnect()
           this.$socket.connect()
-          this.$router.push("/")
+          if (
+            this.$store.state.site.emailVerification &&
+            !this.$store.state.user.emailVerified
+          ) {
+            this.$router.push("/email/verify")
+          } else {
+            this.$router.push("/")
+          }
         })
         .catch((e) => {
           if (

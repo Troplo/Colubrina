@@ -31,7 +31,8 @@ app.get("/api/v1/state", async (req, res) => {
     latestVersion: require("../frontend/package.json").version,
     name: process.env.SITE_NAME,
     allowRegistrations: process.env.ALLOW_REGISTRATIONS === "true",
-    publicUsers: process.env.PUBLIC_USERS === "true"
+    publicUsers: process.env.PUBLIC_USERS === "true",
+    emailVerification: process.env.EMAIL_VERIFICATION === "true"
   })
 })
 

@@ -135,6 +135,18 @@ async function createMessage(req, type, content, association, userId) {
   })
 }
 
+router.all("*", auth, async (req, res, next) => {
+  try {
+    if (!req.user.emailVerified && process.env.EMAIL_VERIFICATION === "true") {
+      throw Errors.emailVerificationRequired
+    } else {
+      next()
+    }
+  } catch (e) {
+    next(e)
+  }
+})
+
 router.get("/", auth, async (req, res, next) => {
   try {
     let chats = await ChatAssociation.findAll({

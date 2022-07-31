@@ -9,7 +9,7 @@ module.exports = async function (req, res, next) {
         const user = await User.findOne({
           where: { id: session.userId },
           attributes: {
-            exclude: ["totp", "password"]
+            exclude: ["totp", "password", "emailToken"]
           },
           include: [
             {

@@ -151,6 +151,22 @@ const routes = [
       import(/* webpackChunkName: "about" */ "../views/About.vue")
   },
   {
+    path: "/email/verify",
+    name: "Email Verify",
+    component: () =>
+      import(
+        /* webpackChunkName: "emailVerify" */ "../views/Email/EmailVerify.vue"
+      )
+  },
+  {
+    path: "/email/confirm/:token",
+    name: "Email Confirm",
+    component: () =>
+      import(
+        /* webpackChunkName: "emailConfirm" */ "../views/Email/EmailConfirm.vue"
+      )
+  },
+  {
     path: "*",
     name: "Not Found",
     component: () =>

@@ -39,7 +39,13 @@ let Errors = {
     400
   ],
   banned: ["You are banned from this instance.", 400],
-  leavingDirectChat: ["You cannot leave a direct message.", 400]
+  leavingDirectChat: ["You cannot leave a direct message.", 400],
+  emailVerificationRequired: [
+    "You must verify your email before you can do this action.",
+    401
+  ],
+  mailFail: ["There was an error sending the verification email.", 400],
+  invalidToken: ["The token you provided is invalid.", 400]
 }
 
 function processErrors(errorName) {

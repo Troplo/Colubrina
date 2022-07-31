@@ -41,8 +41,8 @@ module.exports = (sequelize, DataTypes) => {
             msg: "Username is required"
           },
           len: {
-            args: [2, 16],
-            msg: "Username must be between 2 and 16 characters"
+            args: [2, 24],
+            msg: "Username must be between 2 and 24 characters"
           },
           regex: {
             args: /^[a-z0-9_-]+$/i,
@@ -158,6 +158,15 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.BOOLEAN,
         allowNull: false,
         defaultValue: false
+      },
+      emailVerified: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
+      },
+      emailToken: {
+        type: DataTypes.STRING,
+        allowNull: true
       }
     },
     {

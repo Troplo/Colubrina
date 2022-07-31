@@ -159,11 +159,12 @@ async function createUser() {
     email: await input.text("Email", {
       default: "troplo@troplo.com"
     }),
-    admin: JSON.parse(
-      await input.confirm("Admin (true/false)", {
-        default: false
-      })
-    )
+    admin: await input.confirm("Admin (true/false)", {
+      default: false
+    }),
+    emailVerified: await input.confirm("Email verified (true/false)", {
+      default: true
+    })
   }
   const { User } = require("../backend/models")
   await User.create(user)
@@ -231,6 +232,52 @@ async function configureDotEnv() {
       default: false
     })
   )
+  const emailVerify = await input.text("Enforce email verification?", {
+    default: false
+  })
+  if (emailVerify) {
+    setEnvValue("EMAIL_VERIFICATION", true)
+    setEnvValue(
+      "EMAIL_SMTP_HOST",
+      await input.text("SMTP Host", {
+        default: "smtp.myhost.com"
+      })
+    )
+    setEnvValue(
+      "EMAIL_SMTP_PORT",
+      await input.text("SMTP Port", {
+        default: 587
+      })
+    )
+    setEnvValue(
+      "EMAIL_SMTP_USER",
+      await input.text("SMTP User", {
+        default: "colubrina@myhost.com"
+      })
+    )
+    setEnvValue(
+      "EMAIL_SMTP_FROM",
+      await input.text("SMTP From Address", {
+        default: "colubrina@myhost.com"
+      })
+    )
+    setEnvValue("EMAIL_SMTP_PASSWORD", await input.text("SMTP Password", {}))
+    setEnvValue(
+      "EMAIL_SMTP_SECURE",
+      await input.text("SMTP Secure", {
+        default: false
+      })
+    )
+  } else {
+    setEnvValue("EMAIL_VERIFICATION", false)
+    setEnvValue("EMAIL_SMTP_HOST", "smtp.myhost.com")
+    setEnvValue("EMAIL_SMTP_PORT", "587")
+    setEnvValue("EMAIL_SMTP_USER", "colubrina@myhost.com")
+    setEnvValue("EMAIL_SMTP_FROM", "colubrina@myhost.com")
+    setEnvValue("EMAIL_SMTP_PASSWORD", "myPassword")
+    setEnvValue("EMAIL_SMTP_SECURE", false)
+  }
+  setEnvValue("PUBLIC_USERS")
   setEnvValue("NOTIFICATION", "")
   setEnvValue("NOTIFICATION_TYPE", "info")
   setEnvValue("RELEASE", "stable")

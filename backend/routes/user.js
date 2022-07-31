@@ -15,6 +15,8 @@ const semver = require("semver")
 const multer = require("multer")
 const FileType = require("file-type")
 const rateLimit = require("express-rate-limit")
+const Mailgen = require("mailgen")
+const nodemailer = require("nodemailer")
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -31,6 +33,16 @@ const storage = multer.diskStorage({
 const limiter = rateLimit({
   windowMs: 5 * 60 * 1000,
   max: 2,
+  message: Errors.rateLimit,
+  standardHeaders: true,
+  legacyHeaders: false,
+  skipFailedRequests: true,
+  keyGenerator: (req, res) => req.user?.id || req.ip
+})
+
+const mailLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 1,
   message: Errors.rateLimit,
   standardHeaders: true,
   legacyHeaders: false,
@@ -55,6 +67,92 @@ const upload = multer({
     }
 
     cb(null, true)
+  }
+})
+
+router.post("/verify/resend", auth, mailLimiter, async (req, res, next) => {
+  try {
+    if (process.env.EMAIL_VERIFICATION !== "true") {
+      throw Errors.invalidParameter("Email verification is disabled")
+    }
+    const token = "COLUBRINA-VERIFY-" + cryptoRandomString({ length: 64 })
+    await req.user.update({
+      emailToken: token
+    })
+    const mailGenerator = new Mailgen({
+      theme: "default",
+      product: {
+        name: process.env.SITE_NAME,
+        link: process.env.CORS_HOSTNAME
+      }
+    })
+    const email = {
+      body: {
+        name: req.user.username,
+        intro: `${process.env.SITE_NAME} Account Verification`,
+        action: {
+          instructions: `You are receiving this email because you registered on ${process.env.SITE_NAME}, please use the link below to verify your account.`,
+          button: {
+            color: "#1A97FF",
+            text: "Account Verification",
+            link: process.env.CORS_HOSTNAME + "/email/confirm/" + token
+          }
+        },
+        outro: "If you did not register, please disregard this email."
+      }
+    }
+    const emailBody = mailGenerator.generate(email)
+
+    const emailText = mailGenerator.generatePlaintext(email)
+    const transporter = nodemailer.createTransport({
+      host: process.env.EMAIL_SMTP_HOST,
+      port: process.env.EMAIL_SMTP_PORT,
+      secure: JSON.parse(process.env.EMAIL_SMTP_SECURE.toLowerCase()),
+      auth: {
+        user: process.env.EMAIL_SMTP_USER,
+        pass: process.env.EMAIL_SMTP_PASSWORD
+      }
+    })
+    let info = await transporter.sendMail({
+      from: process.env.EMAIL_SMTP_FROM,
+      to: req.user.email,
+      subject: "Email Verification - " + process.env.SITE_NAME,
+      text: emailText,
+      html: emailBody
+    })
+    if (info) {
+      res.json({ success: true })
+    } else {
+      throw Errors.mailFail
+    }
+  } catch (e) {
+    next(e)
+  }
+})
+
+router.post("/verify/confirm/:token", auth, async (req, res, next) => {
+  try {
+    const user = await User.findOne({
+      where: {
+        id: req.user.id
+      }
+    })
+    if (process.env.EMAIL_VERIFICATION !== "true") {
+      throw Errors.invalidParameter("Email verification is disabled")
+    }
+    if (!req.params.token) {
+      throw Errors.invalidToken
+    }
+    if (req.params.token !== user.emailToken) {
+      throw Errors.invalidToken
+    }
+    await user.update({
+      emailVerified: true,
+      emailToken: null
+    })
+    res.json({ success: true })
+  } catch (e) {
+    next(e)
   }
 })
 

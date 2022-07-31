@@ -765,11 +765,25 @@ export default {
     this.$store.dispatch("getState")
     this.getThemes()
     this.communicationsIdleCheck()
-    this.$store.dispatch("getUserInfo").catch(() => {
-      if (!["/login", "/register"].includes(this.$route.path)) {
-        this.$router.push("/login")
-      }
-    })
+    this.$store
+      .dispatch("getUserInfo")
+      .then(() => {
+        console.log(window.location.pathname)
+        // check if its /email/confirm/<token>
+        if (
+          !window.location.pathname.includes("/email/confirm/") &&
+          !window.location.pathname.includes("/email/verify") &&
+          !this.$store.state.user.emailVerified &&
+          this.$store.state.site.emailVerification
+        ) {
+          this.$router.push("/email/verify")
+        }
+      })
+      .catch(() => {
+        if (!["/login", "/register"].includes(this.$route.path)) {
+          this.$router.push("/login")
+        }
+      })
     this.registerSocket()
   },
   watch: {
