@@ -239,7 +239,11 @@
                       <v-avatar size="20" v-on="on" color="primary">
                         <img
                           v-if="association.user.avatar"
-                          :src="'/usercontent/' + association.user.avatar"
+                          :src="
+                            $store.state.baseURL +
+                            '/usercontent/' +
+                            association.user.avatar
+                          "
                           alt="avatar"
                         />
                         <span v-else>{{
@@ -271,7 +275,11 @@
                   <v-avatar size="20" v-on="on" color="primary">
                     <img
                       v-if="$store.state.user.avatar"
-                      :src="'/usercontent/' + $store.state.user.avatar"
+                      :src="
+                        $store.state.baseURL +
+                        '/usercontent/' +
+                        $store.state.user.avatar
+                      "
                       alt="avatar"
                     />
                     <span v-else>{{
