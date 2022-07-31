@@ -621,7 +621,7 @@ router.post("/:id/pins", auth, async (req, res, next) => {
             `${req.user.username} unpinned a message from the chat.`,
             chat,
             req.user.id
-         )
+          )
           return
         }
         const pin = await Pin.create({
@@ -679,27 +679,35 @@ router.put("/:id/read", auth, async (req, res, next) => {
       ]
     })
     if (chat) {
-      await chat.update({
-        lastRead: chat.chat.lastMessages[0]?.id || null
-      })
-      io.to(req.user.id).emit("readChat", {
-        id: chat.id,
-        lastRead: chat.chat.lastMessages[0]?.id || null
-      })
-      res.sendStatus(204)
-      for (const user of chat.chat.users) {
-        io.to(user.id).emit("readReceipt", {
-          id: chat.id,
-          messageId: chat.chat.lastMessages[0]?.id || null,
-          userId: req.user.id,
-          chatId: chat.chat.id,
-          user: {
-            username: req.user.username,
-            avatar: req.user.avatar,
-            id: req.user.id
-          },
-          previousMessageId: chat.lastRead
+      if (req.user.storedStatus !== "invisible") {
+        await chat.update({
+          lastRead: chat.chat.lastMessages[0]?.id || null
         })
+        io.to(req.user.id).emit("readChat", {
+          id: chat.id,
+          lastRead: chat.chat.lastMessages[0]?.id || null
+        })
+        res.sendStatus(204)
+        for (const user of chat.chat.users) {
+          io.to(user.id).emit("readReceipt", {
+            id: chat.id,
+            messageId: chat.chat.lastMessages[0]?.id || null,
+            userId: req.user.id,
+            chatId: chat.chat.id,
+            user: {
+              username: req.user.username,
+              avatar: req.user.avatar,
+              id: req.user.id
+            },
+            previousMessageId: chat.lastRead
+          })
+        }
+      } else {
+        io.to(req.user.id).emit("readChat", {
+          id: chat.id,
+          lastRead: chat.chat.lastMessages[0]?.id || null
+        })
+        res.sendStatus(204)
       }
     } else {
       throw Errors.invalidParameter("chat association id")
