@@ -21,3 +21,5 @@ pnpm-debug.log*
 backend/node_modules
 backend/config/config.json
 backend/.env
+#Electron-builder output
+/dist_electron

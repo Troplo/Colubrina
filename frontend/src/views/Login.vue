@@ -36,6 +36,29 @@
                 <v-text-field
                   @keyup.enter="doLogin()"
                   class="rounded-xl"
+                  v-model="instance"
+                  v-if="isElectron()"
+                  label="Instance URL"
+                  placeholder="https://colubrina.troplo.com"
+                  type="email"
+                ></v-text-field>
+                <small style="float: right" v-if="isElectron()">{{
+                  instanceString
+                }}</small
+                ><br v-if="isElectron()" />
+                <v-text-field
+                  @keyup.enter="doLogin()"
+                  class="rounded-xl"
+                  v-model="customHeaders[header.name]"
+                  v-for="header in $store.state.site.customHeaders"
+                  :key="header.name"
+                  :label="header.friendlyName"
+                  :placeholder="header.placeholder"
+                  type="email"
+                ></v-text-field>
+                <v-text-field
+                  @keyup.enter="doLogin()"
+                  class="rounded-xl"
                   v-model="username"
                   label="Username"
                   placeholder="FOO1000"
@@ -93,20 +116,30 @@ export default {
   name: "Login",
   data() {
     return {
+      instanceString: "",
       rememberMe: true,
       username: "",
       password: "",
       totp: "",
       totpDialog: false,
-      loading: false
+      loading: false,
+      instance: "https://colubrina.troplo.com",
+      customHeaders: {}
     }
   },
   methods: {
+    isElectron() {
+      return process.env.IS_ELECTRON
+    },
     viewport() {
       return window.innerHeight
     },
     doLogin() {
       this.loading = true
+      localStorage.setItem("customHeaders", JSON.stringify(this.customHeaders))
+      for (let header in this.customHeaders) {
+        Vue.axios.defaults.headers[header] = this.customHeaders[header]
+      }
       this.axios
         .post("/api/v1/user/login", {
           password: this.password,
@@ -115,9 +148,12 @@ export default {
           totp: this.totp
         })
         .then(async (res) => {
-          localStorage.setItem("session", res.data.session)
-          Vue.axios.defaults.headers.common["Authorization"] = res.data.session
-          this.$store.commit("setToken", res.data.session)
+          const session =
+            res.data.session || res.data.bcToken || res.data.cookieToken
+
+          localStorage.setItem("session", session)
+          Vue.axios.defaults.headers.common["Authorization"] = session
+          this.$store.commit("setToken", session)
           await this.$store.dispatch("getUserInfo")
           this.$store.dispatch("getChats")
           this.loading = false
@@ -144,11 +180,32 @@ export default {
             this.loading = false
           }
         })
+    },
+    testInstance() {
+      if (this.isElectron()) {
+        this.axios
+          .get(this.instance + "/api/v1/state")
+          .then((res) => {
+            this.instanceString = res.data.name + " v" + res.data.latestVersion
+            this.axios.defaults.baseURL = this.instance
+            localStorage.setItem("instance", this.instance)
+            this.$store.dispatch("getState")
+          })
+          .catch(() => {
+            this.instanceString = "Error connecting to instance"
+          })
+      }
     }
   },
   mounted() {
     if (this.$store.state.user?.id) {
       this.$router.push("/")
+    }
+    this.testInstance()
+  },
+  watch: {
+    instance() {
+      this.testInstance()
     }
   }
 }

@@ -729,8 +729,22 @@ export default {
     }
   },
   mounted() {
+    Vue.axios.defaults.headers.common["X-Colubrina"] = true
     Vue.axios.defaults.headers.common["Authorization"] =
       localStorage.getItem("session")
+    console.log(localStorage.getItem("instance"))
+    if (process.env.IS_ELECTRON) {
+      this.axios.defaults.baseURL = localStorage.getItem("instance")
+      this.$store.state.baseURL = localStorage.getItem("instance")
+    }
+    if (localStorage.getItem("customHeaders")) {
+      console.log(JSON.parse(localStorage.getItem("customHeaders")))
+      for (let header in JSON.parse(localStorage.getItem("customHeaders"))) {
+        Vue.axios.defaults.headers[header] = JSON.parse(
+          localStorage.getItem("customHeaders")
+        )[header]
+      }
+    }
     if (this.$vuetify.breakpoint.mobile) {
       this.$store.state.drawer = false
     }

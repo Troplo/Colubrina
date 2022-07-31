@@ -855,6 +855,7 @@ export default {
   },
   props: ["chat", "loading", "items"],
   data: () => ({
+    interval: null,
     pins: [],
     pinsLoading: true,
     reachedTop: false,
@@ -1361,7 +1362,7 @@ export default {
     document
       .getElementById("message-list")
       .addEventListener("scroll", this.scrollEvent)
-    setInterval(() => {
+    this.interval = setInterval(() => {
       this.typing()
       if (
         document.hasFocus() &&
@@ -1494,6 +1495,7 @@ export default {
   destroyed() {
     document.removeEventListener("keypress", this.focusKey)
     document.removeEventListener("scroll", this.scrollEvent)
+    clearInterval(this.interval)
   }
 }
 </script>

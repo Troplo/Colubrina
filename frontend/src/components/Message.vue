@@ -164,7 +164,7 @@
                             @click="setImagePreview(embed)"
                             contain
                             :aspect-ratio="16 / 9"
-                            :src="embed.mediaProxyLink"
+                            :src="$store.state.baseURL + embed.mediaProxyLink"
                           >
                             <template v-slot:placeholder>
                               <v-row

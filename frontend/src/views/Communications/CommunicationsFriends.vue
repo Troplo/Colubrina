@@ -24,7 +24,9 @@
                     :color="$vuetify.theme.themes.dark.primary"
                   >
                     <v-img
-                      :src="'/usercontent/' + user.avatar"
+                      :src="
+                        $store.state.baseURL + '/usercontent//' + user.avatar
+                      "
                       v-if="user.avatar"
                     />
                     <v-icon v-else> mdi-account </v-icon>
@@ -102,7 +104,11 @@
                     :color="$vuetify.theme.themes.dark.primary"
                   >
                     <v-img
-                      :src="'/usercontent/' + friend.user2.avatar"
+                      :src="
+                        $store.state.baseURL +
+                        '/usercontent//' +
+                        friend.user2.avatar
+                      "
                       v-if="friend.user2.avatar"
                     />
                     <v-icon v-else> mdi-account </v-icon>
@@ -152,7 +158,11 @@
                     :color="$vuetify.theme.themes.dark.primary"
                   >
                     <v-img
-                      :src="'/usercontent/' + friend.user2.avatar"
+                      :src="
+                        $store.state.baseURL +
+                        '/usercontent//' +
+                        friend.user2.avatar
+                      "
                       v-if="friend.user2.avatar"
                     />
                     <v-icon v-else> mdi-account </v-icon>
@@ -195,7 +205,11 @@
                     :color="$vuetify.theme.themes.dark.primary"
                   >
                     <v-img
-                      :src="'/usercontent/' + friend.user2.avatar"
+                      :src="
+                        $store.state.baseURL +
+                        '/usercontent//' +
+                        friend.user2.avatar
+                      "
                       v-if="friend.user2.avatar"
                     />
                     <v-icon v-else> mdi-account </v-icon>

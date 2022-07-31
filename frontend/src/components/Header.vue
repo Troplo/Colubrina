@@ -67,14 +67,22 @@
                 @click:close="remove(data.item)"
               >
                 <v-avatar left v-if="data.item.avatar">
-                  <v-img :src="'/usercontent/' + data.item.avatar"></v-img>
+                  <v-img
+                    :src="
+                      $store.state.baseURL + '/usercontent/' + data.item.avatar
+                    "
+                  ></v-img>
                 </v-avatar>
                 @{{ data.item.username }}
               </v-chip>
             </template>
             <template v-slot:item="data">
               <v-avatar left v-if="data.item.avatar" class="mr-3 mb-2 mt-2">
-                <v-img :src="'/usercontent/' + data.item.avatar"></v-img>
+                <v-img
+                  :src="
+                    $store.state.baseURL + '/usercontent/' + data.item.avatar
+                  "
+                ></v-img>
               </v-avatar>
               <v-avatar left v-else class="mr-3 mb-2 mt-2">
                 <v-icon>mdi-account</v-icon>
@@ -142,7 +150,9 @@
             >
               <v-list-item-avatar :color="$vuetify.theme.themes.dark.primary">
                 <v-img
-                  :src="'/usercontent/' + user.user.avatar"
+                  :src="
+                    $store.state.baseURL + '/usercontent/' + user.user.avatar
+                  "
                   v-if="user.user.avatar"
                 />
                 <v-icon v-else> mdi-account </v-icon>
@@ -249,14 +259,22 @@
                 @click:close="remove(data.item)"
               >
                 <v-avatar left v-if="data.item.avatar">
-                  <v-img :src="'/usercontent/' + data.item.avatar"></v-img>
+                  <v-img
+                    :src="
+                      $store.state.baseURL + '/usercontent/' + data.item.avatar
+                    "
+                  ></v-img>
                 </v-avatar>
                 @{{ data.item.username }}
               </v-chip>
             </template>
             <template v-slot:item="data">
               <v-avatar left v-if="data.item.avatar" class="mr-3 mb-2 mt-2">
-                <v-img :src="'/usercontent/' + data.item.avatar"></v-img>
+                <v-img
+                  :src="
+                    $store.state.baseURL + '/usercontent/' + data.item.avatar
+                  "
+                ></v-img>
               </v-avatar>
               <v-avatar left v-else class="mr-3 mb-2 mt-2">
                 <v-icon>mdi-account</v-icon>
@@ -527,7 +545,11 @@
                   >
                     <v-img
                       v-if="$store.state.user.avatar"
-                      :src="'/usercontent/' + $store.state.user.avatar"
+                      :src="
+                        $store.state.baseURL +
+                        '/usercontent/' +
+                        $store.state.user.avatar
+                      "
                     />
                     <v-icon v-else> mdi-account </v-icon>
                   </v-list-item-avatar>
