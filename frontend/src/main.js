@@ -14,6 +14,7 @@ import "./plugins/dayjs"
 import SocketIO from "socket.io-client"
 import twemoji from "twemoji"
 import VueNativeNotification from "vue-native-notification"
+import "highlight.js/styles/github.css"
 const md = require("markdown-it")({
   html: false, // Enable HTML tags in source
   xhtmlOut: false, // Use '/' to close single tags (<br />).
@@ -48,6 +49,8 @@ const defaultRender =
     return self.renderToken(tokens, idx, options)
   }
 md.use(emoji)
+const hljs = require("highlight.js/lib/core")
+md.use(require("markdown-it-highlightjs"), { hljs })
 md.renderer.rules.emoji = function (token, idx) {
   return twemoji.parse(token[idx].content, {
     folder: "svg",

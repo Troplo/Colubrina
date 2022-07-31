@@ -160,42 +160,33 @@
                       </v-row>
                       <template v-else-if="embed.type === 'image'">
                         <v-hover v-slot="{ hover }">
-                          <div>
-                            <v-img
-                              @click="setImagePreview(embed)"
-                              contain
-                              :aspect-ratio="16 / 9"
-                              :src="embed.mediaProxyLink"
-                            >
-                              <template v-slot:placeholder>
-                                <v-row
-                                  class="fill-height ma-0"
-                                  align="center"
-                                  justify="center"
-                                >
-                                  <v-progress-circular
-                                    indeterminate
-                                    color="grey lighten-5"
-                                  ></v-progress-circular>
-                                </v-row>
-                              </template>
-                              <template v-slot:default>
-                                <v-fade-transition v-if="hover">
-                                  <v-overlay absolute>
-                                    <v-icon large>mdi-arrow-expand-all</v-icon>
-                                  </v-overlay>
-                                </v-fade-transition>
-                              </template>
-                            </v-img>
-                          </div>
+                          <v-img
+                            @click="setImagePreview(embed)"
+                            contain
+                            :aspect-ratio="16 / 9"
+                            :src="embed.mediaProxyLink"
+                          >
+                            <template v-slot:placeholder>
+                              <v-row
+                                class="fill-height ma-0"
+                                align="center"
+                                justify="center"
+                              >
+                                <v-progress-circular
+                                  indeterminate
+                                  color="grey lighten-5"
+                                ></v-progress-circular>
+                              </v-row>
+                            </template>
+                            <template v-slot:default>
+                              <v-fade-transition v-if="hover">
+                                <v-overlay absolute>
+                                  <v-icon large>mdi-arrow-expand-all</v-icon>
+                                </v-overlay>
+                              </v-fade-transition>
+                            </template>
+                          </v-img>
                         </v-hover>
-                        <v-card-actions>
-                          MediaProxy Image
-                          <v-spacer />
-                          <v-btn text icon :href="embed.url" target="_blank">
-                            <v-icon> mdi-download </v-icon>
-                          </v-btn>
-                        </v-card-actions>
                       </template>
                       <v-row v-else-if="embed.type === 'embed-v1'">
                         <v-col
@@ -293,7 +284,8 @@
                   v-for="(attachment, index) in message.attachments"
                   :key="attachment.id"
                   :id="'attachment-' + index"
-                  max-width="40%"
+                  :max-width="500"
+                  :min-width="!$vuetify.breakpoint.mobile ? 400 : 0"
                   elevaion="0"
                   color="card"
                 >

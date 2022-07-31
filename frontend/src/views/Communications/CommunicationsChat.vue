@@ -222,7 +222,10 @@
                   :key="association.id"
                   top
                 >
-                  <template v-slot:activator="{ on }">
+                  <template
+                    v-slot:activator="{ on }"
+                    v-if="association.user.id !== $store.state.user.id"
+                  >
                     <v-btn
                       icon
                       small
@@ -249,10 +252,38 @@
                     {{ association.user.username }} has read up to this point.
                   </span>
                 </v-tooltip>
-                <br />
-                <br v-if="index + 1 <= messages.length" />
+                <br v-if="index + 1 > messages.length" />
+                <br v-if="index + 1 > messages.length" />
               </div>
             </template>
+            <v-tooltip top>
+              <template v-slot:activator="{ on }">
+                <v-btn
+                  icon
+                  small
+                  fab
+                  width="20"
+                  height="20"
+                  class="ml-2 mt-2"
+                  style="float: right"
+                  @click="openUserPanel($store.state.user)"
+                >
+                  <v-avatar size="20" v-on="on" color="primary">
+                    <img
+                      v-if="$store.state.user.avatar"
+                      :src="'/usercontent/' + $store.state.user.avatar"
+                      alt="avatar"
+                    />
+                    <span v-else>{{
+                      $store.state.user.username[0].toUpperCase()
+                    }}</span>
+                  </v-avatar>
+                </v-btn>
+              </template>
+              <span>
+                {{ $store.state.user.username }} has read up to this point.
+              </span>
+            </v-tooltip>
           </v-card-text>
           <v-card-text>
             <v-toolbar

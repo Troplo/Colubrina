@@ -1,5 +1,12 @@
+/* large codeblock */
+code {
+  background-color: var(--v-bg-base) !important;
+  border: 2px solid var(--v-bg-lighten1);
+  display: block;
+  padding: 20px;
+}
 .message-hover {
-    background-color: var(--v-bg-lighten1);
+  background-color: var(--v-bg-lighten1);
   border-radius: 5px;
 }
 .message-toast {
