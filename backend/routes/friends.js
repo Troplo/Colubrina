@@ -4,9 +4,21 @@ const Errors = require("../lib/errors")
 const express = require("express")
 const router = express.Router()
 
+router.all("*", auth, async (req, res, next) => {
+  try {
+    if (!req.user.emailVerified && process.env.EMAIL_VERIFICATION === "true") {
+      throw Errors.emailVerificationRequired
+    } else {
+      next()
+    }
+  } catch (e) {
+    next(e)
+  }
+})
+
 router.get("/", auth, async (req, res, next) => {
   try {
-    let friends = await Friend.findAll({
+    const friends = await Friend.findAll({
       where: {
         userId: req.user.id
       },

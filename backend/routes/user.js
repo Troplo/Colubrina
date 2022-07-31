@@ -75,6 +75,9 @@ router.post("/verify/resend", auth, mailLimiter, async (req, res, next) => {
     if (process.env.EMAIL_VERIFICATION !== "true") {
       throw Errors.invalidParameter("Email verification is disabled")
     }
+    if (req.user.emailVerified) {
+      throw Errors.invalidParameter("Email is already verified")
+    }
     const token = "COLUBRINA-VERIFY-" + cryptoRandomString({ length: 64 })
     await req.user.update({
       emailToken: token

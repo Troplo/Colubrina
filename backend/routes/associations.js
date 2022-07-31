@@ -11,6 +11,18 @@ const {
   Friend
 } = require("../models")
 
+router.all("*", auth, async (req, res, next) => {
+  try {
+    if (!req.user.emailVerified && process.env.EMAIL_VERIFICATION === "true") {
+      throw Errors.emailVerificationRequired
+    } else {
+      next()
+    }
+  } catch (e) {
+    next(e)
+  }
+})
+
 router.delete("/:id/:associationId", auth, async (req, res, next) => {
   try {
     const io = req.app.get("io")
