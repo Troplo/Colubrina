@@ -615,6 +615,13 @@ router.post("/:id/pins", auth, async (req, res, next) => {
           res.json({
             message: "Message unpinned successfully."
           })
+          await createMessage(
+            req,
+            "pin",
+            `${req.user.username} unpinned a message from the chat.`,
+            chat,
+            req.user.id
+         )
           return
         }
         const pin = await Pin.create({
