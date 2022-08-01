@@ -98,6 +98,18 @@ router.delete("/:id/:associationId", auth, async (req, res, next) => {
       },
       include: [
         {
+          model: ChatAssociation,
+          as: "readReceipts",
+          attributes: ["id"],
+          include: [
+            {
+              model: User,
+              as: "user",
+              attributes: ["username", "name", "avatar", "id"]
+            }
+          ]
+        },
+        {
           model: Attachment,
           as: "attachments"
         },
@@ -344,6 +356,18 @@ router.post("/:id", auth, async (req, res, next) => {
           },
           include: [
             {
+              model: ChatAssociation,
+              as: "readReceipts",
+              attributes: ["id"],
+              include: [
+                {
+                  model: User,
+                  as: "user",
+                  attributes: ["username", "name", "avatar", "id"]
+                }
+              ]
+            },
+            {
               model: Attachment,
               as: "attachments"
             },
@@ -465,6 +489,18 @@ router.delete("/:id", auth, async (req, res, next) => {
           id: message.id
         },
         include: [
+          {
+            model: ChatAssociation,
+            as: "readReceipts",
+            attributes: ["id"],
+            include: [
+              {
+                model: User,
+                as: "user",
+                attributes: ["username", "name", "avatar", "id"]
+              }
+            ]
+          },
           {
             model: Attachment,
             as: "attachments"
