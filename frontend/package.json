@@ -7,7 +7,7 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "electron:build": "vue-cli-service electron:build",
+    "electron:build": "vue-cli-service electron:build -c.snap.publish=github",
     "electron:serve": "vue-cli-service electron:serve",
     "postinstall": "patch-package && electron-builder install-app-deps",
     "postuninstall": "electron-builder install-app-deps"
