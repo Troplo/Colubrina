@@ -13,6 +13,7 @@
     "postuninstall": "electron-builder install-app-deps"
   },
   "main": "background.js",
+  "repository": "https://github.com/Troplo/Colubrina",
   "dependencies": {
     "@babel/preset-env": "^7.17.10",
     "@mdi/js": "^6.6.95",
