@@ -29,6 +29,6 @@ jobs:
           # If the commit is tagged with a version (e.g. "v1.0.0"),
           # release the app after building
           release: ${{ startsWith(github.ref, 'refs/tags/v') }}
-          package_root: "./frontend",
-          use_vue_cli: true,
+          package_root: "./frontend"
+          use_vue_cli: true
           build_script_name: "electron:build"
