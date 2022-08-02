@@ -159,6 +159,10 @@ export default {
           this.loading = false
           this.$socket.disconnect()
           this.$socket.connect()
+          if (this.isElectron()) {
+            this.axios.defaults.baseURL = this.instance
+            localStorage.setItem("instance", this.instance)
+          }
           if (
             this.$store.state.site.emailVerification &&
             !this.$store.state.user.emailVerified
@@ -191,7 +195,6 @@ export default {
           .then((res) => {
             this.instanceString = res.data.name + " v" + res.data.latestVersion
             this.axios.defaults.baseURL = this.instance
-            localStorage.setItem("instance", this.instance)
             this.$store.dispatch("getState")
           })
           .catch(() => {

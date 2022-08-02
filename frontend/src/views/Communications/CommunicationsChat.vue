@@ -1,5 +1,5 @@
 <template>
-  <div id="communications-chat" @dragover.prevent @drop.prevent>
+  <div id="communications-chat" @dragover.prevent @drop.prevent="handleDrag">
     <v-menu
       :position-x="$store.state.context.pins.x"
       :position-y="60"
@@ -83,8 +83,7 @@
     <v-dialog
       v-model="preview.dialog"
       elevation="0"
-      :width="preview.width"
-      :height="preview.height"
+      :min-height="300"
       :max-width="1000"
       :max-height="600"
       content-class="rounded-0"
@@ -94,12 +93,20 @@
           :src="preview.src"
           :max-width="1000"
           :max-height="600"
+          :min-height="300"
+          aspect-ratio="16/9"
           contain
         ></v-img>
         <v-container>
           <a :href="preview.src" style="text-decoration: none" target="_blank">
             <small> Open Externally </small>
           </a>
+          <small
+            class="float-end"
+            style="text-decoration: none; color: inherit"
+          >
+            {{ preview.name }}
+          </small>
         </v-container>
       </v-card>
     </v-dialog>
@@ -160,7 +167,7 @@
       </v-list>
     </v-navigation-drawer>
     <v-row v-if="!loading" @drop="handleDrag" no-gutters>
-      <v-col class="flex-grow-1 flex-shrink-1" id="chat-col">
+      <v-col class="flex-grow-1 flex-shrink-1 pb-0" id="chat-col">
         <v-card
           class="d-flex flex-column fill-height rounded-xl"
           style="overflow: auto; height: calc(100vh - 24px - 40px - 40px)"
@@ -211,6 +218,14 @@
                   :show="show"
                   :set-image-preview="setImagePreview"
                   :delete-message="deleteMessage"
+                  :last-message="
+                    messages[index - 1]?.userId === message?.userId &&
+                    $date(message.createdAt).diff(
+                      messages[index - 1]?.createdAt,
+                      'minute'
+                    ) < 10 &&
+                    !message.replyId
+                  "
                 ></Message>
               </div>
               <div
@@ -335,7 +350,6 @@
                 style="
                   border-radius: 20px 20px 0 0;
                   cursor: pointer;
-                  z-index: 50;
                   position: relative;
                   top: -30px;
                   margin-bottom: -27px;
@@ -350,6 +364,30 @@
                 </div>
               </v-toolbar>
             </v-fade-transition>
+            <v-fade-transition
+              v-model="usersTyping.length"
+              v-if="$vuetify.breakpoint.mobile"
+            >
+              <v-toolbar
+                height="22"
+                color="toolbar"
+                elevation="0"
+                style="
+                  border-radius: 20px 20px 0 0;
+                  cursor: pointer;
+                  position: relative;
+                  top: -30px;
+                  margin-bottom: -27px;
+                "
+                width="100%"
+                v-if="usersTyping.length"
+              >
+                <div>
+                  {{ usersTyping.map((user) => getName(user)).join(", ") }}
+                  {{ usersTyping.length > 1 ? " are" : " is" }} typing...
+                </div>
+              </v-toolbar>
+            </v-fade-transition>
             <CommsInput
               :chat="chat"
               :replying="replying"
@@ -357,26 +395,22 @@
               :autoScroll="autoScroll"
               :endSend="endSend"
             ></CommsInput>
-            <v-fade-transition v-model="usersTyping.length">
-              <v-toolbar
-                height="22"
-                elevation="0"
+            <v-fade-transition
+              v-model="usersTyping.length"
+              v-if="!$vuetify.breakpoint.mobile"
+            >
+              <div
                 style="
                   border-radius: 0 0 20px 20px;
                   position: relative;
-                  margin-bottom: -2px;
-                  margin-top: -20px;
-                  bottom: -14px;
+                  margin-top: -22px;
+                  bottom: -16px;
                 "
-                width="100%"
-                color="toolbar"
                 v-if="usersTyping.length"
               >
-                <div style="overflow: hidden">
-                  {{ usersTyping.map((user) => getName(user)).join(", ") }}
-                  {{ usersTyping.length > 1 ? " are" : " is" }} typing...
-                </div>
-              </v-toolbar>
+                {{ usersTyping.map((user) => getName(user)).join(", ") }}
+                {{ usersTyping.length > 1 ? " are" : " is" }} typing...
+              </div>
             </v-fade-transition>
           </v-card-text>
         </v-card>
@@ -421,314 +455,28 @@
             ></v-text-field>
             <v-list two-line color="card" ref="message-list-search">
               <template v-for="(message, index) in search.results">
-                <v-toolbar
-                  @click="jumpToMessage(message.replyId)"
-                  :key="message.keyId + '-reply-toolbar'"
-                  elevation="0"
-                  outlined
-                  height="40"
-                  color="card"
-                  v-if="message.reply"
-                  style="cursor: pointer"
-                >
-                  <v-icon class="mr-2">mdi-reply</v-icon>
-                  <v-avatar size="24" class="mr-2">
-                    <v-img
-                      :src="
-                        $store.state.baseURL +
-                        '/usercontent/' +
-                        message.reply.user.avatar
-                      "
-                      v-if="message.reply.user.avatar"
-                      class="elevation-1"
-                    />
-                    <v-icon v-else class="elevation-1"> mdi-account </v-icon>
-                  </v-avatar>
-                  <template v-if="message.reply.attachments.length">
-                    <v-icon class="mr-2">mdi-file-image</v-icon>
-                  </template>
-                  <template
-                    v-if="
-                      !message.reply.content && message.reply.attachments.length
-                    "
-                  >
-                    Click to view attachment
-                  </template>
-                  {{ message.reply.content.substring(0, 100) }}
-                </v-toolbar>
-                <v-list-item
-                  style="cursor: pointer"
+                <div
                   @click="jumpToMessage(message.id)"
                   :key="message.keyId"
-                  :class="{
-                    'text-xs-right': message.userId === $store.state.user.id,
-                    'text-xs-left': message.userId !== $store.state.user.id
-                  }"
-                  :id="'message-' + index"
+                  style="cursor: pointer"
                 >
-                  <v-avatar size="48" class="mr-2">
-                    <v-img
-                      :src="
-                        $store.state.baseURL +
-                        '/usercontent/' +
-                        message.user.avatar
-                      "
-                      v-if="message.user.avatar"
-                      class="elevation-1"
-                    />
-                    <v-icon v-else class="elevation-1"> mdi-account </v-icon>
-                  </v-avatar>
-                  <v-list-item-content>
-                    <v-list-item-subtitle>
-                      {{ getName(message.user) }}
-                      <small>
-                        {{
-                          $date(message.createdAt).format("DD/MM/YYYY hh:mm A")
-                        }}</small
-                      >
-                      <v-tooltip top v-if="message.edited">
-                        <template v-slot:activator="{ on, attrs }">
-                          <span v-on="on" v-bind="attrs">
-                            <v-icon
-                              color="grey"
-                              small
-                              style="
-                                margin-bottom: 2px;
-                                margin-left: 4px;
-                                position: absolute;
-                              "
-                            >
-                              mdi-pencil
-                            </v-icon>
-                          </span>
-                        </template>
-                        <span>
-                          {{
-                            $date(message.editedAt).format(
-                              "DD/MM/YYYY hh:mm:ss A"
-                            )
-                          }}
-                        </span>
-                      </v-tooltip>
-                    </v-list-item-subtitle>
-                    <p
-                      v-if="edit.id !== message.id"
-                      v-markdown
-                      style="overflow-wrap: anywhere"
-                    >
-                      {{ message.content }}
-                    </p>
-                    <template v-if="edit.id !== message.id">
-                      <v-row
-                        v-for="(embed, index) in message.embeds"
-                        :key="index"
-                        :id="'embed-' + index"
-                      >
-                        <v-card
-                          elevaion="0"
-                          color="card"
-                          max-width="25%"
-                          width="25%"
-                          class="ml-3"
-                        >
-                          <v-container>
-                            <v-row v-if="embed.type === 'openGraph'">
-                              <v-col
-                                cols="12"
-                                class="text-xs-center"
-                                v-if="embed.openGraph.ogImage"
-                              >
-                                <v-img
-                                  :src="
-                                    embed.openGraph.ogImage?.url ||
-                                    embed.openGraph.ogImage[0]?.url
-                                  "
-                                  class="elevation-1"
-                                  contain
-                                  :aspect-ratio="16 / 9"
-                                >
-                                  <template v-slot:placeholder>
-                                    <v-row
-                                      class="fill-height ma-0"
-                                      align="center"
-                                      justify="center"
-                                    >
-                                      <v-progress-circular
-                                        indeterminate
-                                        color="grey lighten-5"
-                                      ></v-progress-circular>
-                                    </v-row>
-                                  </template>
-                                </v-img>
-                              </v-col>
-                              <v-col cols="12" class="text-xs-center">
-                                <h4>
-                                  {{ embed.openGraph.ogSiteName }}
-                                </h4>
-                                <a
-                                  :href="embed.link"
-                                  target="_blank"
-                                  style="text-decoration: none"
-                                >
-                                  <h3>
-                                    {{ embed.openGraph.ogTitle }}
-                                  </h3>
-                                </a>
-                                <p v-if="embed.openGraph.ogDescription">
-                                  {{ embed.openGraph.ogDescription }}
-                                </p>
-                              </v-col>
-                            </v-row>
-                            <template v-else-if="embed.type === 'image'">
-                              <v-hover v-slot="{ hover }">
-                                <div>
-                                  <v-img
-                                    @click="setImagePreview(embed)"
-                                    contain
-                                    :aspect-ratio="16 / 9"
-                                    :src="embed.mediaProxyLink"
-                                  >
-                                    <template v-slot:placeholder>
-                                      <v-row
-                                        class="fill-height ma-0"
-                                        align="center"
-                                        justify="center"
-                                      >
-                                        <v-progress-circular
-                                          indeterminate
-                                          color="grey lighten-5"
-                                        ></v-progress-circular>
-                                      </v-row>
-                                    </template>
-                                    <template v-slot:default>
-                                      <v-fade-transition v-if="hover">
-                                        <v-overlay absolute>
-                                          <v-icon large
-                                            >mdi-arrow-expand-all</v-icon
-                                          >
-                                        </v-overlay>
-                                      </v-fade-transition>
-                                    </template>
-                                  </v-img>
-                                </div>
-                              </v-hover>
-                              <v-card-actions>
-                                MediaProxy Image
-                                <v-spacer />
-                                <v-btn
-                                  text
-                                  icon
-                                  :href="embed.url"
-                                  target="_blank"
-                                >
-                                  <v-icon> mdi-download </v-icon>
-                                </v-btn>
-                              </v-card-actions>
-                            </template>
-                          </v-container>
-                        </v-card>
-                      </v-row>
-                    </template>
-                    <template v-if="edit.id !== message.id">
-                      <v-card
-                        v-for="(attachment, index) in message.attachments"
-                        :key="attachment.id"
-                        :id="'attachment-' + index"
-                        max-width="40%"
-                        elevaion="0"
-                        color="card"
-                      >
-                        <v-hover
-                          v-slot="{ hover }"
-                          v-if="
-                            attachment.extension === 'jpg' ||
-                            attachment.extension === 'png' ||
-                            attachment.extension === 'jpeg' ||
-                            attachment.extension === 'gif'
-                          "
-                        >
-                          <div>
-                            <v-img
-                              @click="setImagePreview(attachment)"
-                              contain
-                              :aspect-ratio="16 / 9"
-                              :src="
-                                $store.state.baseURL +
-                                '/usercontent/' +
-                                attachment.attachment
-                              "
-                            >
-                              <template v-slot:placeholder>
-                                <v-row
-                                  class="fill-height ma-0"
-                                  align="center"
-                                  justify="center"
-                                >
-                                  <v-progress-circular
-                                    indeterminate
-                                    color="grey lighten-5"
-                                  ></v-progress-circular>
-                                </v-row>
-                              </template>
-                              <template v-slot:default>
-                                <v-fade-transition v-if="hover">
-                                  <v-overlay absolute>
-                                    <v-icon large>mdi-arrow-expand-all</v-icon>
-                                  </v-overlay>
-                                </v-fade-transition>
-                              </template>
-                            </v-img>
-                          </div>
-                        </v-hover>
-                        <v-card-text v-else>
-                          <v-icon class="mr-2" :size="48">
-                            {{ fileTypes[attachment.extension] || "mdi-file" }}
-                          </v-icon>
-                          <span>
-                            {{ attachment.name }}
-                          </span>
-                        </v-card-text>
-                        <v-card-actions>
-                          {{ attachment.name }} -
-                          {{ friendlySize(attachment.size) }}
-                          <v-spacer />
-                          <v-btn
-                            text
-                            icon
-                            :href="
-                              $store.state.baseURL +
-                              '/usercontent/' +
-                              attachment.attachment
-                            "
-                            target="_blank"
-                          >
-                            <v-icon> mdi-download </v-icon>
-                          </v-btn>
-                        </v-card-actions>
-                      </v-card>
-                    </template>
-                    <v-text-field
-                      v-model="edit.content"
-                      v-if="edit.editing && edit.id === message.id"
-                      autofocus
-                      :value="message.content"
-                      label="Type a message"
-                      placeholder="Type a message"
-                      type="text"
-                      ref="edit-input"
-                      outlined
-                      append-outer-icon="mdi-send"
-                      @keyup.enter="editMessage(message)"
-                      @keydown.esc="
-                        edit.content = ''
-                        edit.editing = false
-                        edit.id = null
-                        focusInput()
-                      "
-                      @click:append-outer="editMessage(message)"
-                    />
-                  </v-list-item-content>
-                </v-list-item>
+                  <Message
+                    :message="message"
+                    :jump-to-message="jumpToMessage"
+                    :edit="edit"
+                    :focus-input="focusInput"
+                    :replying="setReply"
+                    :get-name="getName"
+                    :end-edit="endEdit"
+                    :auto-scroll="autoScroll"
+                    :chat="chat"
+                    :index="index"
+                    :show="show"
+                    :set-image-preview="setImagePreview"
+                    :delete-message="deleteMessage"
+                    :last-message="false"
+                  ></Message>
+                </div>
               </template>
             </v-list>
           </v-card-text>
@@ -912,7 +660,8 @@ export default {
       dialog: false,
       src: "",
       height: 0,
-      width: 0
+      width: 0,
+      name: ""
     },
     fileTypes: {
       png: "mdi-file-image",
@@ -1207,6 +956,7 @@ export default {
         this.preview.height = img.height
         this.preview.width = img.width
         this.preview.dialog = true
+        this.preview.name = attachment.name
       }
       img.src = link
     },

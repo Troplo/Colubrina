@@ -26,7 +26,11 @@
               </v-overlay>
             </v-fade-transition>
             <v-img
-              :src="'/usercontent/' + $store.state.user.avatar"
+              :src="
+                $store.state.baseURL +
+                '/usercontent/' +
+                $store.state.user.avatar
+              "
               v-if="$store.state.user.avatar"
               class="elevation-1"
             />

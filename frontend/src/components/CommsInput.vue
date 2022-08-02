@@ -19,7 +19,11 @@
       </v-btn>
     </v-toolbar>
     <v-textarea
-      style="margin-bottom: 5px"
+      :style="
+        !$vuetify.breakpoint.mobile
+          ? 'margin-bottom: 3px'
+          : 'margin-bottom: -17px'
+      "
       autofocus
       label="Type a message"
       placeholder="Keep it civil"
@@ -193,10 +197,11 @@ export default {
     },
     handlePaste(data) {
       if (data.clipboardData.items.length) {
-        const item = data.clipboardData.items[0]
-        if (item.kind === "file") {
-          this.file = item.getAsFile()
-          this.getURLForImage()
+        for (const item of data.clipboardData.items) {
+          if (item.kind === "file") {
+            this.file = item.getAsFile()
+            this.getURLForImage()
+          }
         }
       }
     },

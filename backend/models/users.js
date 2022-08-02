@@ -64,11 +64,6 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: true,
         defaultValue: null
       },
-      guidedWizard: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
-        defaultValue: true
-      },
       privacy: {
         type: DataTypes.JSON,
         defaultValue: {
@@ -95,11 +90,6 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: true
       },
       totpEnabled: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
-        defaultValue: false
-      },
-      emailDirectLogin: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
         defaultValue: false

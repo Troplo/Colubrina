@@ -7,10 +7,23 @@
             <v-container>
               <v-form ref="form" class="pa-4 pt-6">
                 <p class="text-center text-h4">
-                  Login to
+                  Register to
                   <span class="troplo-title">{{ $store.state.site.name }}</span
                   ><small style="font-size: 15px">beta</small>
                 </p>
+                <v-text-field
+                  @keyup.enter="doRegister()"
+                  class="rounded-xl"
+                  v-model="instance"
+                  v-if="isElectron()"
+                  label="Instance URL"
+                  placeholder="https://colubrina.troplo.com"
+                  type="email"
+                ></v-text-field>
+                <small style="float: right" v-if="isElectron()">{{
+                  instanceString
+                }}</small
+                ><br v-if="isElectron()" />
                 <v-text-field
                   @keyup.enter="doRegister()"
                   class="rounded-xl"
@@ -82,10 +95,29 @@ export default {
       email: "",
       totp: "",
       totpDialog: false,
-      loading: false
+      loading: false,
+      instance: "https://colubrina.troplo.com",
+      instanceString: ""
     }
   },
   methods: {
+    isElectron() {
+      return process.env.IS_ELECTRON
+    },
+    testInstance() {
+      if (this.isElectron()) {
+        this.axios
+          .get(this.instance + "/api/v1/state")
+          .then((res) => {
+            this.instanceString = res.data.name + " v" + res.data.latestVersion
+            this.axios.defaults.baseURL = this.instance
+            this.$store.dispatch("getState")
+          })
+          .catch(() => {
+            this.instanceString = "Error connecting to instance"
+          })
+      }
+    },
     viewport() {
       return window.innerHeight
     },
@@ -106,6 +138,10 @@ export default {
           this.loading = false
           this.$socket.disconnect()
           this.$socket.connect()
+          if (this.isElectron()) {
+            this.axios.defaults.baseURL = this.instance
+            localStorage.setItem("instance", this.instance)
+          }
           if (
             this.$store.state.site.emailVerification &&
             !this.$store.state.user.emailVerified
@@ -113,6 +149,9 @@ export default {
             this.$router.push("/email/verify")
           } else {
             this.$router.push("/")
+          }
+          if (this.isElectron()) {
+            window.location.reload()
           }
         })
         .catch((e) => {
@@ -132,6 +171,12 @@ export default {
   mounted() {
     if (this.$store.state.user?.id) {
       this.$router.push("/")
+    }
+    this.testInstance()
+  },
+  watch: {
+    instance() {
+      this.testInstance()
     }
   }
 }
