@@ -92,6 +92,12 @@ module.exports = {
   pluginOptions: {
     electronBuilder: {
       builderOptions: {
+        files: [
+          `dist/**/*`,
+          `node_modules/**/*`,
+          `package.json`,
+          `background.js`
+        ],
         appId: "com.troplo.colubrina",
         win: {
           publish: ["github"]
