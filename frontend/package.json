@@ -68,7 +68,8 @@
     "vue2-ace-editor": "^0.0.15",
     "vuetify": "^2.6.4",
     "vuex": "^3.4.0",
-    "vue-cli-plugin-electron-builder": "^2.1.1"
+    "vue-cli-plugin-electron-builder": "^2.1.1",
+    "electron-devtools-installer": "^3.1.0"
   },
   "devDependencies": {
     "@babel/plugin-proposal-optional-chaining": "^7.16.7",
@@ -81,7 +82,6 @@
     "babel-eslint": "^10.1.0",
     "dotenv-webpack": "^7.1.0",
     "electron": "^13.0.0",
-    "electron-devtools-installer": "^3.1.0",
     "eslint": "^6.7.2",
     "eslint-plugin-vue": "^6.2.2",
     "material-design-icons-iconfont": "^6.5.0",
