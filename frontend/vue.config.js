@@ -89,6 +89,22 @@ module.exports = {
       })
   },
   productionSourceMap: true,
+  pluginOptions: {
+    electronBuilder: {
+      builderOptions: {
+        appId: "com.troplo.colubrina",
+        win: {
+          publish: ["github"]
+        },
+        linux: {
+          publish: ["github"]
+        },
+        mac: {
+          publish: ["github"]
+        }
+      }
+    }
+  },
   configureWebpack: {
     plugins
   },

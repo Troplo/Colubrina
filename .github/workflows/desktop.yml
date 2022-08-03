@@ -31,4 +31,4 @@ jobs:
           release: ${{ startsWith(github.ref, 'refs/tags/v') }}
           package_root: "./frontend"
           use_vue_cli: true
-          args: "-c.snap.publish=github"
+          args: "-c.snap.publish=github --publish always"
