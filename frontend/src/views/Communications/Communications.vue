@@ -1,17 +1,11 @@
 <template>
   <div id="communications">
-    <v-container fluid>
-      <v-row>
-        <v-col>
-          <router-view
-            v-if="$route.params.id !== 'home'"
-            :chat="selectedChat"
-            :loading="false"
-            :items="$store.state.chats"
-          ></router-view>
-        </v-col>
-      </v-row>
-    </v-container>
+    <router-view
+      v-if="$route.params.id !== 'home'"
+      :chat="selectedChat"
+      :loading="false"
+      :items="$store.state.chats"
+    ></router-view>
   </div>
 </template>
 

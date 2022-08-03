@@ -1,6 +1,6 @@
 "use strict"
 
-import { app, protocol, BrowserWindow } from "electron"
+import { app, protocol, BrowserWindow, screen } from "electron"
 import { createProtocol } from "vue-cli-plugin-electron-builder/lib"
 import installExtension, { VUEJS_DEVTOOLS } from "electron-devtools-installer"
 const isDevelopment = process.env.NODE_ENV !== "production"
@@ -12,15 +12,25 @@ protocol.registerSchemesAsPrivileged([
 
 async function createWindow() {
   // Create the browser window.
+  const { bounds } = screen.getDisplayNearestPoint(
+    screen.getCursorScreenPoint()
+  )
+  const height = Math.floor(bounds.height * (2 / 3))
+  const width = Math.floor(bounds.width * (2 / 3))
+  const y = Math.floor(bounds.y + (bounds.height - height) / 2)
+  const x = Math.floor(bounds.x + (bounds.width - width) / 2)
   const win = new BrowserWindow({
-    width: 1400,
-    height: 1000,
+    width,
+    height,
+    x,
+    y,
     webPreferences: {
       // Use pluginOptions.nodeIntegration, leave this alone
       // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
       nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION,
       contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
       preload: "window-preload.js",
+      // required for multi-instance support
       webSecurity: false
     }
   })

@@ -437,12 +437,15 @@
           is limited.
         </v-alert>
       </v-container>
-      <router-view
-        :style="
-          'background-color: ' +
-          $vuetify.theme.themes[$vuetify.theme.dark ? 'dark' : 'light'].bg
-        "
-      />
+      <div @touchstart="touchStart" @touchend="touchEnd">
+        <router-view
+          id="main"
+          :style="
+            'background-color: ' +
+            $vuetify.theme.themes[$vuetify.theme.dark ? 'dark' : 'light'].bg
+          "
+        />
+      </div>
     </v-main>
   </v-app>
 </template>
@@ -451,7 +454,7 @@
 import AjaxErrorHandler from "@/lib/errorHandler"
 import { VueFinalModal } from "vue-final-modal"
 import Header from "@/components/Header"
-import Vue from "vue"
+
 export default {
   name: "App",
   components: {
@@ -479,7 +482,9 @@ export default {
     results: [],
     searchInput: null,
     themes: [],
-    cssTips: true
+    cssTips: true,
+    touchStartX: null,
+    touchEndX: null
   }),
   computed: {
     creatorJSON: {
@@ -702,6 +707,19 @@ export default {
         })
       })
     },
+    touchEnd(event) {
+      this.touchEndX = event.changedTouches[0].screenX
+      if (this.touchEndX > this.touchStartX) {
+        if (this.touchEndX - this.touchStartX > 100) {
+          this.touchStartX = null
+          this.touchEndX = null
+          this.$store.state.drawer = true
+        }
+      }
+    },
+    touchStart(event) {
+      this.touchStartX = event.changedTouches[0].screenX
+    },
     setTheme(theme) {
       const name = theme.id
       const dark = theme.dark
@@ -728,23 +746,8 @@ export default {
         })
     }
   },
-  mounted() {
-    Vue.axios.defaults.headers.common["X-Colubrina"] = true
-    Vue.axios.defaults.headers.common["Authorization"] =
-      localStorage.getItem("session")
-    console.log(localStorage.getItem("instance"))
-    if (process.env.IS_ELECTRON) {
-      this.axios.defaults.baseURL = localStorage.getItem("instance")
-      this.$store.state.baseURL = localStorage.getItem("instance")
-    }
-    if (localStorage.getItem("customHeaders")) {
-      console.log(JSON.parse(localStorage.getItem("customHeaders")))
-      for (let header in JSON.parse(localStorage.getItem("customHeaders"))) {
-        Vue.axios.defaults.headers[header] = JSON.parse(
-          localStorage.getItem("customHeaders")
-        )[header]
-      }
-    }
+  async mounted() {
+    await this.$store.dispatch("doInit")
     if (this.$vuetify.breakpoint.mobile) {
       this.$store.state.drawer = false
     }
@@ -772,7 +775,8 @@ export default {
     })
     this.$socket.connect()
     this.$socket.on("unauthorized", () => {
-      this.$socket.emit("token", localStorage.getItem("session"))
+      console.log("Reauth requested")
+      this.$socket.emit("token", localStorage.getItem("token"))
     })
     document.title = this.$route.name
       ? this.$route.name + " - " + this.$store.state.site.name
@@ -780,13 +784,10 @@ export default {
     this.$store.commit("setLoading", true)
     this.$vuetify.theme.dark = this.$store.state.user?.theme === "dark" || true
     this.$store.dispatch("getState")
-    this.getThemes()
-    this.communicationsIdleCheck()
     this.$store
       .dispatch("getUserInfo")
       .then(() => {
         console.log(window.location.pathname)
-        // check if its /email/confirm/<token>
         if (
           !window.location.pathname.includes("/email/confirm/") &&
           !window.location.pathname.includes("/email/verify") &&
@@ -797,10 +798,10 @@ export default {
         }
       })
       .catch(() => {
-        if (!["/login", "/register"].includes(this.$route.path)) {
-          this.$router.push("/login")
-        }
+        this.$router.push("/login")
       })
+    this.getThemes()
+    this.communicationsIdleCheck()
     this.registerSocket()
   },
   watch: {

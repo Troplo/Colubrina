@@ -69,7 +69,10 @@ Vue.use({
       {
         transports: ["websocket", "polling"],
         headers: {
-          Authorization: localStorage.getItem("session")
+          Authorization: localStorage.getItem("token")
+        },
+        auth: {
+          token: localStorage.getItem("token")
         }
       }
     )

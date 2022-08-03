@@ -133,27 +133,29 @@ router.post("/verify/resend", auth, mailLimiter, async (req, res, next) => {
   }
 })
 
-router.post("/verify/confirm/:token", auth, async (req, res, next) => {
+router.post("/verify/confirm/:token", async (req, res, next) => {
   try {
-    const user = await User.findOne({
-      where: {
-        id: req.user.id
-      }
-    })
     if (process.env.EMAIL_VERIFICATION !== "true") {
       throw Errors.invalidParameter("Email verification is disabled")
     }
     if (!req.params.token) {
       throw Errors.invalidToken
     }
-    if (req.params.token !== user.emailToken) {
+    const user = await User.findOne({
+      where: {
+        emailToken: req.params.token,
+        emailVerified: false
+      }
+    })
+    if (user) {
+      await user.update({
+        emailVerified: true,
+        emailToken: null
+      })
+      res.json({ success: true })
+    } else {
       throw Errors.invalidToken
     }
-    await user.update({
-      emailVerified: true,
-      emailToken: null
-    })
-    res.json({ success: true })
   } catch (e) {
     next(e)
   }
@@ -197,12 +199,6 @@ router.post("/login", async (req, res, next) => {
           os: ua.os.name,
           osVersion: ua.os.version
         }
-      })
-      res.cookie("session", session.session, {
-        maxAge: 1000 * 60 * 60 * 24 * 365,
-        httpOnly: true,
-        secure: false,
-        sameSite: "strict"
       })
       res.json({
         session: session.session,
@@ -287,12 +283,6 @@ router.post("/register", limiter, async (req, res, next) => {
           osVersion: ua.os.version
         }
       })
-      res.cookie("session", session.session, {
-        maxAge: 1000 * 60 * 60 * 24 * 365,
-        httpOnly: true,
-        secure: false,
-        sameSite: "strict"
-      })
       res.json({
         session: session.session,
         success: true,
@@ -365,15 +355,6 @@ router.delete("/sessions/:id", auth, async (req, res, next) => {
         userId: req.user.id
       }
     })
-    res.sendStatus(204)
-  } catch (e) {
-    next(e)
-  }
-})
-
-router.post("/logout", (req, res, next) => {
-  try {
-    res.clearCookie("session")
     res.sendStatus(204)
   } catch (e) {
     next(e)

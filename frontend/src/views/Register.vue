@@ -96,7 +96,8 @@ export default {
       totp: "",
       totpDialog: false,
       loading: false,
-      instance: "https://colubrina.troplo.com",
+      instance:
+        localStorage.getItem("instance") || "https://colubrina.troplo.com",
       instanceString: ""
     }
   },
@@ -131,11 +132,18 @@ export default {
           totp: this.totp
         })
         .then(async (res) => {
-          localStorage.setItem("session", res.data.session)
-          Vue.axios.defaults.headers.common["Authorization"] = res.data.session
-          this.$store.commit("setToken", res.data.session)
+          const session =
+            res.data.session ||
+            res.data.token ||
+            res.data.bcToken ||
+            res.data.cookieToken
+          localStorage.setItem("token", session)
+          Vue.axios.defaults.headers.common["Authorization"] = session
+          this.$store.commit("setToken", session)
           await this.$store.dispatch("getUserInfo")
+          this.$store.dispatch("getChats")
           this.loading = false
+          this.$socket.auth.token = session
           this.$socket.disconnect()
           this.$socket.connect()
           if (this.isElectron()) {
@@ -169,9 +177,17 @@ export default {
     }
   },
   mounted() {
-    if (this.$store.state.user?.id) {
-      this.$router.push("/")
-    }
+    this.$store
+      .dispatch("getUserInfo")
+      .then(() => {
+        this.$router.push("/")
+      })
+      .catch(() => {
+        this.$store.state.user = {
+          bcUser: null,
+          loggedIn: false
+        }
+      })
     this.testInstance()
   },
   watch: {

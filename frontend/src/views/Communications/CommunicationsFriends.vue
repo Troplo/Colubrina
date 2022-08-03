@@ -373,7 +373,8 @@ export default {
       })
     }
   },
-  mounted() {
+  async mounted() {
+    await this.$store.dispatch("doInit")
     this.getFriends()
     this.getUsers()
     this.$socket.on("friendRequest", () => {

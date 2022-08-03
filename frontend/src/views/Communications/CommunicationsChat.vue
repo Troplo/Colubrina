@@ -169,8 +169,8 @@
     <v-row v-if="!loading" @drop="handleDrag" no-gutters>
       <v-col class="flex-grow-1 flex-shrink-1 pb-0" id="chat-col">
         <v-card
-          class="d-flex flex-column fill-height rounded-xl"
-          style="overflow: auto; height: calc(100vh - 24px - 40px - 40px)"
+          class="d-flex flex-column fill-height rounded-xl mb-n3"
+          style="overflow: auto; height: calc(100vh - 24px - 40px)"
           color="card"
           elevation="0"
         >
@@ -202,32 +202,30 @@
               style="display: block; width: 100px; margin: 0 auto"
             ></v-progress-circular>
             <template v-for="(message, index) in messages">
-              <div :key="'div-' + message.keyId">
-                <Message
-                  :key="message.keyId"
-                  :message="message"
-                  :jump-to-message="jumpToMessage"
-                  :edit="edit"
-                  :focus-input="focusInput"
-                  :replying="setReply"
-                  :get-name="getName"
-                  :end-edit="endEdit"
-                  :auto-scroll="autoScroll"
-                  :chat="chat"
-                  :index="index"
-                  :show="show"
-                  :set-image-preview="setImagePreview"
-                  :delete-message="deleteMessage"
-                  :last-message="
-                    messages[index - 1]?.userId === message?.userId &&
-                    $date(message.createdAt).diff(
-                      messages[index - 1]?.createdAt,
-                      'minute'
-                    ) < 10 &&
-                    !message.replyId
-                  "
-                ></Message>
-              </div>
+              <Message
+                :key="message.keyId"
+                :message="message"
+                :jump-to-message="jumpToMessage"
+                :edit="edit"
+                :focus-input="focusInput"
+                :replying="setReply"
+                :get-name="getName"
+                :end-edit="endEdit"
+                :auto-scroll="autoScroll"
+                :chat="chat"
+                :index="index"
+                :show="show"
+                :set-image-preview="setImagePreview"
+                :delete-message="deleteMessage"
+                :last-message="
+                  messages[index - 1]?.userId === message?.userId &&
+                  $date(message.createdAt).diff(
+                    messages[index - 1]?.createdAt,
+                    'minute'
+                  ) < 10 &&
+                  !message.replyId
+                "
+              ></Message>
               <div
                 :key="'div2-' + message.keyId"
                 v-if="message.readReceipts.length"
@@ -277,31 +275,33 @@
             </template>
             <v-tooltip top>
               <template v-slot:activator="{ on }">
-                <v-btn
-                  icon
-                  small
-                  fab
-                  width="20"
-                  height="20"
-                  class="ml-2 mt-2"
-                  style="float: right"
-                  @click="openUserPanel($store.state.user)"
-                >
-                  <v-avatar size="20" v-on="on" color="primary">
-                    <img
-                      v-if="$store.state.user.avatar"
-                      :src="
-                        $store.state.baseURL +
-                        '/usercontent/' +
-                        $store.state.user.avatar
-                      "
-                      alt="avatar"
-                    />
-                    <span v-else>{{
-                      $store.state.user.username[0].toUpperCase()
-                    }}</span>
-                  </v-avatar>
-                </v-btn>
+                <span>
+                  <v-btn
+                    icon
+                    small
+                    fab
+                    width="20"
+                    height="20"
+                    class="ml-2 mt-2"
+                    style="float: right"
+                    @click="openUserPanel($store.state.user)"
+                  >
+                    <v-avatar size="20" v-on="on" color="primary">
+                      <img
+                        v-if="$store.state.user.avatar"
+                        :src="
+                          $store.state.baseURL +
+                          '/usercontent/' +
+                          $store.state.user.avatar
+                        "
+                        alt="avatar"
+                      />
+                      <span v-else>{{
+                        $store.state.user.username[0].toUpperCase()
+                      }}</span>
+                    </v-avatar>
+                  </v-btn>
+                </span>
               </template>
               <span>
                 {{ $store.state.user.username }} has read up to this point.
@@ -368,25 +368,18 @@
               v-model="usersTyping.length"
               v-if="$vuetify.breakpoint.mobile"
             >
-              <v-toolbar
-                height="22"
-                color="toolbar"
-                elevation="0"
+              <div
                 style="
-                  border-radius: 20px 20px 0 0;
-                  cursor: pointer;
+                  border-radius: 0 0 20px 20px;
                   position: relative;
                   top: -30px;
-                  margin-bottom: -27px;
+                  margin-bottom: -22px;
                 "
-                width="100%"
                 v-if="usersTyping.length"
               >
-                <div>
-                  {{ usersTyping.map((user) => getName(user)).join(", ") }}
-                  {{ usersTyping.length > 1 ? " are" : " is" }} typing...
-                </div>
-              </v-toolbar>
+                {{ usersTyping.map((user) => getName(user)).join(", ") }}
+                {{ usersTyping.length > 1 ? " are" : " is" }} typing...
+              </div>
             </v-fade-transition>
             <CommsInput
               :chat="chat"
@@ -402,9 +395,9 @@
               <div
                 style="
                   border-radius: 0 0 20px 20px;
-                  position: relative;
-                  margin-top: -22px;
-                  bottom: -16px;
+                  position: absolute;
+                  margin-top: -2px;
+                  bottom: 1px;
                 "
                 v-if="usersTyping.length"
               >
@@ -415,14 +408,6 @@
           </v-card-text>
         </v-card>
       </v-col>
-      <v-divider
-        vertical
-        style="z-index: 2; padding-right: 3px; padding-left: 3px"
-        v-if="
-          ($store.state.userPanel && !$vuetify.breakpoint.mobile) ||
-          ($store.state.searchPanel && !$vuetify.breakpoint.mobile)
-        "
-      ></v-divider>
       <v-col
         cols="3"
         class=""
@@ -431,7 +416,7 @@
       >
         <v-card
           class="d-flex flex-column fill-height"
-          style="overflow: scroll; height: calc(100vh - 24px - 40px - 40px)"
+          style="overflow: scroll; height: calc(100vh - 24px - 40px)"
           color="card"
           elevation="0"
         >
@@ -484,7 +469,6 @@
       </v-col>
       <v-col
         :cols="$vuetify.breakpoint.xl ? 2 : 3"
-        class="ml-2"
         id="user-col"
         v-if="
           $store.state.userPanel &&
@@ -493,10 +477,10 @@
         "
       >
         <v-card
-          class="d-flex flex-column fill-height rounded-xl"
+          class="d-flex flex-column fill-height rounded-0"
           elevation="0"
-          style="overflow: scroll; height: calc(100vh - 24px - 40px - 40px)"
-          color="card"
+          style="overflow: scroll; height: calc(100vh - 24px - 40px)"
+          color="sheet"
         >
           <v-menu
             v-model="context.user.value"
@@ -520,7 +504,7 @@
               </v-list-item>
             </v-list>
           </v-menu>
-          <v-list two-line color="card">
+          <v-list two-line color="sheet">
             <v-list-item-group class="rounded-xl">
               <template v-for="item in associations">
                 <v-list-item

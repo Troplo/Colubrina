@@ -307,7 +307,7 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-app-bar app color="bg">
+    <v-app-bar app color="dark" elevation="5" style="z-index: 15">
       <v-app-bar-nav-icon
         @click.stop="$store.state.drawer = !$store.state.drawer"
         v-if="$vuetify.breakpoint.mobile || !$store.state.drawer"
@@ -381,10 +381,11 @@
       </template>
     </v-app-bar>
     <v-navigation-drawer
-      color="bg"
-      floating
+      color="dark"
       app
-      style="max-height: 100%"
+      floating
+      style="max-height: 100%; z-index: 15"
+      class="elevation-5"
       v-model="$store.state.drawer"
       :width="$vuetify.breakpoint.mobile ? 270 : 320"
     >
@@ -414,7 +415,7 @@
           </template>
           <template v-else>
             <v-btn
-              color="toolbar"
+              color="sheet"
               to="/communications/friends"
               block
               class="mb-3 rounded-xl"
@@ -429,12 +430,12 @@
               solo
               label="Search..."
               append-icon="mdi-magnify"
-              background-color="toolbar"
+              background-color="sheet"
               style="margin-bottom: -18px"
               elevation="2"
               v-model="search"
             ></v-text-field>
-            <v-toolbar color="toolbar" class="rounded-xl mb-3" elevation="2">
+            <v-toolbar color="sheet" class="rounded-xl mb-3" elevation="2">
               <v-toolbar-title class="subtitle-1">
                 CHATS ({{ chats.length }})
               </v-toolbar-title>
@@ -522,6 +523,7 @@
       </v-container>
       <template v-slot:append>
         <v-card tile color="bg" elevation="0">
+          <v-divider></v-divider>
           <v-overlay :value="!$store.state.wsConnected" absolute>
             <v-progress-circular indeterminate size="48"></v-progress-circular>
           </v-overlay>
@@ -985,7 +987,7 @@ export default {
   },
   mounted() {
     Vue.axios.defaults.headers.common["Authorization"] =
-      localStorage.getItem("session")
+      localStorage.getItem("token")
     this.searchUsers()
     this.searchUsersForGroupAdmin()
     this.$store.dispatch("getChats")

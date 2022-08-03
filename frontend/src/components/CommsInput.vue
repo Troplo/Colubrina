@@ -21,8 +21,8 @@
     <v-textarea
       :style="
         !$vuetify.breakpoint.mobile
-          ? 'margin-bottom: 3px'
-          : 'margin-bottom: -17px'
+          ? 'margin-bottom: 5px'
+          : 'margin-bottom: 0px'
       "
       autofocus
       label="Type a message"

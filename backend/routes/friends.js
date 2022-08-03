@@ -50,6 +50,9 @@ router.post("/", auth, async (req, res, next) => {
       }
     })
     if (user) {
+      if (user.id === req.user.id) {
+        throw Errors.cannotFriendYourself
+      }
       const friend = await Friend.findOne({
         where: {
           userId: req.user.id,

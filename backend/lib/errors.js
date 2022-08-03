@@ -45,7 +45,8 @@ let Errors = {
     401
   ],
   mailFail: ["There was an error sending the verification email.", 400],
-  invalidToken: ["The token you provided is invalid.", 400]
+  invalidToken: ["The token you provided is invalid.", 400],
+  cannotFriendYourself: ["You cannot friend yourself.", 400]
 }
 
 function processErrors(errorName) {

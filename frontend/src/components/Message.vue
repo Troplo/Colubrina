@@ -37,12 +37,15 @@
           </v-toolbar>
           <v-list-item
             :key="message.keyId"
-            :class="{ 'message-hover': hover }"
+            :class="{
+              'message-hover': hover,
+              'pa-0': $vuetify.breakpoint.mobile
+            }"
             :id="'message-' + index"
             @contextmenu="show($event, 'message', message)"
             :style="lastMessage ? 'margin-bottom: -5px; margin-top: -5px;' : ''"
           >
-            <v-avatar size="40" class="mr-2" v-if="!lastMessage">
+            <v-avatar size="45" class="mr-2" v-if="!lastMessage">
               <v-img
                 :src="
                   $store.state.baseURL + '/usercontent/' + message.user.avatar
@@ -124,7 +127,7 @@
                   no-gutters
                 >
                   <v-card
-                    elevaion="0"
+                    elevation="0"
                     :color="
                       embed.type === 'embed-v1' ? embed.backgroundColor : 'bg'
                     "
@@ -308,7 +311,7 @@
                   :id="'attachment-' + index"
                   :max-width="500"
                   :min-width="!$vuetify.breakpoint.mobile ? 400 : 0"
-                  elevaion="0"
+                  elevation="0"
                   color="card"
                 >
                   <v-hover

@@ -25,6 +25,7 @@ function getDirectRecipient(context, item) {
 }
 export default new Vuex.Store({
   state: {
+    desktop: !!process.env.IS_ELECTRON,
     online: true,
     selectedChat: null,
     chats: [],
@@ -142,7 +143,7 @@ export default new Vuex.Store({
   actions: {
     getChats(context) {
       Vue.axios.defaults.headers.common["Authorization"] =
-        localStorage.getItem("session")
+        localStorage.getItem("token")
       Vue.axios
         .get("/api/v1/communications")
         .then((res) => {
@@ -266,7 +267,7 @@ export default new Vuex.Store({
     checkAuth() {
       return new Promise((resolve, reject) => {
         Vue.axios.defaults.headers.common["Authorization"] =
-          localStorage.getItem("session")
+          localStorage.getItem("token")
         Vue.axios
           .get("/api/v1/user")
           .then(() => {
@@ -282,21 +283,13 @@ export default new Vuex.Store({
       })
     },
     logout(context) {
-      Vue.axios
-        .post("/api/v1/user/logout")
-        .then(() => {
-          context.commit("setToken", null)
-          localStorage.removeItem("userCache")
-          localStorage.removeItem("session")
-          Vue.axios.defaults.headers.common["Authorization"] = null
-          context.commit("setUser", {
-            bcUser: null,
-            loggedIn: false
-          })
-        })
-        .catch(() => {
-          Vue.$toast.error("Failed to logout.")
-        })
+      localStorage.removeItem("userCache")
+      localStorage.removeItem("token")
+      Vue.axios.defaults.headers.common["Authorization"] = null
+      context.commit("setUser", {
+        bcUser: null,
+        loggedIn: false
+      })
     },
     generateCache() {
       // todo
@@ -366,38 +359,58 @@ export default new Vuex.Store({
         }
       })
     },
-    getUserInfo(context) {
+    doInit(context) {
+      if (context.state.desktop) {
+        Vue.axios.defaults.baseURL = localStorage.getItem("instance")
+        context.state.baseURL = localStorage.getItem("instance")
+      }
+      Vue.axios.defaults.headers.common["X-Colubrina"] = true
+      Vue.axios.defaults.headers.common["X-Colubrina-Version"] =
+        context.state.versioning.version
       Vue.axios.defaults.headers.common["Authorization"] =
-        localStorage.getItem("session")
-      return new Promise((resolve, reject) => {
+        localStorage.getItem("token")
+      if (localStorage.getItem("customHeaders")) {
+        for (let header in JSON.parse(localStorage.getItem("customHeaders"))) {
+          Vue.axios.defaults.headers[header] = JSON.parse(
+            localStorage.getItem("customHeaders")
+          )[header]
+        }
+      }
+    },
+    getUserInfo(context) {
+      function setUser(user) {
         try {
-          const user = JSON.parse(localStorage.getItem("userCache"))
-          if (user?.id) {
-            context.commit("setUser", user)
-            const name = user.themeObject.id
-            const dark = user.themeObject.theme.dark
-            const light = user.themeObject.theme.light
-            if (user.accentColor) {
-              user.themeObject.theme.dark.primary = user.accentColor
-              user.themeObject.theme.light.primary = user.accentColor
-            }
-            Vuetify.framework.theme.themes.dark = dark
-            Vuetify.framework.theme.themes.light = light
-            Vuetify.framework.theme.themes.name = name
-            Vuetify.framework.theme.themes.primaryType =
-              user.themeObject.theme.primaryType
-            const themeElement = document.getElementById("user-theme")
-            if (!themeElement) {
-              const style = document.createElement("style")
-              style.id = "user-theme"
-              style.innerHTML = user.themeObject.theme.css
-              document.head.appendChild(style)
-            }
-            const fontElement = document.getElementById("user-font")
-            if (!fontElement) {
-              const style = document.createElement("style")
-              style.id = "user-font"
-              style.innerHTML = `/* Stop from font breaking CSS code editor */
+          Vue.$socket.emit("connection", {
+            message: true
+          })
+        } catch {
+          console.log("Socket not connected")
+        }
+        localStorage.setItem("userCache", JSON.stringify(user))
+        const name = user.themeObject.id
+        const dark = user.themeObject.theme.dark
+        const light = user.themeObject.theme.light
+        if (user.accentColor) {
+          user.themeObject.theme.dark.primary = user.accentColor
+          user.themeObject.theme.light.primary = user.accentColor
+        }
+        Vuetify.framework.theme.themes.dark = dark
+        Vuetify.framework.theme.themes.light = light
+        Vuetify.framework.theme.themes.name = name
+        Vuetify.framework.theme.themes.primaryType =
+          user.themeObject.theme.primaryType
+        const themeElement = document.getElementById("user-theme")
+        if (!themeElement) {
+          const style = document.createElement("style")
+          style.id = "user-theme"
+          style.innerHTML = user.themeObject.theme.css
+          document.head.appendChild(style)
+        }
+        const fontElement = document.getElementById("user-font")
+        if (!fontElement) {
+          const style = document.createElement("style")
+          style.id = "user-font"
+          style.innerHTML = `/* Stop from font breaking CSS code editor */
 .ace_editor div {
  font-family: "JetBrains Mono" !important;
 }
@@ -406,8 +419,18 @@ div {
  font-family: "${user.font}", sans-serif;
 }
 `
-              document.head.appendChild(style)
-            }
+          document.head.appendChild(style)
+        }
+        context.commit("setLoading", false)
+        context.commit("setUser", user)
+      }
+      Vue.axios.defaults.headers.common["Authorization"] =
+        localStorage.getItem("token")
+      return new Promise((resolve, reject) => {
+        try {
+          const user = JSON.parse(localStorage.getItem("userCache"))
+          if (user?.id) {
+            setUser(user)
           }
         } catch {
           //
@@ -415,94 +438,113 @@ div {
         Vue.axios
           .get("/api/v1/user")
           .then((res) => {
-            context.commit("setUser", res.data)
-            try {
-              Vue.$socket.emit("connection", {
-                message: true
-              })
-            } catch {
-              console.log("Socket not connected")
-            }
-            localStorage.setItem("userCache", JSON.stringify(res.data))
-            const name = res.data.themeObject.id
-            const dark = res.data.themeObject.theme.dark
-            const light = res.data.themeObject.theme.light
-            if (res.data.accentColor) {
-              res.data.themeObject.theme.dark.primary = res.data.accentColor
-              res.data.themeObject.theme.light.primary = res.data.accentColor
-            }
-            Vuetify.framework.theme.themes.dark = dark
-            Vuetify.framework.theme.themes.light = light
-            Vuetify.framework.theme.themes.name = name
-            Vuetify.framework.theme.themes.primaryType =
-              res.data.themeObject.theme.primaryType
-            const themeElement = document.getElementById("user-theme")
-            if (!themeElement) {
-              const style = document.createElement("style")
-              style.id = "user-theme"
-              style.innerHTML = res.data.themeObject.theme.css
-              document.head.appendChild(style)
-            }
-            const fontElement = document.getElementById("user-font")
-            if (!fontElement) {
-              const style = document.createElement("style")
-              style.id = "user-font"
-              style.innerHTML = `/* Stop from font breaking CSS code editor */
-.ace_editor div {
- font-family: "JetBrains Mono" !important;
-}
-
-div {
- font-family: "${res.data.font}", sans-serif;
-}
-`
-              document.head.appendChild(style)
-            }
+            setUser(res.data)
             context.commit("setLoading", false)
             context.commit("setOnline", true)
             resolve(res.data)
           })
           .catch((e) => {
-            if (JSON.parse(localStorage.getItem("userCache"))?.id) {
+            try {
               const user = JSON.parse(localStorage.getItem("userCache"))
-              const name = user.themeObject.id
-              const dark = user.themeObject.theme.dark
-              const light = user.themeObject.theme.light
-              if (user.accentColor) {
-                user.themeObject.theme.dark.primary = user.accentColor
-                user.themeObject.theme.light.primary = user.accentColor
+              if (user?.id && !e?.response?.data?.errors?.length) {
+                setUser(user)
+              } else {
+                const theme = {
+                  id: 1,
+                  name: "Colubrina Classic",
+                  primaryType: "all",
+                  dark: {
+                    primary: "#0190ea",
+                    secondary: "#757575",
+                    accent: "#000000",
+                    error: "#ff1744",
+                    info: "#2196F3",
+                    success: "#4CAF50",
+                    warning: "#ff9800",
+                    card: "#151515",
+                    toolbar: "#191919",
+                    sheet: "#181818",
+                    text: "#000000",
+                    dark: "#151515",
+                    bg: "#151515"
+                  },
+                  light: {
+                    primary: "#0190ea",
+                    secondary: "#757575",
+                    accent: "#000000",
+                    error: "#ff1744",
+                    info: "#2196F3",
+                    success: "#4CAF50",
+                    warning: "#ff9800",
+                    card: "#f8f8f8",
+                    toolbar: "#f8f8f8",
+                    sheet: "#f8f8f8",
+                    text: "#000000",
+                    dark: "#f8f8f8",
+                    bg: "#f8f8f8"
+                  }
+                }
+                const name = theme.id
+                const dark = theme.dark
+                const light = theme.light
+                Vuetify.framework.theme.themes.dark = dark
+                Vuetify.framework.theme.themes.light = light
+                Vuetify.framework.theme.themes.name = name
+                this.name = name
+                console.log("Failed to load Colubrina Account")
+                context.user = null
+                localStorage.removeItem("userCache")
+                reject(e)
               }
+            } catch {
+              const theme = {
+                id: 1,
+                name: "Colubrina Classic",
+                primaryType: "all",
+                dark: {
+                  primary: "#0190ea",
+                  secondary: "#757575",
+                  accent: "#000000",
+                  error: "#ff1744",
+                  info: "#2196F3",
+                  success: "#4CAF50",
+                  warning: "#ff9800",
+                  card: "#151515",
+                  toolbar: "#191919",
+                  sheet: "#181818",
+                  text: "#000000",
+                  dark: "#151515",
+                  bg: "#151515"
+                },
+                light: {
+                  primary: "#0190ea",
+                  secondary: "#757575",
+                  accent: "#000000",
+                  error: "#ff1744",
+                  info: "#2196F3",
+                  success: "#4CAF50",
+                  warning: "#ff9800",
+                  card: "#f8f8f8",
+                  toolbar: "#f8f8f8",
+                  sheet: "#f8f8f8",
+                  text: "#000000",
+                  dark: "#f8f8f8",
+                  bg: "#f8f8f8"
+                }
+              }
+              const name = theme.id
+              const dark = theme.dark
+              const light = theme.light
               Vuetify.framework.theme.themes.dark = dark
               Vuetify.framework.theme.themes.light = light
               Vuetify.framework.theme.themes.name = name
-              Vuetify.framework.theme.themes.primaryType =
-                user.themeObject.theme.primaryType
-              const themeElement = document.getElementById("user-theme")
-              if (!themeElement) {
-                const style = document.createElement("style")
-                style.id = "user-theme"
-                style.innerHTML = user.themeObject.theme.css
-                document.head.appendChild(style)
-              }
-              const fontElement = document.getElementById("user-font")
-              if (!fontElement) {
-                const style = document.createElement("style")
-                style.id = "user-font"
-                style.innerHTML = `/* Stop from font breaking CSS code editor */
-.ace_editor div {
- font-family: "JetBrains Mono" !important;
-}
-
-div {
- font-family: "${user.font}", sans-serif;
-}
-`
-                document.head.appendChild(style)
-              }
-              context.commit("setLoading", false)
-              context.commit("setUser", user)
-              resolve(user)
-            } else {
+              this.name = name
+              console.log("Failed to load Colubrina Account")
+              localStorage.removeItem("userCache")
+              context.user = null
+              reject(e)
+            }
+            if (!localStorage.getItem("userCache")) {
               const theme = {
                 id: 1,
                 name: "Colubrina Classic",

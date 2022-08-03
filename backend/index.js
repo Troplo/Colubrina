@@ -4,8 +4,6 @@ let express = require("express")
 let app = express()
 let bodyParser = require("body-parser")
 let os = require("os")
-const cookieParser = require("cookie-parser")
-app.use(cookieParser())
 app.set("trust proxy", true)
 const socket = require("./lib/socket")
 const server = require("http").createServer(app)
@@ -45,7 +43,6 @@ app.all("/api/*", (req, res) => {
 console.log(os.hostname())
 
 app.use(require("./lib/errorHandler"))
-
 server.listen(23998, () => {
   console.log("Initialized")
   console.log("Listening on port 0.0.0.0:" + 23998)
