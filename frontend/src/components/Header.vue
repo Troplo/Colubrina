@@ -11,6 +11,7 @@
       absolute
       offset-y
       class="rounded-l"
+      style="z-index:15!important"
     >
       <v-list class="rounded-l" v-if="context.user.item">
         <v-list-item
