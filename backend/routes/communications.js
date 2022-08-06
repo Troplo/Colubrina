@@ -155,7 +155,7 @@ async function createMessage(req, type, content, association, userId) {
 
 router.all("*", auth, async (req, res, next) => {
   try {
-    if (!req.user.emailVerified && process.env.EMAIL_VERIFICATION === "true") {
+    if (!req.user.emailVerified && req.app.locals.config.emailVerification) {
       throw Errors.emailVerificationRequired
     } else {
       next()
@@ -376,7 +376,7 @@ router.get("/mutual/:id/groups", auth, async (req, res, next) => {
 
 router.get("/users", auth, async (req, res, next) => {
   try {
-    if (process.env.PUBLIC_USERS === "true") {
+    if (req.app.locals.config.publicUsers) {
       const users = await User.findAll({
         attributes: [
           "id",

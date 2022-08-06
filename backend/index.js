@@ -5,6 +5,7 @@ let app = express()
 let bodyParser = require("body-parser")
 let os = require("os")
 app.set("trust proxy", true)
+app.locals.config = require("./config/config.json")
 const socket = require("./lib/socket")
 const server = require("http").createServer(app)
 
@@ -22,15 +23,17 @@ app.use("/api/v1/mediaproxy", require("./routes/mediaproxy.js"))
 app.use("/api/v1/associations", require("./routes/associations.js"))
 app.get("/api/v1/state", async (req, res) => {
   res.json({
-    release: process.env.RELEASE,
-    loading: true,
-    notification: process.env.NOTIFICATION,
-    notificationType: process.env.NOTIFICATION_TYPE,
+    release: req.app.locals.config.release,
+    notification: req.app.locals.config.notification,
+    notificationType: req.app.locals.config.notificationType,
     latestVersion: require("../frontend/package.json").version,
-    name: process.env.SITE_NAME,
-    allowRegistrations: process.env.ALLOW_REGISTRATIONS === "true",
-    publicUsers: process.env.PUBLIC_USERS === "true",
-    emailVerification: process.env.EMAIL_VERIFICATION === "true"
+    allowRegistrations: req.app.locals.config.allowRegistrations,
+    publicUsers: req.app.locals.config.publicUsers,
+    emailVerification: req.app.locals.config.emailVerification,
+    rules: req.app.locals.config.rules,
+    name: req.app.locals.config.siteName,
+    loading: true,
+    isColubrinaServer: true
   })
 })
 

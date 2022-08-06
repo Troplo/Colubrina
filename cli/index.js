@@ -9,6 +9,11 @@ const os = require("os")
 const { execSync } = require("child_process")
 
 console.log("Troplo/Colubrina CLI")
+if (fs.existsSync("../backend/config/config.json")) {
+  console.log(
+    "Want to modify either the Colubrina, or database config? Check out the config files in backend/config."
+  )
+}
 console.log("Colubrina version", require("../frontend/package.json").version)
 async function checkForUpdates() {
   if (!process.argv.includes("--skip-update")) {
@@ -139,10 +144,10 @@ async function testDB() {
 async function dbSetup() {
   await doSetupDB()
   fs.writeFileSync(
-    path.join(__dirname, "../backend/config/config.json"),
-    JSON.stringify(state.dbConfig)
+    path.join(__dirname, "../backend/config/database.json"),
+    JSON.stringify(state.dbConfig, null, 2)
   )
-  console.log("config/config.json overwritten")
+  console.log("config/database.json overwritten")
 }
 async function runMigrations() {
   console.log("Running migrations")
@@ -171,116 +176,61 @@ async function createUser() {
   console.log("User created")
 }
 async function configureDotEnv() {
-  function setEnvValue(key, value) {
-    const ENV_VARS = fs.readFileSync("../backend/.env", "utf8").split(os.EOL)
-
-    // find the env we want based on the key
-    const target = ENV_VARS.indexOf(
-      ENV_VARS.find((line) => {
-        // (?<!#\s*)   Negative lookbehind to avoid matching comments (lines that starts with #).
-        //             There is a double slash in the RegExp constructor to escape it.
-        // (?==)       Positive lookahead to check if there is an equal sign right after the key.
-        //             This is to prevent matching keys prefixed with the key of the env var to update.
-        const keyValRegex = new RegExp(`(?<!#\\s*)${key}(?==)`)
-
-        return line.match(keyValRegex)
-      })
-    )
-
-    // if key-value pair exists in the .env file,
-    if (target !== -1) {
-      // replace the key/value with the new value
-      ENV_VARS.splice(target, 1, `${key}=${value}`)
-    } else {
-      // if it doesn't exist, add it instead
-      ENV_VARS.push(`${key}=${value}`)
-    }
-
-    // write everything back to the file system
-    fs.writeFileSync("../backend/.env", ENV_VARS.join(os.EOL))
+  if (!fs.existsSync("../backend/config/config.json")) {
+    fs.writeFileSync("../backend/config/config.json", "{}")
   }
-  if (!fs.existsSync("../backend/.env")) {
-    fs.writeFileSync("../backend/.env", "")
-  }
-  setEnvValue(
-    "HOSTNAME",
-    await input.text("Public Domain", {
-      default: "localhost"
-    })
-  )
-  setEnvValue(
-    "CORS_HOSTNAME",
-    await input.text("Public Hostname", {
-      default: "http://localhost:8080"
-    })
-  )
-  setEnvValue(
-    "SITE_NAME",
-    await input.text("Site Name", {
-      default: "Colubrina"
-    })
-  )
-  setEnvValue(
-    "ALLOW_REGISTRATIONS",
-    await input.text("Permit Public Registrations", {
-      default: false
-    })
-  )
-  setEnvValue(
-    "PUBLIC_USERS",
-    await input.text("Show instance users publicly", {
-      default: false
-    })
-  )
-  const emailVerify = await input.text("Enforce email verification?", {
+  let config = require("../backend/config/config.json")
+  config.hostname = await input.text("Public Domain", {
+    default: "localhost"
+  })
+  config.corsHostname = await input.text("CORS Hostname", {
+    default: "http://localhost"
+  })
+  config.siteName = await input.text("Site Name", {
+    default: "Colubrina"
+  })
+  config.allowRegistrations = await input.text("Allow Registrations", {
+    default: true
+  })
+  config.publicUsers = await input.text("Show instance users publicly?", {
+    default: true
+  })
+  config.emailVerify = await input.text("Enforce email verification?", {
     default: false
   })
-  if (emailVerify) {
-    setEnvValue("EMAIL_VERIFICATION", true)
-    setEnvValue(
-      "EMAIL_SMTP_HOST",
-      await input.text("SMTP Host", {
-        default: "smtp.myhost.com"
-      })
-    )
-    setEnvValue(
-      "EMAIL_SMTP_PORT",
-      await input.text("SMTP Port", {
-        default: 587
-      })
-    )
-    setEnvValue(
-      "EMAIL_SMTP_USER",
-      await input.text("SMTP User", {
-        default: "colubrina@myhost.com"
-      })
-    )
-    setEnvValue(
-      "EMAIL_SMTP_FROM",
-      await input.text("SMTP From Address", {
-        default: "colubrina@myhost.com"
-      })
-    )
-    setEnvValue("EMAIL_SMTP_PASSWORD", await input.text("SMTP Password", {}))
-    setEnvValue(
-      "EMAIL_SMTP_SECURE",
-      await input.text("SMTP Secure", {
-        default: false
-      })
-    )
+  if (config.emailVerify) {
+    config.emailSMTPHost = await input.text("SMTP Host", {
+      default: "mail.example.com"
+    })
+    config.emailSMTPPort = await input.text("SMTP Port", {
+      default: 587
+    })
+    config.emailSMTPUsername = await input.text("SMTP Username", {
+      default: "colubrina@example.com"
+    })
+    config.emailSMTPPassword = await input.text("SMTP Password", {})
+    config.emailSMTPFrom = await input.text("SMTP From Address", {
+      default: "colubrina@example.com"
+    })
+    config.emailSMTPSecure = await input.text("SMTP Secure", {
+      default: true
+    })
   } else {
-    setEnvValue("EMAIL_VERIFICATION", false)
-    setEnvValue("EMAIL_SMTP_HOST", "smtp.myhost.com")
-    setEnvValue("EMAIL_SMTP_PORT", "587")
-    setEnvValue("EMAIL_SMTP_USER", "colubrina@myhost.com")
-    setEnvValue("EMAIL_SMTP_FROM", "colubrina@myhost.com")
-    setEnvValue("EMAIL_SMTP_PASSWORD", "myPassword")
-    setEnvValue("EMAIL_SMTP_SECURE", false)
+    config.emailSMTPHost = "smtp.myhost.com"
+    config.emailSMTPPort = 587
+    config.emailSMTPUsername = "colubrina@example.com"
+    config.emailSMTPFrom = "colubrina@example.com"
+    config.emailSMTPPassword = ""
+    config.emailSMTPSecure = true
   }
-  setEnvValue("PUBLIC_USERS")
-  setEnvValue("NOTIFICATION", "")
-  setEnvValue("NOTIFICATION_TYPE", "info")
-  setEnvValue("RELEASE", "stable")
+  config.notification = ""
+  config.notificationType = "info"
+  config.release = "stable"
+  config.rules = "Write your instance rules here."
+  fs.writeFileSync(
+    "../backend/config/config.json",
+    JSON.stringify(config, null, 2)
+  )
 }
 async function init() {
   while (true) {
@@ -288,7 +238,7 @@ async function init() {
       "First-time setup",
       "Create user",
       "Run migrations",
-      "Update/create config file",
+      "Update/create database config file",
       "Check for updates",
       "Build frontend for production",
       "Exit"
@@ -303,10 +253,15 @@ async function init() {
       execSync("cd ../frontend && yarn install --frozen-lockfile", () => {
         console.log("yarn install complete (frontend)")
       })
-      if (fs.existsSync(path.join(__dirname, "../backend/.env"))) {
-        const option = await input.confirm(".env already exists, overwrite?", {
-          default: false
-        })
+      if (
+        fs.existsSync(path.join(__dirname, "../backend/config/config.json"))
+      ) {
+        const option = await input.confirm(
+          "Colubrina config already exists, overwrite?",
+          {
+            default: false
+          }
+        )
         if (option) {
           await configureDotEnv()
         }
@@ -314,10 +269,10 @@ async function init() {
         await configureDotEnv()
       }
       if (
-        fs.existsSync(path.join(__dirname, "../backend/config/config.json"))
+        fs.existsSync(path.join(__dirname, "../backend/config/database.json"))
       ) {
         const option = await input.select(
-          `config/config.json already exists. Do you want to overwrite it?`,
+          `config/database.json already exists. Do you want to overwrite it?`,
           ["Yes", "No"]
         )
         if (option === "Yes") {
@@ -368,9 +323,9 @@ async function init() {
       console.log(
         "The Colubrina frontend can be built with `yarn build` in the root project directory, and is recommended to be served via NGINX, with a proxy_pass to the backend on /api and /socket.io."
       )
-    } else if (option === "Update/create config file") {
+    } else if (option === "Update/create database config file") {
       await dbSetup()
-      console.log("config/config.json overwritten or created")
+      console.log("config/database.json overwritten or created")
     } else if (option === "Create user") {
       await createUser()
     } else if (option === "Run migrations") {

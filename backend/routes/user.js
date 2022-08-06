@@ -72,7 +72,7 @@ const upload = multer({
 
 router.post("/verify/resend", auth, mailLimiter, async (req, res, next) => {
   try {
-    if (process.env.EMAIL_VERIFICATION !== "true") {
+    if (!req.app.locals.config.emailVerification) {
       throw Errors.invalidParameter("Email verification is disabled")
     }
     if (req.user.emailVerified) {
@@ -85,20 +85,20 @@ router.post("/verify/resend", auth, mailLimiter, async (req, res, next) => {
     const mailGenerator = new Mailgen({
       theme: "default",
       product: {
-        name: process.env.SITE_NAME,
-        link: process.env.CORS_HOSTNAME
+        name: req.app.locals.config.siteName,
+        link: req.app.locals.config.corsHostname
       }
     })
     const email = {
       body: {
         name: req.user.username,
-        intro: `${process.env.SITE_NAME} Account Verification`,
+        intro: `${req.app.locals.config.siteName} Account Verification`,
         action: {
-          instructions: `You are receiving this email because you registered on ${process.env.SITE_NAME}, please use the link below to verify your account.`,
+          instructions: `You are receiving this email because you registered on ${req.app.locals.config.siteName}, please use the link below to verify your account.`,
           button: {
             color: "#1A97FF",
             text: "Account Verification",
-            link: process.env.CORS_HOSTNAME + "/email/confirm/" + token
+            link: req.app.locals.config.corsHostname + "/email/confirm/" + token
           }
         },
         outro: "If you did not register, please disregard this email."
@@ -108,18 +108,18 @@ router.post("/verify/resend", auth, mailLimiter, async (req, res, next) => {
 
     const emailText = mailGenerator.generatePlaintext(email)
     const transporter = nodemailer.createTransport({
-      host: process.env.EMAIL_SMTP_HOST,
-      port: process.env.EMAIL_SMTP_PORT,
-      secure: JSON.parse(process.env.EMAIL_SMTP_SECURE.toLowerCase()),
+      host: req.app.locals.config.emailSMTPHost,
+      port: req.app.locals.config.emailSMTPPort,
+      secure: req.app.locals.config.emailSMTPSecure,
       auth: {
-        user: process.env.EMAIL_SMTP_USER,
-        pass: process.env.EMAIL_SMTP_PASSWORD
+        user: req.app.locals.config.emailSMTPUser,
+        pass: req.app.locals.config.emailSMTPPassword
       }
     })
     let info = await transporter.sendMail({
-      from: process.env.EMAIL_SMTP_FROM,
+      from: req.app.locals.config.emailSMTPFrom,
       to: req.user.email,
-      subject: "Email Verification - " + process.env.SITE_NAME,
+      subject: "Email Verification - " + req.app.locals.config.siteName,
       text: emailText,
       html: emailBody
     })
@@ -135,7 +135,7 @@ router.post("/verify/resend", auth, mailLimiter, async (req, res, next) => {
 
 router.post("/verify/confirm/:token", async (req, res, next) => {
   try {
-    if (process.env.EMAIL_VERIFICATION !== "true") {
+    if (!req.app.locals.config.emailVerification) {
       throw Errors.invalidParameter("Email verification is disabled")
     }
     if (!req.params.token) {
@@ -294,7 +294,7 @@ router.post("/register", limiter, async (req, res, next) => {
     }
   }
   try {
-    if (process.env.ALLOW_REGISTRATIONS !== "true") {
+    if (!req.app.locals.config.allowRegistrations) {
       throw Errors.registrationsDisabled
     }
     if (req.body.password.length < 8) {

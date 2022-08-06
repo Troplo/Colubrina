@@ -1,23 +1,18 @@
 {
-  "development": {
-    "username": "username",
-    "password": "password",
-    "database": "database",
-    "host": "host",
-    "dialect": "mariadb"
-  },
-  "test": {
-    "username": "username",
-    "password": "password",
-    "database": "database",
-    "host": "host",
-    "dialect": "mariadb"
-  },
-  "production": {
-    "username": "username",
-    "password": "password",
-    "database": "database",
-    "host": "host",
-    "dialect": "mariadb"
-  }
+  "hostname": "localhost",
+  "corsHostname": "http://localhost:8080",
+  "siteName": "Colubrina",
+  "allowRegistrations": true,
+  "notification": "",
+  "notificationType": "",
+  "release": "stable",
+  "publicUsers": true,
+  "emailVerification": false,
+  "emailSMTPHost": "mail.example.com",
+  "emailSMTPPort": 587,
+  "emailSMTPUser": "colubrina@example.com",
+  "emailSMTPFrom": "colubrina@example.com",
+  "emailSMTPPassword": "",
+  "emailSMTPSecure": false,
+  "rules": "Write your instance rules here."
 }

@@ -32,6 +32,14 @@
       label="Allow registrations"
       v-model="allowRegistrations"
     ></v-switch>
+    <v-textarea ref="rules" label="Instance Rules" v-model="rules" class="mx-3">
+    </v-textarea>
+    <v-card-title>
+      <v-icon class="mr-1">mdi-language-markdown</v-icon>Rules Preview:
+    </v-card-title>
+    <v-card-text>
+      <span v-markdown class="mx-3" :key="rules">{{ rules }}</span>
+    </v-card-text>
     <v-btn text class="mx-3 mb-3" color="primary" @click="updateState"
       >Save</v-btn
     >
@@ -47,6 +55,7 @@ export default {
       notification: "",
       notificationType: "info",
       allowRegistrations: true,
+      rules: "",
       notificationTypes: [
         { text: "Info", value: "info" },
         { text: "Success", value: "success" },
@@ -73,7 +82,8 @@ export default {
           notification: this.notification,
           notificationType: this.notificationType,
           broadcastType: this.broadcastType,
-          allowRegistrations: this.allowRegistrations
+          allowRegistrations: this.allowRegistrations,
+          rules: this.rules
         })
         .then(() => {
           this.$toast.success("State updated")
@@ -87,6 +97,7 @@ export default {
     this.notification = this.$store.state.site.notification
     this.notificationType = this.$store.state.site.notificationType
     this.allowRegistrations = this.$store.state.site.allowRegistrations
+    this.rules = this.$store.state.site.rules
   }
 }
 </script>

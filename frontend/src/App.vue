@@ -624,6 +624,9 @@ export default {
           this.$store.state.site.latestVersion = state.latestVersion
           this.$store.state.site.notification = state.notification
           this.$store.state.site.notificationType = state.notificationType
+          this.$store.state.site.allowRegistrations = state.allowRegistrations
+          this.$store.state.site.rules = state.rules
+          this.$store.state.site.emailVerification = state.emailVerification
         })
         // eslint-disable-next-line no-undef
         this.$store.dispatch("updateQuickSwitch")

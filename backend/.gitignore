@@ -61,6 +61,7 @@ yarn-error.log*
 
 # Config folder
 config/config.json
+config/database.json
 # Editor directories and files
 .idea
 *.suo

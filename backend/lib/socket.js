@@ -4,7 +4,7 @@ module.exports = {
   init(app, server) {
     const io = require("socket.io")(server, {
       cors: {
-        origin: [process.env.CORS_HOSTNAME],
+        origin: [app.locals.config.corsHostname],
         methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"]
       }
     })
@@ -19,10 +19,15 @@ module.exports = {
         console.log(socket.user.id)
         socket.join(user.id)
         socket.emit("siteState", {
-          release: process.env.RELEASE,
-          notification: process.env.NOTIFICATION,
-          notificationType: process.env.NOTIFICATION_TYPE,
-          latestVersion: require("../../frontend/package.json").version
+          release: app.locals.config.release,
+          notification: app.locals.config.notification,
+          notificationType: app.locals.config.notificationType,
+          latestVersion: require("../../frontend/package.json").version,
+          allowRegistrations: app.locals.config.allowRegistrations,
+          publicUsers: app.locals.config.publicUsers,
+          emailVerification: app.locals.config.emailVerification,
+          rules: app.locals.config.rules,
+          name: app.locals.config.siteName
         })
         const friends = await Friend.findAll({
           where: {
@@ -114,10 +119,15 @@ module.exports = {
       } else {
         socket.join(-1)
         socket.emit("siteState", {
-          release: process.env.RELEASE,
-          notification: process.env.NOTIFICATION,
-          notificationType: process.env.NOTIFICATION_TYPE,
-          latestVersion: require("../../frontend/package.json").version
+          release: app.locals.config.release,
+          notification: app.locals.config.notification,
+          notificationType: app.locals.config.notificationType,
+          latestVersion: require("../../frontend/package.json").version,
+          allowRegistrations: app.locals.config.allowRegistrations,
+          publicUsers: app.locals.config.publicUsers,
+          emailVerification: app.locals.config.emailVerification,
+          rules: app.locals.config.rules,
+          name: app.locals.config.siteName
         })
         socket.emit("unauthorized", {
           message: "Please reauth."

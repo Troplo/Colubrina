@@ -5,7 +5,7 @@
   "license": "GPL-3.0",
   "scripts": {
     "start": "node .",
-    "serve": "nodemon"
+    "serve": "nodemon . --ignore config"
   },
   "dependencies": {
     "argon2": "^0.28.7",

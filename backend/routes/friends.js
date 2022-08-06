@@ -6,7 +6,7 @@ const router = express.Router()
 
 router.all("*", auth, async (req, res, next) => {
   try {
-    if (!req.user.emailVerified && process.env.EMAIL_VERIFICATION === "true") {
+    if (!req.user.emailVerified && req.app.locals.config.emailVerification) {
       throw Errors.emailVerificationRequired
     } else {
       next()

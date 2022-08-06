@@ -7,6 +7,7 @@ const { Op } = require("sequelize")
 const dayjs = require("dayjs")
 const fs = require("fs")
 const os = require("os")
+const argon2 = require("argon2")
 
 router.all("*", auth, async (req, res, next) => {
   try {
@@ -22,7 +23,7 @@ router.all("*", auth, async (req, res, next) => {
 
 router.all("*", auth, async (req, res, next) => {
   try {
-    if (!req.user.emailVerified && process.env.EMAIL_VERIFICATION === "true") {
+    if (!req.user.emailVerified && req.app.locals.config.emailVerification) {
       throw Errors.emailVerificationRequired
     } else {
       next()
@@ -53,8 +54,45 @@ router.get("/", auth, async (req, res, next) => {
         }
       })
     })
-  } catch (err) {
-    return next(err)
+  } catch (e) {
+    next(e)
+  }
+})
+
+router.put("/user/:id", auth, async (req, res, next) => {
+  try {
+    const user = await User.findOne({
+      where: {
+        id: req.params.id
+      }
+    })
+    if (!user) {
+      throw Errors.communicationsUserNotFound
+    } else {
+      await user.update({
+        banned: req.body.banned
+      })
+      res.json(user)
+    }
+  } catch (e) {
+    next(e)
+  }
+})
+
+router.post("/user", auth, async (req, res, next) => {
+  try {
+    const user = await User.create({
+      username: req.body.username,
+      password: await argon2.hash(req.body.password),
+      email: req.body.email,
+      emailVerified: req.body.emailVerified,
+      admin: false,
+      banned: false,
+      lastSeenAt: new Date()
+    })
+    res.json(user)
+  } catch (e) {
+    next(e)
   }
 })
 
@@ -231,19 +269,23 @@ router.put("/state", auth, async (req, res, next) => {
   }
   try {
     const io = req.app.get("io")
-    setEnvValue("ALLOW_REGISTRATIONS", req.body.allowRegistrations)
+    req.app.locals.config.allowRegistrations = req.body.allowRegistrations
+    req.app.locals.config.rules = req.body.rules
     if (req.body.broadcastType === "permanent") {
-      setEnvValue("NOTIFICATION", req.body.notification)
-      setEnvValue("NOTIFICATION_TYPE", req.body.notificationType)
-      process.env.NOTIFICATION = req.body.notification
-      process.env.NOTIFICATION_TYPE = req.body.notificationType
+      req.app.locals.config.notification = req.body.notification
+      req.app.locals.config.notificationType = req.body.notificationType
     }
     io.emit("siteState", {
       notification: req.body.notification,
       notificationType: req.body.notificationType,
       latestVersion: require("../../frontend/package.json").version,
-      allowRegistrations: req.body.allowRegistrations
+      allowRegistrations: req.body.allowRegistrations,
+      rules: req.body.rules
     })
+    fs.writeFileSync(
+      "./config/config.json",
+      JSON.stringify(req.app.locals.config, null, 2)
+    )
     res.sendStatus(204)
   } catch (err) {
     return next(err)

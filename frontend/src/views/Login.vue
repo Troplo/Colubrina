@@ -30,8 +30,7 @@
               <v-form ref="form" class="pa-4 pt-6">
                 <p class="text-center text-h4">
                   Login to
-                  <span class="troplo-title">{{ $store.state.site.name }}</span
-                  ><small style="font-size: 15px">beta</small>
+                  <span class="troplo-title">{{ $store.state.site.name }}</span>
                 </p>
                 <v-text-field
                   @keyup.enter="doLogin()"
