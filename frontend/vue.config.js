@@ -92,20 +92,12 @@ module.exports = {
   pluginOptions: {
     electronBuilder: {
       builderOptions: {
-        files: [
-          `dist/**/*`,
-          `node_modules/**/*`,
-          `package.json`,
-          `src/background.js`,
-          `background.js`
-        ],
         appId: "com.troplo.colubrina",
         win: {
           publish: ["github"]
         },
         linux: {
           publish: ["github"],
-          target: ["deb", "AppImage", "rpm", "zip", "tar.gz", "pacman"],
           category: "Network",
           synopsis: "Instant Messaging",
           maintainer: "Troplo <troplo@troplo.com>"
