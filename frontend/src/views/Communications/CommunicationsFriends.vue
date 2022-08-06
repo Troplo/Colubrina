@@ -1,6 +1,6 @@
 <template>
   <div id="communications-friends">
-    <v-card color="card" class="rounded-xl" :height="viewport()" elevation="0">
+    <v-card color="card" class="rounded-0" :height="viewport()" elevation="0">
       <v-tabs centered background-color="card" v-model="tab">
         <v-tab :key="0">Users</v-tab>
         <v-tab :key="1"> Friends </v-tab>
