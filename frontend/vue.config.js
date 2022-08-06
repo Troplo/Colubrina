@@ -94,43 +94,18 @@ module.exports = {
       builderOptions: {
         appId: "com.troplo.colubrina",
         win: {
-          target: [
-            {
-              target: "nsis",
-              arch: ["x64", "ia32", "armv7l", "arm64"]
-            }
-          ],
+          target: ["portable", "nsis", "zip"],
           publish: ["github"]
         },
         linux: {
-          target: [
-            {
-              target: "AppImage",
-              arch: ["x64", "ia32", "armv7l", "arm64"]
-            },
-            {
-              target: "deb",
-              arch: ["x64", "ia32", "armv7l", "arm64"]
-            },
-            {
-              target: "snap",
-              arch: ["x64", "ia32", "armv7l", "arm64"]
-            },
-            {
-              target: "pacman",
-              arch: ["x64", "ia32", "armv7l", "arm64"]
-            },
-            {
-              target: "tar.gz",
-              arch: ["x64", "ia32", "armv7l", "arm64"]
-            }
-          ],
+          target: ["AppImage", "deb", "tar.gz", "snap", "rpm"],
           publish: ["github"],
           category: "Network",
           synopsis: "Instant Messaging",
           maintainer: "Troplo <troplo@troplo.com>"
         },
         mac: {
+          target: ["dmg", "zip"],
           publish: ["github"]
         }
       }

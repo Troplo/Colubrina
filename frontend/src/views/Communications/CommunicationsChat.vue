@@ -169,7 +169,7 @@
     <v-row v-if="!loading" @drop="handleDrag" no-gutters>
       <v-col class="flex-grow-1 flex-shrink-1 pb-0" id="chat-col">
         <v-card
-          class="d-flex flex-column fill-height rounded-xl mb-n3"
+          class="d-flex flex-column fill-height rounded-0 mb-n3"
           style="overflow: auto; height: calc(100vh - 24px - 40px)"
           color="card"
           elevation="0"

@@ -1,6 +1,7 @@
 {
   "name": "colubrina",
-  "version": "1.0.19",
+  "version": "1.0.20",
+  "description": "Simple instant communication.",
   "private": true,
   "author": "Troplo <troplo@troplo.com>",
   "scripts": {
