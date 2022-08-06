@@ -1,3 +1,6 @@
+.mentioned-message {
+  box-shadow: -2px 0 0 0 var(--v-primary-base);
+}
 .offset-message {
   padding-left: 53px;
 }

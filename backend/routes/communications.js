@@ -142,7 +142,13 @@ async function createMessage(req, type, content, association, userId) {
       associationId: user.dataValues.id,
       keyId: `${
         message.dataValues.id
-      }-${message.dataValues.updatedAt.toISOString()}`
+      }-${message.dataValues.updatedAt.toISOString()}`,
+      notify:
+        association.notifications === "all" ||
+        (association.notifications === "mentions" &&
+          message.content
+            .toLowerCase()
+            .includes(association.user.username.toLowerCase()))
     })
   })
 }
@@ -771,6 +777,28 @@ router.put("/:id", auth, async (req, res, next) => {
   }
 })
 
+router.put("/settings/:id", auth, async (req, res, next) => {
+  try {
+    const io = req.app.get("io")
+    const association = await ChatAssociation.findOne({
+      where: {
+        userId: req.user.id,
+        id: req.params.id
+      }
+    })
+    if (association) {
+      await association.update({
+        notifications: req.body.notifications
+      })
+      res.sendStatus(204)
+    } else {
+      throw Errors.invalidParameter("chat association id")
+    }
+  } catch (err) {
+    next(err)
+  }
+})
+
 router.put("/:id/message/edit", auth, async (req, res, next) => {
   try {
     const io = req.app.get("io")
@@ -1017,7 +1045,6 @@ router.post(
                 attributes: [
                   "username",
                   "name",
-
                   "avatar",
                   "id",
                   "createdAt",
@@ -1032,7 +1059,6 @@ router.post(
             attributes: [
               "username",
               "name",
-
               "avatar",
               "id",
               "createdAt",
@@ -1111,7 +1137,6 @@ router.post(
                   attributes: [
                     "username",
                     "name",
-
                     "avatar",
                     "id",
                     "createdAt",
@@ -1141,7 +1166,6 @@ router.post(
                   attributes: [
                     "username",
                     "name",
-
                     "avatar",
                     "id",
                     "createdAt",
@@ -1156,7 +1180,6 @@ router.post(
               attributes: [
                 "username",
                 "name",
-
                 "avatar",
                 "id",
                 "createdAt",
@@ -1187,7 +1210,6 @@ router.post(
               attributes: [
                 "username",
                 "name",
-
                 "avatar",
                 "id",
                 "createdAt",
@@ -1221,7 +1243,13 @@ router.post(
               })
             },
             associationId: association.id,
-            keyId: `${message.id}-${message.updatedAt.toISOString()}`
+            keyId: `${message.id}-${message.updatedAt.toISOString()}`,
+            notify:
+              association.notifications === "all" ||
+              (association.notifications === "mentions" &&
+                message.content
+                  .toLowerCase()
+                  .includes(association.user.username.toLowerCase()))
           })
         }
         res.json({
@@ -1288,12 +1316,10 @@ router.post("/:id/message", auth, limiter, async (req, res, next) => {
               attributes: [
                 "username",
                 "name",
-
                 "avatar",
                 "id",
                 "createdAt",
                 "updatedAt",
-
                 "bot"
               ]
             }
@@ -1305,12 +1331,10 @@ router.post("/:id/message", auth, limiter, async (req, res, next) => {
           attributes: [
             "username",
             "name",
-
             "avatar",
             "id",
             "createdAt",
             "updatedAt",
-
             "bot"
           ]
         }
@@ -1376,12 +1400,10 @@ router.post("/:id/message", auth, limiter, async (req, res, next) => {
                 attributes: [
                   "username",
                   "name",
-
                   "avatar",
                   "id",
                   "createdAt",
                   "updatedAt",
-
                   "bot"
                 ],
                 include: [
@@ -1412,12 +1434,10 @@ router.post("/:id/message", auth, limiter, async (req, res, next) => {
                 attributes: [
                   "username",
                   "name",
-
                   "avatar",
                   "id",
                   "createdAt",
                   "updatedAt",
-
                   "bot"
                 ]
               }
@@ -1429,12 +1449,10 @@ router.post("/:id/message", auth, limiter, async (req, res, next) => {
             attributes: [
               "username",
               "name",
-
               "avatar",
               "id",
               "createdAt",
               "updatedAt",
-
               "bot"
             ],
             include: [
@@ -1462,12 +1480,10 @@ router.post("/:id/message", auth, limiter, async (req, res, next) => {
             attributes: [
               "username",
               "name",
-
               "avatar",
               "id",
               "createdAt",
               "updatedAt",
-
               "bot"
             ]
           }
@@ -1492,7 +1508,13 @@ router.post("/:id/message", auth, limiter, async (req, res, next) => {
             })
           },
           associationId: association.id,
-          keyId: `${message.id}-${message.updatedAt.toISOString()}`
+          keyId: `${message.id}-${message.updatedAt.toISOString()}`,
+          notify:
+            association.notifications === "all" ||
+            (association.notifications === "mentions" &&
+              message.content
+                .toLowerCase()
+                .includes(association.user.username.toLowerCase()))
         })
       }
       res.json({

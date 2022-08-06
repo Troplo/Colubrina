@@ -39,7 +39,8 @@
             :key="message.keyId"
             :class="{
               'message-hover': hover,
-              'pa-0': $vuetify.breakpoint.mobile
+              'pa-0': $vuetify.breakpoint.mobile,
+              'mentioned-message': mentioned
             }"
             :id="'message-' + index"
             @contextmenu="show($event, 'message', message)"
@@ -892,6 +893,13 @@ export default {
         other: "mdi-file",
         xml: "mdi-file-code"
       }
+    }
+  },
+  computed: {
+    mentioned() {
+      return this.message.content
+        .toLowerCase()
+        .includes(this.$store.state.user.username.toLowerCase())
     }
   },
   methods: {

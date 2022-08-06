@@ -547,17 +547,20 @@ export default {
           )
         })
         this.$socket.on("message", (message) => {
-          this.$store.state.communicationNotifications += 1
-          this.$store.state.chats.find(
-            (chat) => chat.id === message.associationId
-          ).unread += 1
+          if (message.notify) {
+            this.$store.state.communicationNotifications += 1
+            this.$store.state.chats.find(
+              (chat) => chat.id === message.associationId
+            ).unread += 1
+          }
           if (
             (message.userId !== this.$store.state.user.id &&
               parseInt(this.$route.params?.id) !== message.associationId &&
               this.$store.state.user?.storedStatus !== "busy") ||
             (message.userId !== this.$store.state.user.id &&
               this.$store.state.user?.storedStatus !== "busy" &&
-              !document.hasFocus())
+              !document.hasFocus() &&
+              message.notify)
           ) {
             if (localStorage.getItem("messageAudio")) {
               if (JSON.parse(localStorage.getItem("messageAudio"))) {

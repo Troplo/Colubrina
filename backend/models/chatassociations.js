@@ -45,6 +45,11 @@ module.exports = (sequelize, DataTypes) => {
       updatedAt: {
         allowNull: false,
         type: DataTypes.DATE
+      },
+      notifications: {
+        type: DataTypes.ENUM(["all", "none", "mentions"]),
+        defaultValue: "all",
+        allowNull: false
       }
     },
     {

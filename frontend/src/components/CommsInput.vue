@@ -37,6 +37,11 @@
       @keyup.esc="handleEsc"
       @click:append-outer="handleMessage()"
       @keydown.enter.exact.prevent="handleMessage()"
+      @keydown.tab.exact.prevent="tabCompletion()"
+      @input="
+        completions = []
+        completionWord = ''
+      "
       v-model="message"
       @paste="handlePaste"
       rows="1"
@@ -110,10 +115,51 @@ export default {
     return {
       message: "",
       file: null,
-      blobURL: null
+      blobURL: null,
+      mentions: false,
+      users: [],
+      completions: [],
+      completionWord: ""
     }
   },
   methods: {
+    tabCompletion() {
+      if (!this.completions.length) {
+        const word = this.message.split(" ").pop().toLowerCase()
+        const user = this.chat.chat.users.find((u) =>
+          u.username.toLowerCase().startsWith(word)
+        )
+        if (user) {
+          if (word.length) {
+            this.message = this.message.replace(
+              this.message.split(" ").pop(),
+              user.username + ", "
+            )
+          } else {
+            this.message = this.message + user.username + ", "
+          }
+          this.$nextTick(() => {
+            this.completionWord = this.message.split(" ").pop()
+            this.completions.push(user.username)
+          })
+        }
+      } else {
+        const user = this.chat.chat.users.find(
+          (u) =>
+            u.username.toLowerCase().startsWith(this.completionWord) &&
+            !this.completions.includes(u.username)
+        )
+        if (user) {
+          this.message = this.message.replace(
+            this.completions[this.completions.length - 1] + ", ",
+            user.username + ", "
+          )
+          this.$nextTick(() => {
+            this.completions.push(user.username)
+          })
+        }
+      }
+    },
     handleEditMessage() {
       if (!this.message?.length) {
         this.editLastMessage()

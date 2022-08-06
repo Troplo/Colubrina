@@ -11,8 +11,58 @@
       absolute
       offset-y
       class="rounded-l"
+      style="z-index: 20"
     >
       <v-list class="rounded-l" v-if="context.user.item">
+        <v-menu
+          :nudge-right="10"
+          :close-delay="100"
+          :close-on-content-click="false"
+          :close-on-click="false"
+          bottom
+          offset-x
+          open-on-hover
+        >
+          <template v-slot:activator="{ on }">
+            <v-list-item v-on="on">
+              <v-list-item-title>Notification Settings</v-list-item-title
+              ><v-icon class="ml-2">mdi-arrow-right</v-icon>
+            </v-list-item>
+          </template>
+          <div>
+            <v-list>
+              <v-list-item @click="setNotifications('all')">
+                <v-list-item-title>All messages</v-list-item-title>
+                <v-icon v-if="context.user.raw.notifications === 'all'"
+                  >mdi-check</v-icon
+                >
+              </v-list-item>
+              <v-list-item two-line @click="setNotifications('mentions')">
+                <v-list-item-content>
+                  <v-list-item-title
+                    >Mentions only
+                    <v-icon
+                      style="float: right"
+                      v-if="context.user.raw.notifications === 'mentions'"
+                      >mdi-check</v-icon
+                    ></v-list-item-title
+                  >
+
+                  <v-list-item-subtitle
+                    >Mentions are performed when your username is sent in the
+                    chat.</v-list-item-subtitle
+                  >
+                </v-list-item-content>
+              </v-list-item>
+              <v-list-item @click="setNotifications('none')">
+                <v-list-item-title>None</v-list-item-title>
+                <v-icon v-if="context.user.raw.notifications === 'none'"
+                  >mdi-check</v-icon
+                >
+              </v-list-item>
+            </v-list>
+          </div>
+        </v-menu>
         <v-list-item
           v-if="context.user.item.type === 'direct'"
           @click="
@@ -450,7 +500,7 @@
               <v-list-item
                 :to="'/communications/' + item.id"
                 @contextmenu="
-                  show($event, 'user', getDirectRecipient(item), item.id)
+                  show($event, 'user', getDirectRecipient(item), item)
                 "
               >
                 <v-badge
@@ -707,6 +757,19 @@ export default {
     }
   },
   methods: {
+    setNotifications(value) {
+      this.axios
+        .put("/api/v1/communications/settings/" + this.context.user.raw.id, {
+          notifications: value
+        })
+        .then(() => {
+          this.context.user.raw.notifications = value
+          this.$store.dispatch("getChats")
+        })
+        .catch((e) => {
+          AjaxErrorHandler(this.$store)(e)
+        })
+    },
     groupSettings(id) {
       this.settings.item = this.$store.state.chats.find(
         (chat) => chat.id === id
@@ -717,14 +780,14 @@ export default {
       this.leave.item = this.$store.state.chats.find((chat) => chat.id === id)
       this.leave.dialog = true
     },
-    show(e, context, item, id, state) {
+    show(e, context, item, raw, state) {
       if (!state) {
         e.preventDefault()
         this.context[context].value = false
         this.context[context].x = e.clientX
         this.context[context].y = e.clientY
         this.context[context].item = item
-        this.context[context].id = id
+        this.context[context].raw = raw
         this.$nextTick(() => {
           this.context[context].value = true
         })
@@ -734,7 +797,7 @@ export default {
         this.$store.state.context[context].x = e.clientX
         this.$store.state.context[context].y = e.clientY
         this.$store.state.context[context].item = item
-        this.$store.state.context[context].id = id
+        this.$store.state.context[context].raw = raw
         this.$nextTick(() => {
           this.$store.state.context[context].value = true
         })
