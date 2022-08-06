@@ -1,6 +1,6 @@
 {
   "name": "colubrina",
-  "version": "1.0.17",
+  "version": "1.0.18",
   "private": true,
   "author": "Troplo <troplo@troplo.com>",
   "scripts": {
@@ -12,7 +12,7 @@
     "postinstall": "patch-package && electron-builder install-app-deps",
     "postuninstall": "electron-builder install-app-deps"
   },
-  "main": "./src/background.js",
+  "main": "./dist_electron/bundled/background.js",
   "repository": "https://github.com/Troplo/Colubrina",
   "dependencies": {
     "@babel/preset-env": "^7.17.10",
