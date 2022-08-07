@@ -36,12 +36,14 @@
             {{ message.reply.content.substring(0, 100) }}
           </v-toolbar>
           <v-list-item
+            class="max-v-list-height"
             :key="message.keyId"
             :class="{
               'message-hover': hover,
               'pa-0': $vuetify.breakpoint.mobile,
               'mentioned-message': mentioned
             }"
+            :dense="lastMessage"
             :id="'message-' + index"
             @contextmenu="show($event, 'message', message)"
             :style="lastMessage ? 'margin-bottom: -5px; margin-top: -5px;' : ''"
@@ -400,7 +402,8 @@
               ></CommsInput>
             </v-list-item-content>
             <v-card
-              elevation="3"
+              elevation="8"
+              color="card"
               class="message-action-card"
               v-if="!$vuetify.breakpoint.mobile && hover"
             >

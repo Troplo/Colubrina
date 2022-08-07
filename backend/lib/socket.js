@@ -1,5 +1,6 @@
 const auth = require("../lib/authorize_socket.js")
 const { User, Friend, Session, Theme } = require("../models")
+const { Op } = require("sequelize")
 module.exports = {
   init(app, server) {
     const io = require("socket.io")(server, {

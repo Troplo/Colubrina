@@ -1,14 +1,19 @@
+>>>.max-v-list-height {
+  max-height: 10px;
+  overflow-y: auto;
+}
+
 .mentioned-message {
   box-shadow: -2px 0 0 0 var(--v-primary-base);
 }
 .offset-message {
-  padding-left: 53px;
+  margin-left: 53px;
 }
 .message-action-card {
   position: absolute;
   top: 0;
   right: 0;
-  margin-top: 5px;
+  margin-top: -15px;
   margin-right: 5px;
 }
 /* large codeblock */

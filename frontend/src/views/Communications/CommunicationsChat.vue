@@ -51,6 +51,9 @@
       class="rounded-l"
     >
       <v-list class="rounded-l" v-if="context.message.item">
+        <v-list-item @click="copy(context.message.item.content)">
+          <v-list-item-title>Copy Message Content</v-list-item-title>
+        </v-list-item>
         <v-list-item @click="replying = context.message.item">
           <v-list-item-title>Reply to Message</v-list-item-title>
         </v-list-item>
@@ -126,6 +129,7 @@
       v-if="!loading && $vuetify.breakpoint.mobile"
       app
       right
+      style="z-index: 100"
     >
       <v-list two-line color="card">
         <v-list-item-group class="rounded-xl">
@@ -275,33 +279,31 @@
             </template>
             <v-tooltip top>
               <template v-slot:activator="{ on }">
-                <span>
-                  <v-btn
-                    icon
-                    small
-                    fab
-                    width="20"
-                    height="20"
-                    class="ml-2 mt-2"
-                    style="float: right"
-                    @click="openUserPanel($store.state.user)"
-                  >
-                    <v-avatar size="20" v-on="on" color="primary">
-                      <img
-                        v-if="$store.state.user.avatar"
-                        :src="
-                          $store.state.baseURL +
-                          '/usercontent/' +
-                          $store.state.user.avatar
-                        "
-                        alt="avatar"
-                      />
-                      <span v-else>{{
-                        $store.state.user.username[0].toUpperCase()
-                      }}</span>
-                    </v-avatar>
-                  </v-btn>
-                </span>
+                <v-btn
+                  icon
+                  small
+                  fab
+                  width="20"
+                  height="20"
+                  class="ml-2 mt-2"
+                  style="float: right"
+                  @click="openUserPanel($store.state.user)"
+                >
+                  <v-avatar size="20" v-on="on" color="primary">
+                    <img
+                      v-if="$store.state.user.avatar"
+                      :src="
+                        $store.state.baseURL +
+                        '/usercontent/' +
+                        $store.state.user.avatar
+                      "
+                      alt="avatar"
+                    />
+                    <span v-else>{{
+                      $store.state.user.username[0].toUpperCase()
+                    }}</span>
+                  </v-avatar>
+                </v-btn>
               </template>
               <span>
                 {{ $store.state.user.username }} has read up to this point.
@@ -723,6 +725,9 @@ export default {
     }
   },
   methods: {
+    copy(content) {
+      navigator.clipboard.writeText(content)
+    },
     removePin(id) {
       this.axios
         .post(`/api/v1/communications/${this.chat.id}/pins`, {

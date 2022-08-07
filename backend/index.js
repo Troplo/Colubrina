@@ -7,6 +7,8 @@ let os = require("os")
 app.set("trust proxy", true)
 app.locals.config = require("./config/config.json")
 const socket = require("./lib/socket")
+const { User } = require("./models")
+const { Op } = require("sequelize")
 const server = require("http").createServer(app)
 
 app.use(bodyParser.json({ limit: "15mb" }))
@@ -47,6 +49,18 @@ console.log(os.hostname())
 
 app.use(require("./lib/errorHandler"))
 server.listen(23998, () => {
+  User.update(
+    {
+      status: "offline"
+    },
+    {
+      where: {
+        status: {
+          [Op.ne]: "offline"
+        }
+      }
+    }
+  )
   console.log("Initialized")
   console.log("Listening on port 0.0.0.0:" + 23998)
 
