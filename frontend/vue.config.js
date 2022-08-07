@@ -98,7 +98,7 @@ module.exports = {
           publish: ["github"]
         },
         linux: {
-          target: ["AppImage", "deb", "tar.gz", "snap", "rpm"],
+          target: ["AppImage", "deb", "tar.gz", "snap"],
           publish: ["github"],
           category: "Network",
           synopsis: "Instant Messaging",

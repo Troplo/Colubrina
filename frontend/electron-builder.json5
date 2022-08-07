@@ -1,0 +1,18 @@
+{
+  appId: "com.troplo.colubrina",
+  win: {
+    target: ["portable", "nsis", "zip"],
+    publish: ["github"]
+  },
+  linux: {
+    target: ["AppImage", "deb", "tar.gz", "snap", "pacman"],
+    publish: ["github"],
+    category: "Network",
+    synopsis: "Instant Messaging",
+    maintainer: "Troplo <troplo@troplo.com>"
+  },
+  mac: {
+    target: ["dmg", "zip"],
+    publish: ["github"]
+  }
+}

@@ -31,4 +31,4 @@ jobs:
           release: true
           package_root: "./frontend"
           use_vue_cli: true
-          args: "-c.snap.publish=github --publish always"
+          args: "-c.snap.publish=github --publish always --config electron-builder.json5"
