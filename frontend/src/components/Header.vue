@@ -72,10 +72,10 @@
         >
           <v-list-item-title>Change Friend Nickname</v-list-item-title>
         </v-list-item>
-        <v-list-item @click="groupSettings(context.user.id)">
+        <v-list-item @click="groupSettings(context.user.raw.id)">
           <v-list-item-title>Group Settings</v-list-item-title>
         </v-list-item>
-        <v-list-item @click="groupLeave(context.user.id)" color="error">
+        <v-list-item @click="groupLeave(context.user.raw.id)" color="error">
           <v-list-item-title>Leave Group</v-list-item-title>
         </v-list-item>
       </v-list>
