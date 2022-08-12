@@ -511,7 +511,7 @@ router.put("/settings/:type", auth, async (req, res, next) => {
           id: req.user.id
         }
       })
-      const match = await checkPasswordArgon2(req.body.current)
+      const match = await checkPasswordArgon2(req.body.current, user.password)
       if (match) {
         await user.update({
           password: await argon2.hash(req.body.new)
