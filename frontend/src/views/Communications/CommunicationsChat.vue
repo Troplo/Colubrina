@@ -1232,6 +1232,7 @@ export default {
         drafts[oldVal] = ""
       }
       this.message = drafts[val] || ""
+      this.messages = []
       this.usersTyping = []
       this.replying = null
       this.reachedTop = false
