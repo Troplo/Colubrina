@@ -1064,11 +1064,7 @@ export default {
       })
     },
     async getMessages() {
-      if (!this.$store.state.messages[this.chat.id]) {
-        this.loadingMessages = true
-      } else {
-        this.autoScroll()
-      }
+      this.autoScroll()
       await this.axios
         .get(
           process.env.VUE_APP_BASE_URL +
@@ -1236,7 +1232,6 @@ export default {
         drafts[oldVal] = ""
       }
       this.message = drafts[val] || ""
-      this.messages = this.$store.state.messages[val] || []
       this.usersTyping = []
       this.replying = null
       this.reachedTop = false

@@ -23,12 +23,14 @@ export default {
       }
     }
   },
+  mounted() {
+    if (!this.$route.params.id) {
+      this.$router.push("/communications/friends")
+    }
+  },
   watch: {
     selectedChat() {
       this.$store.commit("setSelectedChat", this.selectedChat)
-    },
-    "$route.params.id"() {
-      this.$store.commit("setLastChat", this.$route.params.id || "friends")
     }
   }
 }

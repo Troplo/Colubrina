@@ -28,12 +28,10 @@ Colubrina is a simple self-hostable chatting platform written in Vue, and Vuetif
 - [x] Channel message pins
 - [x] Read receipts
 
-<img src="https://i.troplo.com/i/d608273e066c.png" alt="Chat" width="45%"></img>
-<img src="https://i.troplo.com/i/e8e2c9d6e349.png" alt="Friends" width="45%"></img>
-<img src="https://i.troplo.com/i/e958b8e58c5e.png" alt="Chat with AMOLED theme" width="45%"></img>
-<img src="https://i.troplo.com/i/279376da3f1d.png" alt="Chat with profile card and light theme" width="45%"></img>
-<img src="https://i.troplo.com/i/59b63d5aa167.png" alt="QuickSwitcher" width="45%"></img>
-<img src="https://i.troplo.com/i/b2d6dd14c6b6.png" alt="QuickSwitcher with AMOLED theme" width="45%"></img>
+<img src="https://i.troplo.com/i/cb08c414644d.png" alt="Chat" width="45%"></img>
+<img src="https://i.troplo.com/i/9e5beb241d19.png" alt="Friends" width="45%"></img>
+<img src="https://i.troplo.com/i/a0459cbfd312.png" alt="Chat with AMOLED theme" width="45%"></img>
+<img src="https://i.troplo.com/i/48f5e875d455.png" alt="Chat with profile card and light theme" width="45%"></img>
 ## Backend setup
 First, configure a database and user (MariaDB strongly recommended) for Colubrina.<br>
 Please navigate to the `backend` folder and run `yarn`.<br>

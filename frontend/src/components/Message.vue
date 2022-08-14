@@ -45,9 +45,7 @@
             :dense="lastMessage"
             :id="'message-' + index"
             @contextmenu="show($event, 'message', message)"
-            :style="
-              lastMessage ? 'margin-bottom: -10px; margin-top: -10px;' : ''
-            "
+            :style="lastMessage ? 'margin-bottom: -5px; margin-top: -5px;' : ''"
           >
             <v-avatar size="45" class="mr-2" v-if="!lastMessage">
               <v-img

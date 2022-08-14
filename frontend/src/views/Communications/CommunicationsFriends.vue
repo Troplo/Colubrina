@@ -11,7 +11,7 @@
             $vuetify.theme.themes[$vuetify.theme.dark ? 'dark' : 'light'].card
           "
         >
-          <v-card class="rounded-xl" color="card" elevation="0">
+          <v-card class="rounded-0" color="card" elevation="0">
             <v-toolbar color="toolbar" elevation="0">
               <v-toolbar-title> Users </v-toolbar-title>
             </v-toolbar>
@@ -82,7 +82,7 @@
             $vuetify.theme.themes[$vuetify.theme.dark ? 'dark' : 'light'].card
           "
         >
-          <v-card class="rounded-xl" color="card" elevation="0">
+          <v-card class="rounded-0" color="card" elevation="0">
             <v-toolbar color="toolbar" elevation="0">
               <v-toolbar-title> Incoming </v-toolbar-title>
             </v-toolbar>

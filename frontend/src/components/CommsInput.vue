@@ -153,7 +153,7 @@
               v-on="on"
               id="attachment-button"
               icon
-              style="margin-top: -2px; margin-left: -2px"
+              style="margin-top: -3px; margin-left: -4px"
               small
               @dblclick.stop="openFileInput"
             >
