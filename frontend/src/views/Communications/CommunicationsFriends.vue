@@ -88,7 +88,7 @@
             </v-toolbar>
             <v-card color="card" elevation="0">
               <v-list color="card">
-                <v-list-item v-if="computePendingIncoming.length === 0">
+                <v-list-item v-if="!computePendingIncoming.length">
                   <v-list-item-content>
                     <v-list-item-title>
                       You currently do not have any incoming friend requests.
@@ -141,7 +141,7 @@
             </v-toolbar>
             <v-card color="card" elevation="0">
               <v-list color="card">
-                <v-list-item v-if="computePendingOutgoing.length === 0">
+                <v-list-item v-if="!computePendingOutgoing.length">
                   <v-list-item-content>
                     <v-list-item-title>
                       You currently do not have any outgoing friend requests.
@@ -191,7 +191,7 @@
             </v-toolbar>
             <v-card color="card" elevation="0">
               <v-list color="card">
-                <v-list-item v-if="computeAccepted.length === 0">
+                <v-list-item v-if="!computeAccepted.length">
                   <v-list-item-content>
                     <v-list-item-title>
                       You currently do not have any friends.
@@ -374,7 +374,6 @@ export default {
     }
   },
   async mounted() {
-    await this.$store.dispatch("doInit")
     this.getFriends()
     this.getUsers()
     this.$socket.on("friendRequest", () => {

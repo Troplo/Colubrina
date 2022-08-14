@@ -42,7 +42,8 @@
     "sqlite3": "^5.0.10",
     "ua-parser-js": "^1.0.2",
     "uglify-js": "^2.6.0",
-    "umzug": "^3.1.1"
+    "umzug": "^3.1.1",
+    "uuid": "^8.3.2"
   },
   "resolutions": {
     "constantinople": "^3.1.1",

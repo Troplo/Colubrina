@@ -32,6 +32,9 @@ router.get("/:mid/:index/:securityToken", async (req, res, next) => {
         res.setHeader("cache-control", "public, max-age=604800")
         res.end(response.data, "binary")
       })
+      .catch(() => {
+        res.status(404).end()
+      })
   } catch (e) {
     next(e)
   }
@@ -64,6 +67,9 @@ router.get("/:mid/:index/:securityToken.:extension", async (req, res, next) => {
         res.setHeader("content-type", response.headers["content-type"])
         res.setHeader("cache-control", "public, max-age=604800")
         res.end(response.data, "binary")
+      })
+      .catch(() => {
+        res.status(404).end()
       })
   } catch (e) {
     next(e)

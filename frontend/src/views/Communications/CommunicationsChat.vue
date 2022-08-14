@@ -97,7 +97,6 @@
           :max-width="1000"
           :max-height="600"
           :min-height="300"
-          aspect-ratio="16/9"
           contain
         ></v-img>
         <v-container>
@@ -1065,7 +1064,11 @@ export default {
       })
     },
     async getMessages() {
-      this.loadingMessages = true
+      if (!this.$store.state.messages[this.chat.id]) {
+        this.loadingMessages = true
+      } else {
+        this.autoScroll()
+      }
       await this.axios
         .get(
           process.env.VUE_APP_BASE_URL +
@@ -1079,6 +1082,10 @@ export default {
             this.reachedTop = true
           }
           this.messages.unshift(...res.data)
+          /*     this.$store.commit("setMessages", {
+            id: this.chat.id,
+            messages: this.messages
+          })*/
           this.loadingMessages = false
           this.markRead()
           this.$nextTick(() => {
@@ -1229,7 +1236,7 @@ export default {
         drafts[oldVal] = ""
       }
       this.message = drafts[val] || ""
-      this.messages = []
+      this.messages = this.$store.state.messages[val] || []
       this.usersTyping = []
       this.replying = null
       this.reachedTop = false

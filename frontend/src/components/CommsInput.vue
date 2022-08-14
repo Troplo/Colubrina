@@ -1,5 +1,81 @@
 <template>
   <div>
+    <v-dialog v-model="poll.dialog" max-width="500">
+      <v-card class="mb-0" color="card">
+        <v-toolbar color="toolbar">
+          <v-toolbar-title> Poll </v-toolbar-title>
+        </v-toolbar>
+        <v-card-text>
+          <v-container fluid>
+            <v-text-field v-model="poll.title" label="Title"></v-text-field>
+            <v-textarea
+              v-model="poll.description"
+              label="Description"
+            ></v-textarea>
+            <v-text-field
+              v-for="(value, index) in poll.options"
+              :key="index"
+              v-model="poll.options[index]"
+              :label="`Option ${index + 1}`"
+              :maxlength="30"
+              :append-outer-icon="poll.options.length > 2 ? 'mdi-close' : ''"
+              @click:append-outer="poll.options.splice(index, 1)"
+            ></v-text-field>
+            <v-btn
+              @click="poll.options.push('')"
+              v-if="poll.options.length <= 3"
+              text
+              block
+            >
+              <v-icon> mdi-plus </v-icon>
+            </v-btn>
+          </v-container>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="red" text @click="poll.dialog = false"> Cancel </v-btn>
+          <v-btn
+            color="blue darken-1"
+            text
+            @click="
+              createPoll()
+              poll.dialog = false
+            "
+          >
+            Add to message
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-toolbar
+      elevation="0"
+      outlined
+      height="40"
+      color="card"
+      v-for="(embed, index) in embeds"
+      style="cursor: pointer; overflow: hidden"
+      class="mb-2"
+      :key="index"
+    >
+      <v-toolbar-title>
+        <v-icon> mdi-attachment </v-icon>
+        {{ embedName(embed.type) }}
+      </v-toolbar-title>
+      <v-spacer></v-spacer>
+      <v-btn icon @click="embeds.splice(index, 1)" small>
+        <v-icon> mdi-close </v-icon>
+      </v-btn>
+    </v-toolbar>
+    <v-progress-linear
+      v-model="uploadPercentage"
+      v-if="uploading"
+      height="15"
+      color="toolbar"
+      disabled
+      class="rounded-xl"
+    >
+      <small>{{ uploadPercentage }}%</small>
+    </v-progress-linear>
     <v-toolbar
       elevation="0"
       outlined
@@ -62,15 +138,110 @@
           <v-icon> mdi-send </v-icon>
         </v-btn>
       </template>
-      <template v-slot:prepend>
-        <v-file-input
-          style="margin-top: -18px"
-          single-line
-          hide-input
-          v-model="file"
-          @change="getURLForImage"
-          v-if="!edit"
-        ></v-file-input>
+      <template v-slot:prepend-inner>
+        <v-menu
+          :nudge-top="10"
+          :nudge-left="5"
+          :close-delay="100"
+          :close-on-content-click="false"
+          bottom
+          offset-y
+          top
+        >
+          <template v-slot:activator="{ on }">
+            <v-btn
+              v-on="on"
+              id="attachment-button"
+              icon
+              style="margin-top: -2px; margin-left: -2px"
+              small
+              @dblclick.stop="openFileInput"
+            >
+              <v-icon>mdi-plus-circle</v-icon>
+            </v-btn>
+          </template>
+          <div>
+            <v-list>
+              <v-list-item @click="poll.dialog = true">
+                <v-icon class="mr-2"> mdi-poll </v-icon>
+                Create a poll
+              </v-list-item>
+              <v-list-item @click="openFileInput">
+                <v-file-input
+                  style="margin-top: -10px"
+                  single-line
+                  hide-input
+                  v-model="file"
+                  @change="getURLForImage"
+                  v-if="!edit"
+                  ref="file-input"
+                  st
+                ></v-file-input>
+                Upload a file
+              </v-list-item>
+            </v-list>
+          </div>
+        </v-menu>
+        <v-menu
+          :nudge-top="10"
+          :nudge-left="5"
+          :close-delay="100"
+          :close-on-content-click="false"
+          bottom
+          offset-y
+          top
+          v-if="false"
+        >
+          <template v-slot:activator="{ on }">
+            <v-btn
+              id="emoji-button"
+              icon
+              v-on="on"
+              style="
+                margin-top: -2px;
+                margin-left: 1px;
+                filter: grayscale(100%);
+              "
+              small
+              @dblclick.stop="openFileInput"
+            >
+              <img
+                style="width: 1.65em; height: 1.65em"
+                class="emoji"
+                draggable="false"
+                alt="😀"
+                src="https://twemoji.maxcdn.com/v/14.0.2/svg/1f600.svg"
+              />
+            </v-btn>
+          </template>
+          <v-card width="300" height="300">
+            <v-tabs vertical height="300">
+              <v-tab v-for="category in categories" :key="category">
+                {{ category }}
+              </v-tab>
+              <v-tab-item
+                v-for="category in categories"
+                :key="category + '-item'"
+              >
+                <v-card height="300">
+                  <v-container fluid>
+                    <v-row>
+                      <v-col
+                        v-for="emoji in emojisByCategory[category]"
+                        :key="emoji.emoji"
+                        sm="4"
+                        v-html="twemoji(emoji.emoji)"
+                        @click="addEmoji(emoji.emoji)"
+                        style="cursor: pointer"
+                      >
+                      </v-col>
+                    </v-row>
+                  </v-container>
+                </v-card>
+              </v-tab-item>
+            </v-tabs>
+          </v-card>
+        </v-menu>
       </template>
     </v-textarea>
   </div>
@@ -78,6 +249,8 @@
 
 <script>
 import AjaxErrorHandler from "@/lib/errorHandler"
+import twemoji from "twemoji"
+const emojis = require("../lib/emojis.json")
 
 export default {
   name: "CommsInput",
@@ -113,7 +286,16 @@ export default {
   },
   data() {
     return {
+      uploadPercentage: 0,
+      uploading: false,
+      poll: {
+        dialog: false,
+        title: "",
+        options: ["", ""],
+        description: ""
+      },
       message: "",
+      embeds: [],
       file: null,
       blobURL: null,
       mentions: false,
@@ -122,7 +304,57 @@ export default {
       completionWord: ""
     }
   },
+  /*
+  computed: {
+    emojis() {
+      return emojis
+    },
+    categories() {
+      return this.emojis
+        .map((emoji) => emoji.category)
+        .filter((category, index, array) => {
+          return array.indexOf(category) === index
+        })
+    },
+    emojisByCategory() {
+      return this.categories.reduce((acc, category) => {
+        acc[category] = this.emojis.filter((emoji) => {
+          return emoji.category === category
+        })
+        return acc
+      }, {})
+    }
+  },*/
   methods: {
+    embedName(type) {
+      if (type === "poll-v1") {
+        return "Interactive Poll"
+      } else if (type === "embed-v1") {
+        return "Standard Embed"
+      } else {
+        return type
+      }
+    },
+    createPoll() {
+      this.embeds.push({
+        type: "poll-v1",
+        title: this.poll.title,
+        options: this.poll.options,
+        description: this.poll.description
+      })
+    },
+    addEmoji(emoji) {
+      this.message += emoji
+    },
+    twemoji(emoji) {
+      return twemoji.parse(emoji, {
+        folder: "svg",
+        ext: ".svg"
+      })
+    },
+    openFileInput() {
+      this.$refs["file-input"].$refs.input.click()
+    },
     tabCompletion() {
       if (!this.completions.length) {
         const word = this.message.split(" ").pop().toLowerCase()
@@ -260,7 +492,6 @@ export default {
       let message = this.message
       this.message = ""
       if (this.file || message.length > 0) {
-        const emojis = require("../lib/emojis.json")
         message = message.replaceAll(
           /:([a-zA-Z0-9_\-+]+):/g,
           (match, group1) => {
@@ -283,25 +514,36 @@ export default {
                 "/message",
               {
                 message: message,
-                replyId: this.replying?.id
+                replyId: this.replying?.id,
+                embeds: this.embeds
               }
             )
             .then(() => {
               this.focusInput()
               this.autoScroll()
               this.endSend()
+              this.embeds = []
             })
             .catch((e) => {
               console.log(e)
               AjaxErrorHandler(this.$store)(e)
             })
         } else {
+          if (this.uploading) return
+          if (this.file.size > 50 * 1024 * 1024) {
+            this.$toast.error(
+              "The file you are trying to upload is too large. Maximum 50MB."
+            )
+            return
+          }
+          this.uploading = true
           const formData = new FormData()
           formData.append("message", message)
           if (this.replying) {
             formData.append("replyId", this.replying.id)
           }
           formData.append("file", this.file)
+          formData.append("embeds", this.embeds)
           this.axios
             .post(
               process.env.VUE_APP_BASE_URL +
@@ -312,7 +554,14 @@ export default {
               {
                 headers: {
                   "Content-Type": "multipart/form-data"
-                }
+                },
+                onUploadProgress: function (progressEvent) {
+                  this.uploadPercentage = parseInt(
+                    Math.round(
+                      (progressEvent.loaded / progressEvent.total) * 100
+                    )
+                  )
+                }.bind(this)
               }
             )
             .then(() => {
@@ -320,8 +569,13 @@ export default {
               this.autoScroll()
               this.endSend()
               this.file = null
+              this.uploading = false
+              this.uploadPercentage = 0
+              this.embeds = []
             })
             .catch((e) => {
+              this.uploading = false
+              this.uploadPercentage = 0
               console.log(e)
               AjaxErrorHandler(this.$store)(e)
             })

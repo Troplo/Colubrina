@@ -36,7 +36,6 @@
             {{ message.reply.content.substring(0, 100) }}
           </v-toolbar>
           <v-list-item
-            class="max-v-list-height"
             :key="message.keyId"
             :class="{
               'message-hover': hover,
@@ -46,7 +45,9 @@
             :dense="lastMessage"
             :id="'message-' + index"
             @contextmenu="show($event, 'message', message)"
-            :style="lastMessage ? 'margin-bottom: -5px; margin-top: -5px;' : ''"
+            :style="
+              lastMessage ? 'margin-bottom: -10px; margin-top: -10px;' : ''
+            "
           >
             <v-avatar size="45" class="mr-2" v-if="!lastMessage">
               <v-img
@@ -130,6 +131,47 @@
                   no-gutters
                 >
                   <v-card
+                    :min-width="!$vuetify.breakpoint.mobile ? 400 : 0"
+                    elevation="0"
+                    color="card"
+                    v-if="embed.type === 'image'"
+                  >
+                    <v-hover v-slot="{ hover }">
+                      <div>
+                        <v-img
+                          @click="setImagePreview(embed)"
+                          contain
+                          :max-width="500"
+                          :max-height="500"
+                          :src="$store.state.baseURL + embed.mediaProxyLink"
+                        >
+                          <template v-slot:placeholder>
+                            <v-row
+                              class="fill-height ma-0"
+                              align="center"
+                              justify="center"
+                            >
+                              <v-progress-circular
+                                indeterminate
+                                width="500"
+                                height="500"
+                                color="grey lighten-5"
+                              ></v-progress-circular>
+                            </v-row>
+                          </template>
+                          <template v-slot:default>
+                            <v-fade-transition v-if="hover">
+                              <v-overlay absolute>
+                                <v-icon large>mdi-arrow-expand-all</v-icon>
+                              </v-overlay>
+                            </v-fade-transition>
+                          </template>
+                        </v-img>
+                      </div>
+                    </v-hover>
+                  </v-card>
+                  <v-card
+                    v-if="embed.type !== 'image'"
                     elevation="0"
                     :color="
                       embed.type === 'embed-v1' ? embed.backgroundColor : 'bg'
@@ -186,36 +228,6 @@
                           </p>
                         </v-col>
                       </v-row>
-                      <template v-else-if="embed.type === 'image'">
-                        <v-hover v-slot="{ hover }">
-                          <v-img
-                            @click="setImagePreview(embed)"
-                            contain
-                            :aspect-ratio="16 / 9"
-                            :src="$store.state.baseURL + embed.mediaProxyLink"
-                          >
-                            <template v-slot:placeholder>
-                              <v-row
-                                class="fill-height ma-0"
-                                align="center"
-                                justify="center"
-                              >
-                                <v-progress-circular
-                                  indeterminate
-                                  color="grey lighten-5"
-                                ></v-progress-circular>
-                              </v-row>
-                            </template>
-                            <template v-slot:default>
-                              <v-fade-transition v-if="hover">
-                                <v-overlay absolute>
-                                  <v-icon large>mdi-arrow-expand-all</v-icon>
-                                </v-overlay>
-                              </v-fade-transition>
-                            </template>
-                          </v-img>
-                        </v-hover>
-                      </template>
                       <v-row v-else-if="embed.type === 'embed-v1'">
                         <v-col
                           cols="12"
@@ -306,6 +318,59 @@
                     </v-container>
                   </v-card>
                 </v-row>
+                <v-row v-if="message.poll" no-gutters>
+                  <v-card
+                    elevation="0"
+                    :max-width="500"
+                    :min-width="!$vuetify.breakpoint.mobile ? 400 : 200"
+                    class="ml-1 mb-1 mr-1 rounded-l"
+                    color="card lighten-1"
+                  >
+                    <v-toolbar color="toolbar" height="45">
+                      <v-toolbar-title>
+                        Poll: {{ message.poll.title }}
+                      </v-toolbar-title>
+                    </v-toolbar>
+                    <v-card-text>
+                      {{ message.poll.description }}
+                      <v-progress-linear
+                        v-for="option in message.poll.options"
+                        :key="option.id"
+                        block
+                        class="mb-1 rounded-xl"
+                        height="30"
+                        text
+                        :value="
+                          percentageVotes.find(
+                            (percentage) => percentage.id === option.id
+                          ).percentage
+                        "
+                        color="success darken-1"
+                        background-opacity="0.2"
+                        outlined
+                        style="text-transform: none; cursor: pointer"
+                        @click="votePoll(option.id)"
+                      >
+                        <span style="float: left !important">
+                          <v-icon v-if="option.id === myVote?.answer">
+                            mdi-check-circle
+                          </v-icon>
+                          {{ option.value }} ({{
+                            percentageVotes.find(
+                              (percentage) => percentage.id === option.id
+                            ).percentage
+                          }}% /
+                          {{
+                            message.poll.answers.filter(
+                              (answer) => answer.answer === option.id
+                            )?.length || 0
+                          }})
+                        </span>
+                      </v-progress-linear>
+                      {{ message.poll.answers.length }} votes
+                    </v-card-text>
+                  </v-card>
+                </v-row>
               </template>
               <template v-if="edit.id !== message.id">
                 <v-card
@@ -330,7 +395,8 @@
                       <v-img
                         @click="setImagePreview(attachment)"
                         contain
-                        :aspect-ratio="16 / 9"
+                        :max-width="500"
+                        :max-height="500"
                         :src="
                           $store.state.baseURL +
                           '/usercontent/' +
@@ -345,6 +411,8 @@
                           >
                             <v-progress-circular
                               indeterminate
+                              width="500"
+                              height="500"
                               color="grey lighten-5"
                             ></v-progress-circular>
                           </v-row>
@@ -899,6 +967,24 @@ export default {
     }
   },
   computed: {
+    myVote() {
+      return this.message.poll.answers.find(
+        (vote) => vote.userId === this.$store.state.user.id
+      )
+    },
+    percentageVotes() {
+      return this.message.poll.options.map((option) => {
+        return {
+          id: option.id,
+          percentage:
+            ((this.message.poll.answers?.filter(
+              (answer) => answer?.answer === option.id
+            ).length || 0) /
+              this.message.poll.answers.length) *
+              100 || 0
+        }
+      })
+    },
     mentioned() {
       return this.message.content
         .toLowerCase()
@@ -906,6 +992,15 @@ export default {
     }
   },
   methods: {
+    votePoll(option) {
+      this.axios
+        .post(`/api/v1/polls/${this.message.poll.id}/vote`, {
+          option
+        })
+        .catch((e) => {
+          AjaxErrorHandler(this.$store)(e)
+        })
+    },
     pinMessage() {
       this.axios
         .post(`/api/v1/communications/${this.chat.id}/pins`, {
@@ -928,6 +1023,18 @@ export default {
       } else {
         return (size / 1073741824).toFixed(2) + " GB"
       }
+    }
+  },
+  mounted() {
+    if (this.message.poll) {
+      this.$socket.on(`pollAnswer-${this.message.id}`, (data) => {
+        this.message.poll.answers = this.message.poll.answers.filter(
+          (answer) => answer.id !== data.id
+        )
+        if (data.answer) {
+          this.message.poll.answers.push(data.answer)
+        }
+      })
     }
   }
 }

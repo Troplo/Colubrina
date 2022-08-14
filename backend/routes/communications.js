@@ -10,7 +10,9 @@ const {
   Message,
   Friend,
   Attachment,
-  Nickname
+  Nickname,
+  Poll,
+  PollAnswer
 } = require("../models")
 const { Op } = require("sequelize")
 const rateLimit = require("express-rate-limit")
@@ -19,6 +21,7 @@ const cryptoRandomString = require("crypto-random-string")
 const path = require("path")
 const fs = require("fs")
 const FileType = require("file-type")
+const { v4: uuidv4 } = require("uuid")
 
 const limiter = rateLimit({
   windowMs: 10 * 1000,
@@ -43,7 +46,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({
   storage: storage,
-  limits: { fileSize: 12 * 1024 * 1024 }
+  limits: { fileSize: 50 * 1024 * 1024 }
 })
 
 const resolveEmbeds = require("../lib/resolveEmbeds.js")
@@ -93,7 +96,6 @@ async function createMessage(req, type, content, association, userId) {
             attributes: [
               "username",
               "name",
-
               "avatar",
               "id",
               "createdAt",
@@ -112,7 +114,6 @@ async function createMessage(req, type, content, association, userId) {
             attributes: [
               "username",
               "name",
-
               "avatar",
               "id",
               "createdAt",
@@ -127,7 +128,6 @@ async function createMessage(req, type, content, association, userId) {
         attributes: [
           "username",
           "name",
-
           "avatar",
           "id",
           "createdAt",
@@ -1369,11 +1369,61 @@ router.post("/:id/message", auth, limiter, async (req, res, next) => {
         embeds,
         replyId: reply.id
       })
+      if (req.body.embeds?.length && !req.user.bot) {
+        if (req.body.embeds.length > 1) {
+          throw Errors.invalidParameter("embeds", "Maximum length is 1")
+        }
+        for (const embed of req.body.embeds) {
+          if (embed.type === "poll-v1") {
+            if (!embed.title) {
+              throw Errors.invalidParameter("embeds", "title is required")
+            }
+            if (embed.options?.length < 2) {
+              throw Errors.invalidParameter("embeds", "options is required")
+            }
+            if (embed.options.length > 4) {
+              throw Errors.invalidParameter(
+                "embeds",
+                "Maximum length is 4 for options"
+              )
+            }
+            await Poll.create({
+              title: embed.title,
+              description: embed.description,
+              userId: req.user.id,
+              messageId: message.id,
+              options: embed.options.map((option) => {
+                return {
+                  value: option.toString(),
+                  id: uuidv4()
+                }
+              })
+            })
+          }
+        }
+      }
       const messageLookup = await Message.findOne({
         where: {
           id: message.id
         },
         include: [
+          {
+            model: Poll,
+            as: "poll",
+            include: [
+              {
+                model: PollAnswer,
+                as: "answers",
+                include: [
+                  {
+                    model: User,
+                    as: "user",
+                    attributes: ["username", "avatar", "id"]
+                  }
+                ]
+              }
+            ]
+          },
           {
             model: ChatAssociation,
             as: "readReceipts",
@@ -1611,12 +1661,10 @@ router.get("/:id/messages", auth, async (req, res, next) => {
               attributes: [
                 "username",
                 "name",
-
                 "avatar",
                 "id",
                 "createdAt",
                 "updatedAt",
-
                 "admin",
                 "bot"
               ]
@@ -1653,6 +1701,24 @@ router.get("/:id/messages", auth, async (req, res, next) => {
           ...or
         },
         include: [
+          {
+            model: Poll,
+            as: "poll",
+            include: [
+              {
+                model: PollAnswer,
+                as: "answers",
+                include: [
+                  {
+                    model: User,
+                    as: "user",
+                    required: false,
+                    attributes: ["username", "avatar", "id"]
+                  }
+                ]
+              }
+            ]
+          },
           {
             model: ChatAssociation,
             as: "readReceipts",

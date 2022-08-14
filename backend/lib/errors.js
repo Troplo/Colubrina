@@ -29,7 +29,10 @@ let Errors = {
     "The file you are trying to upload is not a valid file type.",
     400
   ],
-  fileTooLarge: ["The file you are trying to upload is too large.", 400],
+  fileTooLarge: [
+    "The file you are trying to upload is too large. Maximum 50MB.",
+    400
+  ],
   invalidPassword: [
     "Your password must be at least 8 characters in length.",
     400

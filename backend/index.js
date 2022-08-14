@@ -23,6 +23,7 @@ app.use("/usercontent", require("./routes/usercontent.js"))
 app.use("/api/v1/usercontent", require("./routes/usercontent.js"))
 app.use("/api/v1/mediaproxy", require("./routes/mediaproxy.js"))
 app.use("/api/v1/associations", require("./routes/associations.js"))
+app.use("/api/v1/polls", require("./routes/polls.js"))
 app.get("/api/v1/state", async (req, res) => {
   res.json({
     release: req.app.locals.config.release,

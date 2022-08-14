@@ -74,9 +74,16 @@ export default new Vuex.Store({
     wsRegistered: false,
     lastChat: "friends",
     searchPanel: false,
-    userPanel: false
+    userPanel: false,
+    messages: {}
   },
   mutations: {
+    setMessages(state, { id, messages }) {
+      state.messages[id] = messages
+    },
+    appendMessage(state, { id, message }) {
+      state.messages[id].push(message)
+    },
     setSelectedChat(state, chat) {
       state.selectedChat = chat
     },

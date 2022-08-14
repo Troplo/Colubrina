@@ -23,14 +23,6 @@ export default {
       }
     }
   },
-  mounted() {
-    if (!this.$route.params.id) {
-      this.$router.push("/communications/" + this.$store.state.lastChat)
-    } else {
-      this.$store.commit("setLastChat", this.$route.params.id || "friends")
-    }
-    this.$store.commit("setSelectedChat", this.selectedChat)
-  },
   watch: {
     selectedChat() {
       this.$store.commit("setSelectedChat", this.selectedChat)

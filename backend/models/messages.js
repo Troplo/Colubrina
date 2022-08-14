@@ -26,6 +26,10 @@ module.exports = (sequelize, DataTypes) => {
         as: "readReceipts",
         foreignKey: "lastRead"
       })
+      Message.hasOne(models.Poll, {
+        as: "poll",
+        foreignKey: "messageId"
+      })
     }
   }
   Message.init(
