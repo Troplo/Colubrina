@@ -1,12 +1,12 @@
 {
   "name": "colubrina",
-  "version": "1.0.23",
+  "version": "1.0.24",
   "description": "Simple instant communication.",
   "private": true,
   "author": "Troplo <troplo@troplo.com>",
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
+    "build": "vue-cli-service build --no-clean",
     "lint": "vue-cli-service lint",
     "electron:build": "vue-cli-service electron:build",
     "electron:serve": "vue-cli-service electron:serve",

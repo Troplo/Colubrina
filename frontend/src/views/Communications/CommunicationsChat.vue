@@ -1064,6 +1064,7 @@ export default {
       })
     },
     async getMessages() {
+      this.loadingMessages = true
       this.autoScroll()
       await this.axios
         .get(
@@ -1232,13 +1233,13 @@ export default {
         drafts[oldVal] = ""
       }
       this.message = drafts[val] || ""
-      this.messages = []
       this.usersTyping = []
       this.replying = null
       this.reachedTop = false
       this.avoidAutoScroll = false
       this.offset = 0
       this.pins = []
+      this.messages = []
       this.getMessages()
     }
   },

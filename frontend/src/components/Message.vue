@@ -974,12 +974,13 @@ export default {
       return this.message.poll.options.map((option) => {
         return {
           id: option.id,
-          percentage:
+          percentage: Math.round(
             ((this.message.poll.answers?.filter(
               (answer) => answer?.answer === option.id
             ).length || 0) /
               this.message.poll.answers.length) *
               100 || 0
+          )
         }
       })
     },
