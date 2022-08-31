@@ -184,8 +184,6 @@
                         >
                           <v-progress-circular
                             indeterminate
-                            width="500"
-                            height="500"
                             color="grey lighten-5"
                           ></v-progress-circular>
                         </v-row>

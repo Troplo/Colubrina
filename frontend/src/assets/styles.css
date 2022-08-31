@@ -80,14 +80,6 @@ img.emoji {
 .v-btn {
   text-transform: capitalize;
 }
-::-webkit-scrollbar {
-  display: none;
-}
-
-* {
-  -ms-overflow-style: none;
-  scrollbar-width: none; /* Firefox */
-}
 
 .troplo-nav {
   font-family: "Inter", sans-serif;
@@ -156,39 +148,28 @@ div .theme--dark.v-calendar-daily .v-calendar-daily__day {
   border: 1px transparent !important;
 }
 
-.light::-webkit-scrollbar {
-  width: 15px !important;
-}
-
-.light::-webkit-scrollbar-track {
-  background: #e6e6e6 !important;
-  border-left: 1px solid #dadada !important;
-}
-
-.light::-webkit-scrollbar-thumb {
-  background: #b0b0b0 !important;
-  border: solid 3px #e6e6e6 !important;
-  border-radius: 7px !important;
-}
-
-.light::-webkit-scrollbar-thumb:hover {
-  background: black !important;
-}
-
 ::-webkit-scrollbar {
-  width: 15px !important;
+  width: 10px !important;
 }
 
 ::-webkit-scrollbar-track {
-  background: #151515 !important;
+  background: transparent !important;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #3e3e3e !important;
-  border: solid 3px #202020 !important;
+  background: var(--v-text-lighten3) !important;
+  border: solid 3px var(--v-bg-base) !important;
   border-radius: 7px !important;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: white !important;
+  background: var(--v-text-lighten4) !important;
+}
+
+::-webkit-scrollbar-corner {
+  background-color: var(--v-bg-base);
+}
+
+:root {
+  overflow-y: auto !important;
 }

@@ -4,7 +4,7 @@
       :position-x="$store.state.context.pins.x"
       :position-y="60"
       v-model="$store.state.context.pins.value"
-      class="rounded-l"
+      class="rounded-l elevation-7"
       absolute
       transition="scroll-y-transition"
       :close-on-content-click="false"
@@ -18,9 +18,9 @@
         </v-toolbar>
         <v-divider></v-divider>
         <v-container>
-          <v-list dense v-if="pins.length">
+          <v-list dense v-if="pins.length" :max-height="600">
             <v-list-item
-              @click.self="jumpToMessage(pin.message.id)"
+              @click="jumpToMessage(pin.message.id)"
               v-for="(pin, index) in pins"
               :key="index"
             >
@@ -30,7 +30,7 @@
                 :key="pin.message.keyId"
               ></SimpleMessage>
               <v-spacer></v-spacer>
-              <v-btn icon text @click="removePin(pin.messageId)">
+              <v-btn icon text @click.stop="removePin(pin.messageId)">
                 <v-icon> mdi-close </v-icon>
               </v-btn>
             </v-list-item>
@@ -228,7 +228,8 @@
                     messages[index - 1]?.createdAt,
                     'minute'
                   ) < 10 &&
-                  !message.replyId
+                  !message.replyId &&
+                  !message.type
                 "
               ></Message>
               <div
