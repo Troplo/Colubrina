@@ -15,6 +15,7 @@
   right: 0;
   margin-top: -15px;
   margin-right: 5px;
+  visibility: hidden;
 }
 /* large codeblock */
 code {
@@ -23,12 +24,24 @@ code {
   display: block;
   padding: 20px;
 }
-.message-hover {
+.message:hover {
   background-color: var(--v-bg-lighten1);
   border-radius: 5px;
 }
 .message-toast {
   background-color: rgba(47, 47, 47, 0.9) !important;
+}
+.message-date {
+  visibility: hidden;
+}
+.message:hover .message-date {
+  visibility: visible;
+}
+.message:hover .message-action-card {
+  visibility: visible;
+}
+.message:hover .hide-on-hover {
+  visibility: hidden;
 }
 img.emoji {
   /* Since we are using SVGs, you have to change the width using CSS */

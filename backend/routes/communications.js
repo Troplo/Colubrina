@@ -992,13 +992,24 @@ router.delete("/:id/message/:mId", auth, async (req, res, next) => {
       ]
     })
     if (chat) {
-      const message = await Message.findOne({
-        where: {
-          id: req.params.mId,
-          chatId: chat.chat.id,
-          userId: req.user.id
+      let options
+      if (chat.rank === "admin") {
+        options = {
+          where: {
+            id: req.params.mId,
+            chatId: chat.chat.id
+          }
         }
-      })
+      } else {
+        options = {
+          where: {
+            id: req.params.mId,
+            chatId: chat.chat.id,
+            userId: req.user.id
+          }
+        }
+      }
+      const message = await Message.findOne(options)
       if (message) {
         await message.destroy()
         chat.chat.users.forEach((user) => {

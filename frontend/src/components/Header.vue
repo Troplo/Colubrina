@@ -601,9 +601,27 @@
         </v-tooltip>
       </template>
       <template v-else>
-        <v-toolbar-title>
-          {{ $route.name }}
-        </v-toolbar-title>
+        <v-toolbar-title
+          v-if="!$vuetify.breakpoint.mobile"
+          id="bettercompass-title"
+          :style="
+            'color: ' +
+            $vuetify.theme.themes[$vuetify.theme.dark ? 'dark' : 'light']
+              .primary
+          "
+          class="troplo-title"
+          @click="$router.push('/')"
+          style="cursor: pointer"
+          >{{ $store.state.site.name }}</v-toolbar-title
+        ><v-app-bar-nav-icon
+          v-if="
+            !$vuetify.breakpoint.mobile &&
+            $store.state.site.release !== 'stable'
+          "
+          style="z-index: 1000"
+          disabled
+          >{{ $store.state.site.release }}</v-app-bar-nav-icon
+        >
         <v-spacer></v-spacer>
         <v-tooltip bottom>
           <template v-slot:activator="{ on }">
@@ -954,6 +972,12 @@ export default {
   },
   methods: {
     goToRoute() {
+      if (this.route.value === "forceEnableDevMode") {
+        this.$store.state.site.release = "dev"
+        localStorage.setItem("forceEnableDevMode", "true")
+        this.$toast.success("OK")
+        return
+      }
       this.$router.push(this.route.value)
       this.route.modal = false
       this.route.value = ""

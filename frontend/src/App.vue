@@ -753,6 +753,8 @@ export default {
     }
   },
   async mounted() {
+    if (localStorage.getItem("forceEnableDevMode"))
+      this.$store.state.release = "dev"
     await this.$store.dispatch("doInit")
     if (this.$vuetify.breakpoint.mobile) {
       this.$store.state.drawer = false
