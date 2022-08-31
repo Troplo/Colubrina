@@ -804,6 +804,7 @@ export default {
         }
       })
       .catch(() => {
+        this.$store.dispatch("logout")
         this.$router.push("/login")
       })
     this.getThemes()

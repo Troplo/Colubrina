@@ -8,8 +8,9 @@
       absolute
       transition="scroll-y-transition"
       :close-on-content-click="false"
+      style="z-index: 15"
     >
-      <v-card min-width="350" color="toolbar">
+      <v-card min-width="400" max-width="400" color="toolbar">
         <v-toolbar color="toolbar lighten-1">
           <v-spacer></v-spacer>
           <v-toolbar-title> Pins </v-toolbar-title>
@@ -28,6 +29,7 @@
                 :index="index"
                 :key="pin.message.keyId"
               ></SimpleMessage>
+              <v-spacer></v-spacer>
               <v-btn icon text @click="removePin(pin.messageId)">
                 <v-icon> mdi-close </v-icon>
               </v-btn>
@@ -414,6 +416,7 @@
         class=""
         id="search-col"
         v-if="$store.state.searchPanel && !$vuetify.breakpoint.mobile"
+        style="z-index: 15"
       >
         <v-card
           class="d-flex flex-column fill-height"
@@ -464,6 +467,12 @@
                   ></Message>
                 </div>
               </template>
+              <v-pagination
+                v-model="search.page"
+                class="my-4"
+                :length="search.pager.totalPages"
+                @input="doSearch"
+              ></v-pagination>
             </v-list>
           </v-card-text>
         </v-card>
@@ -607,7 +616,7 @@ export default {
         display: false
       }
     },
-    offset: 0,
+    offset: null,
     nickname: {
       dialog: false,
       nickname: "",
@@ -637,7 +646,9 @@ export default {
     search: {
       query: "",
       results: [],
-      pager: {},
+      pager: {
+        totalPages: 1
+      },
       loading: false,
       page: 1
     },
@@ -706,6 +717,9 @@ export default {
     lastRead: 0
   }),
   computed: {
+    offsetValue() {
+      return this.offset || this.messages[0]?.id || 0
+    },
     associations() {
       if (this.chat) {
         return this.chat.chat.associations.slice().sort((a, b) => {
@@ -799,7 +813,6 @@ export default {
         !this.loadingMessages
       ) {
         this.rateLimit = true
-        this.offset += 50
         this.loadingMessages = true
         const element = document.getElementById("message-0")
         await this.getMessages()
@@ -1001,9 +1014,10 @@ export default {
             lastMessage.style.backgroundColor = ""
           }, 1500)
         } else {
-          this.offset = id
+          this.offset = id + 10
           await this.getMessages()
           this.jumpToMessage(id)
+          this.offset = null
         }
       } catch (e) {
         console.log(e)
@@ -1072,7 +1086,7 @@ export default {
             "/api/v1/communications/" +
             this.$route.params.id +
             "/messages?limit=50&offset=" +
-            this.messages[0]?.id || 0
+            this.offsetValue
         )
         .then((res) => {
           if (!res.data.length) {
@@ -1237,7 +1251,7 @@ export default {
       this.replying = null
       this.reachedTop = false
       this.avoidAutoScroll = false
-      this.offset = 0
+      this.offset = null
       this.pins = []
       this.messages = []
       this.getMessages()

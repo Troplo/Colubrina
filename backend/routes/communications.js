@@ -531,6 +531,7 @@ router.get("/:id/pins", auth, async (req, res, next) => {
           {
             model: Message,
             as: "message",
+            required: true,
             include: [
               {
                 model: User,
@@ -950,7 +951,7 @@ router.get("/:id/search", auth, async (req, res, next) => {
           }
         ]
       })
-      const page = parseInt(req.params.page) || 1
+      const page = parseInt(req.query.page) || 1
       const pager = paginate(messages.length, page, 15)
       const result = messages.slice(pager.startIndex, pager.endIndex + 1)
       res.json({

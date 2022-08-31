@@ -28,7 +28,7 @@ module.exports = async function (req, res, next) {
         })
         if (user) {
           if (user.banned) {
-            res.status(401).json(Errors.banned)
+            res.status(401).json({ errors: [Errors.banned] })
             return
           }
           await user.update({
@@ -38,7 +38,7 @@ module.exports = async function (req, res, next) {
           next()
         }
       } else {
-        res.status(401).json(Errors.unauthorized)
+        res.status(401).json({ errors: [Errors.unauthorized] })
       }
     } else {
       res.status(401).json({
