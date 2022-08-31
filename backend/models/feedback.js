@@ -20,7 +20,7 @@ module.exports = (sequelize, DataTypes) => {
       feedbackText: DataTypes.TEXT,
       starRating: DataTypes.BIGINT,
       route: DataTypes.STRING,
-      userId: DataTypes.STRING,
+      userId: DataTypes.BIGINT,
       tenant: DataTypes.STRING,
       debug: DataTypes.JSON
     },

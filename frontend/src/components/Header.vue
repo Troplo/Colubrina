@@ -357,6 +357,139 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <v-dialog v-model="shortcuts" width="700">
+      <v-card color="card" elevation="7">
+        <v-toolbar color="toolbar">
+          <v-toolbar-title> Shortcuts </v-toolbar-title>
+        </v-toolbar>
+        <v-card-text>
+          <v-container>
+            <v-layout row wrap>
+              <v-card class="mx-2 mt-2">
+                <v-card-title> QuickSwitcher </v-card-title>
+                <v-card-text class="text-center">
+                  <v-btn text outlined> CTRL </v-btn>
+                  <v-btn text outlined class="ml-2"> K </v-btn>
+                </v-card-text>
+              </v-card>
+              <v-card class="mx-2 mt-2">
+                <v-card-title> RouteSwitcher </v-card-title>
+                <v-card-text class="text-center">
+                  <v-btn text outlined> CTRL </v-btn>
+                  <v-btn text outlined class="ml-2"> B </v-btn>
+                </v-card-text>
+              </v-card>
+              <v-card class="mx-2 mt-2">
+                <v-card-title> Shortcuts </v-card-title>
+                <v-card-text class="text-center">
+                  <v-btn text outlined class="ml-2"> CTRL </v-btn>
+                  <v-btn text outlined class="ml-2"> / </v-btn>
+                </v-card-text>
+              </v-card>
+              <v-card class="mx-2 mt-2">
+                <v-card-title> Toggle CSS </v-card-title>
+                <v-card-text class="text-center">
+                  <v-btn text outlined> F9 </v-btn>
+                  <span class="ml-2">or</span>
+                  <v-btn text outlined class="ml-2"> CTRL </v-btn>
+                  <v-btn text outlined class="ml-2"> ALT </v-btn>
+                  <v-btn text outlined class="ml-2"> D </v-btn>
+                </v-card-text>
+              </v-card>
+            </v-layout>
+          </v-container>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+    <v-dialog v-model="feedback.modal" width="700">
+      <v-card color="card" elevation="7">
+        <v-toolbar color="toolbar">
+          <v-toolbar-title> Provide Feedback </v-toolbar-title>
+        </v-toolbar>
+        <v-card-text>
+          <v-container>
+            <v-row>
+              <v-col cols="12" md="4" sm="6">
+                Rating:
+                <v-rating
+                  v-model="feedback.rating"
+                  background-color="grey darken-1"
+                  color="yellow darken-3"
+                  empty-icon="$ratingFull"
+                  hover
+                ></v-rating>
+              </v-col>
+              <v-col cols="12">
+                <v-textarea
+                  class="rounded-xl"
+                  v-model="feedback.text"
+                  label="Enter your Feedback"
+                  required
+                  autofocus
+                  placeholder="Enter your Feedback"
+                ></v-textarea>
+              </v-col>
+              <small
+                >Your feedback will be used to make
+                {{ $store.state.site.name }} even better.</small
+              >
+            </v-row>
+          </v-container>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            class="rounded-xl"
+            color="blue darken-1"
+            text
+            @click="feedback.modal = false"
+          >
+            Close
+          </v-btn>
+          <v-btn
+            class="rounded-xl"
+            color="blue darken-1"
+            text
+            @click="submitFeedback()"
+          >
+            Submit
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-dialog v-model="route.modal" width="700">
+      <v-card color="card" elevation="7">
+        <v-toolbar color="toolbar">
+          <v-toolbar-title> Go to Route </v-toolbar-title>
+        </v-toolbar>
+        <v-card-text>
+          <v-container>
+            <v-text-field
+              class="rounded-xl"
+              v-model="route.value"
+              autofocus
+              @keyup.enter="goToRoute()"
+              label="Route"
+              required
+            ></v-text-field>
+          </v-container>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn class="rounded-xl" text @click="route.modal = false">
+            Close
+          </v-btn>
+          <v-btn
+            class="rounded-xl"
+            color="blue darken-1"
+            text
+            @click="goToRoute()"
+          >
+            Go
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     <v-app-bar app color="dark" elevation="5" style="z-index: 15">
       <v-app-bar-nav-icon
         @click.stop="$store.state.drawer = !$store.state.drawer"
@@ -397,6 +530,20 @@
       >
         Debug
       </button>
+      <button
+        style="display: none"
+        v-shortkey="['ctrl', 'b']"
+        @shortkey="route.modal = true"
+      >
+        Debug
+      </button>
+      <button
+        style="display: none"
+        v-shortkey="['ctrl', '/']"
+        @shortkey="shortcuts = true"
+      >
+        Debug
+      </button>
       <template v-if="$route.name === 'Communications'">
         <v-toolbar-title v-if="$store.state.selectedChat?.chat?.type">
           {{
@@ -406,28 +553,66 @@
           }}
         </v-toolbar-title>
         <v-spacer></v-spacer>
-        <v-btn
-          icon
-          v-model="$store.state.context.pins.value"
-          @click="show($event, 'pins', null, null, true)"
-          id="pin-button"
-        >
-          <v-icon>mdi-pin-outline</v-icon>
-        </v-btn>
-        <v-btn
-          icon
-          @click="$store.state.searchPanel = !$store.state.searchPanel"
-        >
-          <v-icon>mdi-magnify</v-icon>
-        </v-btn>
-        <v-btn icon @click="$store.state.userPanel = !$store.state.userPanel">
-          <v-icon>mdi-account-group-outline</v-icon>
-        </v-btn>
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on }">
+            <v-btn v-on="on" icon @click="feedback.modal = true">
+              <v-icon>mdi-bug</v-icon>
+            </v-btn>
+          </template>
+          <span>Provide Feedback</span>
+        </v-tooltip>
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on }">
+            <v-btn
+              icon
+              v-model="$store.state.context.pins.value"
+              @click="show($event, 'pins', null, null, true)"
+              id="pin-button"
+              v-on="on"
+            >
+              <v-icon>mdi-pin-outline</v-icon>
+            </v-btn>
+          </template>
+          <span>Chat Pins</span>
+        </v-tooltip>
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on }">
+            <v-btn
+              icon
+              @click="$store.state.searchPanel = !$store.state.searchPanel"
+              v-on="on"
+            >
+              <v-icon>mdi-magnify</v-icon>
+            </v-btn>
+          </template>
+          <span>Search Messages</span>
+        </v-tooltip>
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on }">
+            <v-btn
+              v-on="on"
+              icon
+              @click="$store.state.userPanel = !$store.state.userPanel"
+            >
+              <v-icon>mdi-account-group-outline</v-icon>
+            </v-btn>
+          </template>
+          <span>Toggle member list</span>
+        </v-tooltip>
       </template>
       <template v-else>
         <v-toolbar-title>
           {{ $route.name }}
         </v-toolbar-title>
+        <v-spacer></v-spacer>
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on }">
+            <v-btn v-on="on" icon @click="feedback.modal = true">
+              <v-icon>mdi-bug</v-icon>
+            </v-btn>
+          </template>
+          <span>Provide Feedback</span>
+        </v-tooltip>
       </template>
     </v-app-bar>
     <v-navigation-drawer
@@ -682,6 +867,17 @@ export default {
   components: { NicknameDialog },
   data() {
     return {
+      shortcuts: false,
+      route: {
+        modal: false,
+        value: ""
+      },
+      feedback: {
+        modal: false,
+        route: "",
+        rating: 0,
+        text: ""
+      },
       search: "",
       nickname: {
         dialog: false,
@@ -757,6 +953,30 @@ export default {
     }
   },
   methods: {
+    goToRoute() {
+      this.$router.push(this.route.value)
+      this.route.modal = false
+      this.route.value = ""
+    },
+    submitFeedback() {
+      this.axios
+        .post("/api/v1/feedback", {
+          text: this.feedback.text,
+          starRating: this.feedback.rating,
+          route: this.feedback.route
+        })
+        .then(() => {
+          this.feedback.text = ""
+          this.feedback.rating = 0
+          this.feedback.modal = false
+          this.$toast.success("Thank you for making a better Colubrina.")
+        })
+        .catch(() => {
+          this.$toast.error(
+            "Something went wrong while submitting feedback, you should submit feedback about this."
+          )
+        })
+    },
     setNotifications(value) {
       this.axios
         .put("/api/v1/communications/settings/" + this.context.user.raw.id, {
@@ -1049,6 +1269,7 @@ export default {
     }
   },
   mounted() {
+    this.feedback.route = this.$route.path
     Vue.axios.defaults.headers.common["Authorization"] =
       localStorage.getItem("token")
     this.searchUsers()
@@ -1108,6 +1329,11 @@ export default {
         })
       }
     })
+  },
+  watch: {
+    $route(to) {
+      this.feedback.route = to.path
+    }
   }
 }
 </script>

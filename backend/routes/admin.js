@@ -2,7 +2,7 @@ const express = require("express")
 const router = express.Router()
 const Errors = require("../lib/errors.js")
 const auth = require("../lib/authorize.js")
-const { User, Theme, Message } = require("../models")
+const { User, Theme, Message, Feedback } = require("../models")
 const { Op } = require("sequelize")
 const dayjs = require("dayjs")
 const fs = require("fs")
@@ -30,6 +30,23 @@ router.all("*", auth, async (req, res, next) => {
     }
   } catch (e) {
     next(e)
+  }
+})
+
+router.get("/feedback", auth, async (req, res, next) => {
+  try {
+    const feedback = await Feedback.findAndCountAll({
+      order: [["createdAt", "DESC"]],
+      include: [
+        {
+          model: User,
+          as: "user"
+        }
+      ]
+    })
+    res.json(feedback)
+  } catch (err) {
+    return next(err)
   }
 })
 
