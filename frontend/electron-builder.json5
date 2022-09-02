@@ -9,8 +9,7 @@
     publish: ["github"],
     category: "Network",
     synopsis: "Instant Messaging",
-    maintainer: "Troplo <troplo@troplo.com>",
-    arch: ["x64", "arm64"]
+    maintainer: "Troplo <troplo@troplo.com>"
   },
   mac: {
     target: ["dmg", "zip"],
