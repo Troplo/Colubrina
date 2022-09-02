@@ -9,10 +9,12 @@
     publish: ["github"],
     category: "Network",
     synopsis: "Instant Messaging",
-    maintainer: "Troplo <troplo@troplo.com>"
+    maintainer: "Troplo <troplo@troplo.com>",
+    arch: ["x64", "arm64"]
   },
   mac: {
     target: ["dmg", "zip"],
+    arch: ["x64", "arm64"],
     publish: ["github"]
   }
 }
