@@ -34,7 +34,9 @@ async function createWindow() {
       contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
       preload: "window-preload.js",
       // required for multi-instance support
-      webSecurity: false
+      webSecurity: false,
+      // Auto-scroll for Linux/MacOS
+      enableBlinkFeatures: "MiddleClickAutoscroll"
     }
   })
 
