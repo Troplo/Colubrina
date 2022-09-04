@@ -65,7 +65,7 @@ router.delete("/:id/:associationId", auth, async (req, res, next) => {
     if (!association) {
       throw Errors.chatNotFoundOrNotAdmin
     }
-    if (association.chat) await association.destroy()
+    await association.destroy()
     res.sendStatus(204)
     const message = await Message.create({
       userId: 0,
@@ -169,6 +169,9 @@ router.delete("/:id/:associationId", auth, async (req, res, next) => {
         associationId: association.id,
         keyId: `${message.id}-${message.updatedAt.toISOString()}`
       })
+      io.to(association.userId).emit("memberListUpdate", {
+        chatId: chat.chatId
+      })
     })
   } catch (err) {
     next(err)
@@ -215,6 +218,31 @@ router.put("/:id/:associationId", auth, async (req, res, next) => {
       rank: req.body.rank
     })
     res.sendStatus(204)
+    const io = req.app.get("io")
+    const associations = await ChatAssociation.findAll({
+      where: {
+        chatId: chat.chat.id
+      },
+      include: [
+        {
+          model: User,
+          as: "user",
+          attributes: [
+            "username",
+            "name",
+            "avatar",
+            "id",
+            "createdAt",
+            "updatedAt"
+          ]
+        }
+      ]
+    })
+    associations.forEach((association) => {
+      io.to(association.userId).emit("memberListUpdate", {
+        chatId: chat.chatId
+      })
+    })
   } catch (err) {
     next(err)
   }
@@ -427,6 +455,9 @@ router.post("/:id", auth, async (req, res, next) => {
             associationId: association.id,
             keyId: `${message.id}-${message.updatedAt.toISOString()}`
           })
+          io.to(association.userId).emit("memberListUpdate", {
+            chatId: chat.chatId
+          })
         })
       }
       res.sendStatus(204)
@@ -560,6 +591,9 @@ router.delete("/:id", auth, async (req, res, next) => {
           ...messageLookup.dataValues,
           associationId: association.id,
           keyId: `${message.id}-${message.updatedAt.toISOString()}`
+        })
+        io.to(association.userId).emit("memberListUpdate", {
+          chatId: chat.chatId
         })
       })
     } else {

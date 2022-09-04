@@ -24,6 +24,9 @@ export default {
     }
   },
   mounted() {
+    this.$socket.on("memberListUpdate", () => {
+      this.$store.dispatch("getChats")
+    })
     if (!this.$route.params.id) {
       this.$router.push("/communications/friends")
     }
