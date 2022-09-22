@@ -174,11 +174,110 @@
     <v-row v-if="!loading" @drop="handleDrag" no-gutters>
       <v-col class="flex-grow-1 flex-shrink-1 pb-0" id="chat-col">
         <v-card
-          class="d-flex flex-column fill-height rounded-0 mb-n3"
+          class="d-flex flex-column-reverse fill-height rounded-0 mb-n3 chat-col"
           style="overflow: auto; height: calc(100vh - 24px - 40px)"
           color="card"
           elevation="0"
         >
+          <v-card-text>
+            <v-toolbar
+              @click="jumpToMessage(replying?.id)"
+              elevation="0"
+              height="35"
+              color="card"
+              v-if="replying"
+              style="cursor: pointer; overflow: hidden"
+            >
+              <v-icon class="mr-2">mdi-reply</v-icon>
+              <v-avatar size="24" class="mr-2">
+                <v-img
+                  :src="
+                    $store.state.baseURL +
+                    '/usercontent/' +
+                    replying.user.avatar
+                  "
+                  v-if="replying.user.avatar"
+                  class="elevation-1"
+                />
+                <v-icon v-else class="elevation-1"> mdi-account </v-icon>
+              </v-avatar>
+              <template v-if="replying.attachments.length">
+                <v-icon class="mr-2">mdi-file-image</v-icon>
+              </template>
+              <template v-if="!replying.content && replying.attachments.length">
+                Click to view attachment
+              </template>
+              {{ replying.content.substring(0, 100) }}
+              <v-spacer></v-spacer>
+              <v-btn icon @click="replying = null" class="mr-2" small>
+                <v-icon> mdi-close </v-icon>
+              </v-btn>
+            </v-toolbar>
+            <v-fade-transition v-model="avoidAutoScroll">
+              <v-toolbar
+                height="22"
+                color="toolbar"
+                elevation="0"
+                style="
+                  border-radius: 20px 20px 0 0;
+                  cursor: pointer;
+                  position: relative;
+                  top: -30px;
+                  margin-bottom: -27px;
+                  z-index: 20;
+                "
+                width="100%"
+                @click="forceBottom"
+                v-if="avoidAutoScroll"
+              >
+                <div>
+                  <v-icon size="16px"> mdi-arrow-down </v-icon>
+                  Jump to bottom...
+                </div>
+              </v-toolbar>
+            </v-fade-transition>
+            <v-fade-transition
+              v-model="usersTyping.length"
+              v-if="$vuetify.breakpoint.mobile"
+            >
+              <div
+                style="
+                  border-radius: 0 0 20px 20px;
+                  position: relative;
+                  top: -30px;
+                  margin-bottom: -22px;
+                "
+                v-if="usersTyping.length"
+              >
+                {{ usersTyping.map((user) => getName(user)).join(", ") }}
+                {{ usersTyping.length > 1 ? " are" : " is" }} typing...
+              </div>
+            </v-fade-transition>
+            <CommsInput
+              :chat="chat"
+              :replying="replying"
+              :editLastMessage="editLastMessage"
+              :autoScroll="autoScroll"
+              :endSend="endSend"
+            ></CommsInput>
+            <v-fade-transition
+              v-model="usersTyping.length"
+              v-if="!$vuetify.breakpoint.mobile"
+            >
+              <div
+                style="
+                  border-radius: 0 0 20px 20px;
+                  position: absolute;
+                  margin-top: -2px;
+                  bottom: 1px;
+                "
+                v-if="usersTyping.length"
+              >
+                {{ usersTyping.map((user) => getName(user)).join(", ") }}
+                {{ usersTyping.length > 1 ? " are" : " is" }} typing...
+              </div>
+            </v-fade-transition>
+          </v-card-text>
           <v-card-text class="flex-grow-1 overflow-y-auto" id="message-list">
             <v-card-title
               v-if="
@@ -311,104 +410,6 @@
                 {{ $store.state.user.username }} has read up to this point.
               </span>
             </v-tooltip>
-          </v-card-text>
-          <v-card-text>
-            <v-toolbar
-              @click="jumpToMessage(replying?.id)"
-              elevation="0"
-              height="35"
-              color="card"
-              v-if="replying"
-              style="cursor: pointer; overflow: hidden"
-            >
-              <v-icon class="mr-2">mdi-reply</v-icon>
-              <v-avatar size="24" class="mr-2">
-                <v-img
-                  :src="
-                    $store.state.baseURL +
-                    '/usercontent/' +
-                    replying.user.avatar
-                  "
-                  v-if="replying.user.avatar"
-                  class="elevation-1"
-                />
-                <v-icon v-else class="elevation-1"> mdi-account </v-icon>
-              </v-avatar>
-              <template v-if="replying.attachments.length">
-                <v-icon class="mr-2">mdi-file-image</v-icon>
-              </template>
-              <template v-if="!replying.content && replying.attachments.length">
-                Click to view attachment
-              </template>
-              {{ replying.content.substring(0, 100) }}
-              <v-spacer></v-spacer>
-              <v-btn icon @click="replying = null" class="mr-2" small>
-                <v-icon> mdi-close </v-icon>
-              </v-btn>
-            </v-toolbar>
-            <v-fade-transition v-model="avoidAutoScroll">
-              <v-toolbar
-                height="22"
-                color="toolbar"
-                elevation="0"
-                style="
-                  border-radius: 20px 20px 0 0;
-                  cursor: pointer;
-                  position: relative;
-                  top: -30px;
-                  margin-bottom: -27px;
-                "
-                width="100%"
-                @click="forceBottom"
-                v-if="avoidAutoScroll"
-              >
-                <div>
-                  <v-icon size="16px"> mdi-arrow-down </v-icon>
-                  Jump to bottom...
-                </div>
-              </v-toolbar>
-            </v-fade-transition>
-            <v-fade-transition
-              v-model="usersTyping.length"
-              v-if="$vuetify.breakpoint.mobile"
-            >
-              <div
-                style="
-                  border-radius: 0 0 20px 20px;
-                  position: relative;
-                  top: -30px;
-                  margin-bottom: -22px;
-                "
-                v-if="usersTyping.length"
-              >
-                {{ usersTyping.map((user) => getName(user)).join(", ") }}
-                {{ usersTyping.length > 1 ? " are" : " is" }} typing...
-              </div>
-            </v-fade-transition>
-            <CommsInput
-              :chat="chat"
-              :replying="replying"
-              :editLastMessage="editLastMessage"
-              :autoScroll="autoScroll"
-              :endSend="endSend"
-            ></CommsInput>
-            <v-fade-transition
-              v-model="usersTyping.length"
-              v-if="!$vuetify.breakpoint.mobile"
-            >
-              <div
-                style="
-                  border-radius: 0 0 20px 20px;
-                  position: absolute;
-                  margin-top: -2px;
-                  bottom: 1px;
-                "
-                v-if="usersTyping.length"
-              >
-                {{ usersTyping.map((user) => getName(user)).join(", ") }}
-                {{ usersTyping.length > 1 ? " are" : " is" }} typing...
-              </div>
-            </v-fade-transition>
           </v-card-text>
         </v-card>
       </v-col>
@@ -1156,20 +1157,24 @@ export default {
       }
     })
     this.$socket.on("readReceipt", (data) => {
-      if (
-        data.messageId &&
-        data.chatId === this.chat.chatId &&
-        this.messages?.length
-      ) {
-        this.messages.forEach((message) => {
-          message.readReceipts = message.readReceipts.filter(
-            (readReceipt) => readReceipt.id !== data.id
-          )
-        })
-        this.messages
-          .find((message) => message.id === data.messageId)
-          .readReceipts?.push(data)
-        this.autoScroll()
+      try {
+        if (
+          data.messageId &&
+          data.chatId === this.chat.chatId &&
+          this.messages?.length
+        ) {
+          this.messages.forEach((message) => {
+            message.readReceipts = message.readReceipts.filter(
+              (readReceipt) => readReceipt.id !== data.id
+            )
+          })
+          this.messages
+            .find((message) => message.id === data.messageId)
+            .readReceipts?.push(data)
+          this.autoScroll()
+        }
+      } catch (e) {
+        console.log("Read receipt error", e)
       }
     })
     this.$socket.on("message", (message) => {

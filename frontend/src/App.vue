@@ -5,6 +5,7 @@
       $vuetify.theme.themes[$vuetify.theme.dark ? 'dark' : 'light'].bg
     "
   >
+    <DevOverlay v-if="$store.state.site.release === 'dev'"></DevOverlay>
     <v-overlay :value="$store.state.site.loading">
       <v-progress-circular indeterminate size="64"></v-progress-circular>
     </v-overlay>
@@ -454,10 +455,12 @@
 import AjaxErrorHandler from "@/lib/errorHandler"
 import { VueFinalModal } from "vue-final-modal"
 import Header from "@/components/Header"
+import DevOverlay from "@/components/DevOverlay"
 
 export default {
   name: "App",
   components: {
+    DevOverlay,
     VueFinalModal,
     Header,
     editor: require("vue2-ace-editor")

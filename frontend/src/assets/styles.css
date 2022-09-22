@@ -1,3 +1,33 @@
+.colubrina-alert {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+  padding: 4px;
+}
+
+.dev-overlay {
+  position: absolute;
+  z-index: 2000;
+  background-color: rgba(0, 0, 0, 0.37);
+  text-align: center;
+  width: 300px;
+}
+
+.dev-header {
+  padding: 10px;
+  cursor: move;
+  z-index: 2001;
+  background-color: #2196F3;
+}
+
+.chat-col {
+  display: flex;
+  flex-direction: column-reverse;
+  overflow: auto;
+  height: 100%;
+}
+
 >>>.max-v-list-height {
   max-height: 10px;
   overflow-y: auto;
