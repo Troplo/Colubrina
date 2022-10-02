@@ -10,30 +10,26 @@ const routes = [
     name: "Communications"
   },
   {
-    path: "/communications",
-    name: "Communications",
-    children: [
-      {
-        path: "friends",
-        name: "Friends",
-        component: () =>
-          import(
-            /* webpackChunkName: "communicationsFriends" */ "../views/Communications/CommunicationsFriends"
-          )
-      },
-      {
-        path: ":id",
-        name: "Communications",
-        component: () =>
-          import(
-            /* webpackChunkName: "communicationsChat" */ "../views/Communications/CommunicationsChat"
-          )
-      }
-    ],
+    path: "/communications/friends",
+    name: "Friends",
     component: () =>
       import(
-        /* webpackChunkName: "communications" */ "../views/Communications/Communications"
+        /* webpackChunkName: "communicationsFriends" */ "../views/Communications/CommunicationsFriends"
       )
+  },
+  {
+    path: "/communications",
+    name: "Communications",
+    component: () =>
+      import(
+        /* webpackChunkName: "communicationsChat" */ "../views/Communications/CommunicationsChat"
+      ),
+    children: [
+      {
+        path: ":id",
+        name: "Communications"
+      }
+    ]
   },
   {
     path: "/login",

@@ -159,246 +159,10 @@
               :id="'embed-' + index"
               no-gutters
             >
-              <v-card
-                :min-width="!$vuetify.breakpoint.mobile ? 400 : 0"
-                elevation="0"
-                color="card"
-                v-if="embed.type === 'image'"
-              >
-                <v-hover v-slot="{ hover }">
-                  <div>
-                    <v-img
-                      @click="setImagePreview(embed)"
-                      contain
-                      :max-width="500"
-                      :max-height="500"
-                      :min-height="250"
-                      :min-width="250"
-                      :src="$store.state.baseURL + embed.mediaProxyLink"
-                    >
-                      <template v-slot:placeholder>
-                        <v-row
-                          class="fill-height ma-0"
-                          align="center"
-                          justify="center"
-                        >
-                          <v-progress-circular
-                            indeterminate
-                            color="grey lighten-5"
-                          ></v-progress-circular>
-                        </v-row>
-                      </template>
-                      <template v-slot:default>
-                        <v-fade-transition v-if="hover">
-                          <v-overlay absolute>
-                            <v-icon large>mdi-arrow-expand-all</v-icon>
-                          </v-overlay>
-                        </v-fade-transition>
-                      </template>
-                    </v-img>
-                  </div>
-                </v-hover>
-              </v-card>
-              <v-card
-                v-if="embed.type !== 'image'"
-                elevation="0"
-                :color="
-                  embed.type === 'embed-v1' ? embed.backgroundColor : 'bg'
-                "
-                :max-width="400"
-                :min-width="!$vuetify.breakpoint.mobile ? 300 : 0"
-                class="ml-1 rounded-xl mb-1 mr-1"
-              >
-                <v-container fluid>
-                  <v-row v-if="embed.type === 'openGraph'">
-                    <v-col
-                      cols="12"
-                      class="text-xs-center"
-                      v-if="embed.openGraph.ogImage"
-                    >
-                      <v-img
-                        :src="
-                          embed.openGraph.ogImage?.url ||
-                          embed.openGraph.ogImage[0]?.url
-                        "
-                        class="elevation-1"
-                        contain
-                        :aspect-ratio="16 / 9"
-                      >
-                        <template v-slot:placeholder>
-                          <v-row
-                            class="fill-height ma-0"
-                            align="center"
-                            justify="center"
-                          >
-                            <v-progress-circular
-                              indeterminate
-                              color="grey lighten-5"
-                            ></v-progress-circular>
-                          </v-row>
-                        </template>
-                      </v-img>
-                    </v-col>
-                    <v-col cols="12" class="text-xs-center">
-                      <h4>
-                        {{ embed.openGraph.ogSiteName }}
-                      </h4>
-                      <a
-                        :href="embed.link"
-                        target="_blank"
-                        style="text-decoration: none"
-                      >
-                        <h3>
-                          {{ embed.openGraph.ogTitle }}
-                        </h3>
-                      </a>
-                      <p v-if="embed.openGraph.ogDescription">
-                        {{ embed.openGraph.ogDescription }}
-                      </p>
-                    </v-col>
-                  </v-row>
-                  <v-row v-else-if="embed.type === 'embed-v1'">
-                    <v-col
-                      cols="12"
-                      class="text-xs-center"
-                      v-if="embed.headerImage"
-                    >
-                      <v-img
-                        :src="
-                          embed.openGraph.headerImage?.url ||
-                          embed.openGraph.headerImage[0]?.url
-                        "
-                        class="elevation-1"
-                        contain
-                        :aspect-ratio="16 / 9"
-                      >
-                        <template v-slot:placeholder>
-                          <v-row
-                            class="fill-height ma-0"
-                            align="center"
-                            justify="center"
-                          >
-                            <v-progress-circular
-                              indeterminate
-                              color="grey lighten-5"
-                            ></v-progress-circular>
-                          </v-row>
-                        </template>
-                      </v-img>
-                    </v-col>
-                    <v-col cols="12" class="text-xs-center">
-                      <h4 v-if="embed.title">
-                        {{ embed.title }}
-                      </h4>
-                      <p v-if="embed.description">
-                        {{ embed.description }}
-                      </p>
-                      <v-row
-                        v-for="(graph, index) in embed.graphs"
-                        :key="'graph-' + index"
-                      >
-                        <v-col cols="12" class="text-xs-center">
-                          <h3>
-                            {{ graph.name }}
-                          </h3>
-                          <Chart
-                            :chart-data="graph.data"
-                            v-if="graph.data"
-                            :options="graphOptions"
-                          ></Chart>
-                          <p v-else>Chart data could not be loaded.</p>
-                        </v-col>
-                      </v-row>
-                      <v-row
-                        v-for="(field, index) in embed.fields"
-                        :key="'field-' + index"
-                        :id="'field-' + index"
-                        class="mt-1"
-                      >
-                        <v-col
-                          cols="12"
-                          class="text-xs-center"
-                          style="white-space: pre-wrap"
-                        >
-                          <h4>{{ field.name }}</h4>
-                          <p>{{ field.value }}</p>
-                        </v-col>
-                      </v-row>
-                      <a
-                        :href="embed.link.url"
-                        v-if="embed.link"
-                        target="_blank"
-                        style="text-decoration: none"
-                      >
-                        <h3>
-                          {{ embed.link.title }}
-                        </h3>
-                      </a>
-                      <small v-if="embed.footer">
-                        {{ embed.footer }}
-                      </small>
-                    </v-col>
-                  </v-row>
-                  <v-row v-else>
-                    <v-container>
-                      <h4>You must update Colubrina to see this embed.</h4>
-                    </v-container>
-                  </v-row>
-                </v-container>
-              </v-card>
+              <Embed :embed="embed" :setImagePreview="setImagePreview"></Embed>
             </v-row>
             <v-row v-if="message.poll" no-gutters>
-              <v-card
-                elevation="0"
-                :max-width="500"
-                :min-width="!$vuetify.breakpoint.mobile ? 400 : 200"
-                class="ml-1 mb-1 mr-1 rounded-l"
-                color="card lighten-1"
-              >
-                <v-toolbar color="toolbar" height="45">
-                  <v-toolbar-title>
-                    Poll: {{ message.poll.title }}
-                  </v-toolbar-title>
-                </v-toolbar>
-                <v-card-text>
-                  {{ message.poll.description }}
-                  <v-progress-linear
-                    v-for="option in message.poll.options"
-                    :key="option.id"
-                    block
-                    class="mb-1 rounded-xl"
-                    height="30"
-                    text
-                    :value="
-                      percentageVotes.find(
-                        (percentage) => percentage.id === option.id
-                      ).percentage
-                    "
-                    color="success darken-1"
-                    background-opacity="0.2"
-                    outlined
-                    style="text-transform: none; cursor: pointer"
-                    @click="votePoll(option.id)"
-                  >
-                    <span style="float: left !important">
-                      <v-icon v-if="option.id === myVote?.answer">
-                        mdi-check-circle
-                      </v-icon>
-                      {{ option.value }} ({{
-                        percentageVotes.find(
-                          (percentage) => percentage.id === option.id
-                        ).percentage
-                      }}% /
-                      {{
-                        message.poll.answers.filter(
-                          (answer) => answer.answer === option.id
-                        )?.length || 0
-                      }})
-                    </span>
-                  </v-progress-linear>
-                  {{ message.poll.answers.length }} votes
-                </v-card-text>
-              </v-card>
+              <Poll :message="message"></Poll>
             </v-row>
           </template>
           <template v-if="edit.id !== message.id">
@@ -618,28 +382,11 @@
 </template>
 
 <script>
+import Embed from "./Embed.vue"
 import CommsInput from "./CommsInput.vue"
-import { Line as Chart } from "vue-chartjs/legacy"
-import {
-  Chart as ChartJS,
-  Title,
-  Tooltip,
-  Legend,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement
-} from "chart.js"
 import AjaxErrorHandler from "@/lib/errorHandler"
-ChartJS.register(
-  Title,
-  Tooltip,
-  Legend,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement
-)
+import Poll from "@/components/Poll"
+
 export default {
   name: "Message",
   props: [
@@ -659,8 +406,9 @@ export default {
     "lastMessage"
   ],
   components: {
+    Poll,
     CommsInput,
-    Chart
+    Embed
   },
   data() {
     return {
@@ -710,25 +458,6 @@ export default {
     }
   },
   computed: {
-    myVote() {
-      return this.message.poll.answers.find(
-        (vote) => vote.userId === this.$store.state.user.id
-      )
-    },
-    percentageVotes() {
-      return this.message.poll.options.map((option) => {
-        return {
-          id: option.id,
-          percentage: Math.round(
-            ((this.message.poll.answers?.filter(
-              (answer) => answer?.answer === option.id
-            ).length || 0) /
-              this.message.poll.answers.length) *
-              100 || 0
-          )
-        }
-      })
-    },
     mentioned() {
       return this.message.content
         .toLowerCase()
@@ -736,15 +465,6 @@ export default {
     }
   },
   methods: {
-    votePoll(option) {
-      this.axios
-        .post(`/api/v1/polls/${this.message.poll.id}/vote`, {
-          option
-        })
-        .catch((e) => {
-          AjaxErrorHandler(this.$store)(e)
-        })
-    },
     pinMessage() {
       this.axios
         .post(`/api/v1/communications/${this.chat.id}/pins`, {
@@ -767,18 +487,6 @@ export default {
       } else {
         return (size / 1073741824).toFixed(2) + " GB"
       }
-    }
-  },
-  mounted() {
-    if (this.message.poll) {
-      this.$socket.on(`pollAnswer-${this.message.id}`, (data) => {
-        this.message.poll.answers = this.message.poll.answers.filter(
-          (answer) => answer.id !== data.id
-        )
-        if (data.answer) {
-          this.message.poll.answers.push(data.answer)
-        }
-      })
     }
   }
 }

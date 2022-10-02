@@ -114,20 +114,11 @@
         </v-container>
       </v-card>
     </v-dialog>
-    <v-card
-      color="card"
-      v-if="loading"
-      style="overflow: scroll; height: calc(100vh - 24px - 40px - 40px)"
-    >
-      <v-overlay :value="loading" absolute>
-        <v-progress-circular indeterminate size="64"></v-progress-circular>
-      </v-overlay>
-    </v-card>
     <v-navigation-drawer
       v-model="$store.state.userPanel"
       color="bg"
       floating
-      v-if="!loading && $vuetify.breakpoint.mobile"
+      v-if="$vuetify.breakpoint.mobile"
       app
       right
       style="z-index: 100"
@@ -171,8 +162,12 @@
         </v-list-item-group>
       </v-list>
     </v-navigation-drawer>
-    <v-row v-if="!loading" @drop="handleDrag" no-gutters>
-      <v-col class="flex-grow-1 flex-shrink-1 pb-0" id="chat-col">
+    <v-row @drop="handleDrag" no-gutters style="overflow: hidden">
+      <v-col
+        class="flex-grow-1 flex-shrink-1 pb-0"
+        id="chat-col"
+        style="overflow: hidden"
+      >
         <v-card
           class="d-flex flex-column-reverse fill-height rounded-0 mb-n3 chat-col"
           style="overflow: auto; height: calc(100vh - 24px - 40px)"
@@ -605,7 +600,6 @@ export default {
     NicknameDialog,
     CommsInput
   },
-  props: ["chat", "loading", "items"],
   data: () => ({
     interval: null,
     pins: [],
@@ -719,6 +713,15 @@ export default {
     lastRead: 0
   }),
   computed: {
+    chat() {
+      try {
+        return this.$store.state.chats.find(
+          (item) => item.id === parseInt(this.$route.params.id)
+        )
+      } catch {
+        return null
+      }
+    },
     offsetValue() {
       return this.offset || this.messages[0]?.id || 0
     },
@@ -1125,6 +1128,12 @@ export default {
     }
   },
   mounted() {
+    this.$socket.on("memberListUpdate", () => {
+      this.$store.dispatch("getChats")
+    })
+    if (!this.$route.params.id) {
+      this.$router.push("/communications/friends")
+    }
     document.addEventListener("keypress", this.focusKey)
     document
       .getElementById("message-list")

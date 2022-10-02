@@ -7,6 +7,7 @@ const {
   VUEJS_DEVTOOLS
 } = require("electron-devtools-installer")
 const isDevelopment = process.env.NODE_ENV !== "production"
+const windowStateKeeper = require("electron-window-state")
 
 // Scheme must be registered before the app is ready
 electron.protocol.registerSchemesAsPrivileged([
@@ -22,11 +23,17 @@ async function createWindow() {
   const width = Math.floor(bounds.width * (2 / 3))
   const y = Math.floor(bounds.y + (bounds.height - height) / 2)
   const x = Math.floor(bounds.x + (bounds.width - width) / 2)
+  let mainWindowState = windowStateKeeper({
+    defaultWidth: width,
+    defaultHeight: height,
+    x: x,
+    y: y
+  })
   const win = new electron.BrowserWindow({
-    width,
-    height,
-    x,
-    y,
+    x: mainWindowState.x,
+    y: mainWindowState.y,
+    width: mainWindowState.width,
+    height: mainWindowState.height,
     webPreferences: {
       // Use pluginOptions.nodeIntegration, leave this alone
       // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
@@ -39,6 +46,7 @@ async function createWindow() {
       enableBlinkFeatures: "MiddleClickAutoscroll"
     }
   })
+  mainWindowState.manage(win)
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode

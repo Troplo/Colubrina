@@ -37,9 +37,9 @@
             <span>Bot</span>
           </v-tooltip>
           <div class="subheading subtitle-1 text--lighten-2">
-            <template v-if="user.item.nickname"
-              >{{ user.item.username }}</template
-            >
+            <template v-if="user.item.nickname">{{
+              user.item.username
+            }}</template>
           </div>
         </v-toolbar-title>
       </v-toolbar>
@@ -108,7 +108,10 @@
             <v-list-item
               v-for="item in mutualGroups"
               :key="item.id"
-              @click="$router.push('/communications/' + item.associationId)"
+              @click="
+                $router.push('/communications/' + item.associationId)
+                user.value = false
+              "
             >
               <v-list-item-title>
                 {{ item.name }}
@@ -147,25 +150,28 @@ export default {
     }
   },
   methods: {
+    openUserPanel(user) {
+      this.user.item = user
+      this.onMounted()
+    },
     getName(user) {
       if (user.nickname?.nickname) {
         return user.nickname.nickname
       } else {
         return user.username
       }
-    }
-  },
-  mounted() {
-    if(this.user?.item?.id) {
-      this.mutualGroups = []
-      this.mutualFriends = []
-      this.loading = {
-        mutualGroups: true,
-        mutualFriends: true
-      }
-      this.axios
+    },
+    onMounted() {
+      if (this.user?.item?.id) {
+        this.mutualGroups = []
+        this.mutualFriends = []
+        this.loading = {
+          mutualGroups: true,
+          mutualFriends: true
+        }
+        this.axios
           .get(
-              process.env.VUE_APP_BASE_URL +
+            process.env.VUE_APP_BASE_URL +
               "/api/v1/communications/mutual/" +
               this.user.item.id +
               "/groups"
@@ -177,9 +183,9 @@ export default {
           .catch((e) => {
             AjaxErrorHandler(this.$store)(e)
           })
-      this.axios
+        this.axios
           .get(
-              process.env.VUE_APP_BASE_URL +
+            process.env.VUE_APP_BASE_URL +
               "/api/v1/communications/mutual/" +
               this.user.item.id +
               "/friends"
@@ -191,7 +197,11 @@ export default {
           .catch((e) => {
             AjaxErrorHandler(this.$store)(e)
           })
+      }
     }
+  },
+  mounted() {
+    this.onMounted()
   }
 }
 </script>
