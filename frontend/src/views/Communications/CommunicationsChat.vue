@@ -1133,6 +1133,7 @@ export default {
     })
     if (!this.$route.params.id) {
       this.$router.push("/communications/friends")
+      return
     }
     document.addEventListener("keypress", this.focusKey)
     document
