@@ -1,7 +1,8 @@
 <template>
-  <div>
+  <span>
     <v-card
       :min-width="!$vuetify.breakpoint.mobile ? 400 : 0"
+      :max-width="500"
       elevation="0"
       color="card"
       v-if="embed.type === 'image'"
@@ -164,7 +165,7 @@
         </v-row>
       </v-container>
     </v-card>
-  </div>
+  </span>
 </template>
 
 <script>

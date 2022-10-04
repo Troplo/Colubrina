@@ -153,14 +153,13 @@
           </span>
 
           <template v-if="edit.id !== message.id">
-            <v-row
+            <Embed
               v-for="(embed, index) in message.embeds"
               :key="index"
               :id="'embed-' + index"
-              no-gutters
-            >
-              <Embed :embed="embed" :setImagePreview="setImagePreview"></Embed>
-            </v-row>
+              :embed="embed"
+              :setImagePreview="setImagePreview"
+            ></Embed>
             <v-row v-if="message.poll" no-gutters>
               <Poll :message="message"></Poll>
             </v-row>

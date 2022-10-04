@@ -833,18 +833,16 @@ export default {
       this.replying = message
     },
     markAsRead() {
-      if (this.items) {
-        try {
-          const unread = this.$store.state.chats.find(
-            (item) => item.id === JSON.parse(this.$route.params.id)
-          ).unread
-          this.items.find(
-            (item) => item.id === JSON.parse(this.$route.params.id)
-          ).unread = 0
-          this.$store.state.communicationNotifications -= unread
-        } catch {
-          return
-        }
+      try {
+        const unread = this.$store.state.chats.find(
+          (item) => item.id === JSON.parse(this.$route.params.id)
+        ).unread
+        this.$store.state.chats.find(
+          (item) => item.id === JSON.parse(this.$route.params.id)
+        ).unread = 0
+        this.$store.state.communicationNotifications -= unread
+      } catch {
+        console.log("Chat could not be found (markAsRead)")
       }
     },
     endSend() {
