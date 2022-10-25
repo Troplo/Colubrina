@@ -17,6 +17,7 @@ module.exports = {
         }
       })
       if (user && socket.user.id) {
+        console.log(user.id + " client connect")
         console.log(socket.user.id)
         socket.join(user.id)
         socket.emit("siteState", {
@@ -48,6 +49,7 @@ module.exports = {
           })
         })
         socket.on("ping", () => {
+          console.log(user.id + " client ping")
           socket.emit("pong")
         })
         socket.on("bcBots/deleteMessage", (e) => {
@@ -60,11 +62,7 @@ module.exports = {
           }
         })
         socket.on("idle", async () => {
-          const user = await User.findOne({
-            where: {
-              id: socket.user.id
-            }
-          })
+          console.log(user.id + " client online")
           if (user.storedStatus === "online") {
             friends.forEach((friend) => {
               io.to(friend.friendId).emit("userStatus", {
@@ -82,11 +80,7 @@ module.exports = {
           }
         })
         socket.on("online", async () => {
-          const user = await User.findOne({
-            where: {
-              id: socket.user.id
-            }
-          })
+          console.log(user.id + " client online")
           if (user.storedStatus === "online") {
             friends.forEach((friend) => {
               io.to(friend.friendId).emit("userStatus", {
@@ -104,6 +98,7 @@ module.exports = {
           }
         })
         socket.on("disconnect", async function () {
+          console.log(user.id + " client disconnected")
           const clients = io.sockets.adapter.rooms.get(user.id) || new Set()
           if (!clients.size || clients.size === 0) {
             friends.forEach((friend) => {

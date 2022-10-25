@@ -1160,11 +1160,13 @@ export default {
       this.message = drafts[this.$route.params.id]
     }
     this.$socket.on("readChat", (data) => {
-      if (data.id === this.chat.id) {
+      if (!this.chat) return
+      if (data.id === this.chat?.id) {
         this.lastRead = data.lastRead
       }
     })
     this.$socket.on("readReceipt", (data) => {
+      if (!this.chat) return
       try {
         if (
           data.messageId &&
@@ -1186,16 +1188,21 @@ export default {
       }
     })
     this.$socket.on("message", (message) => {
-      if (message.chatId === this.chat.chatId) {
-        this.messages.push(message)
-        this.autoScroll()
-        if (document.hasFocus()) {
-          this.markRead()
+      try {
+        if (!this.chat) return
+        if (message.chatId === this.chat.chatId) {
+          this.messages.push(message)
+          this.autoScroll()
+          if (document.hasFocus()) {
+            this.markRead()
+          }
+          if (this.messages.length > 50 && !this.avoidAutoScroll) {
+            this.messages.shift()
+            this.reachedTop = false
+          }
         }
-        if (this.messages.length > 50 && !this.avoidAutoScroll) {
-          this.messages.shift()
-          this.reachedTop = false
-        }
+      } catch (e) {
+        console.log("Message error", e)
       }
     })
     this.$socket.on("editMessage", (message) => {
@@ -1247,6 +1254,17 @@ export default {
     },
     userPanel() {
       localStorage.setItem("userPanel", JSON.stringify(this.userPanel))
+    },
+    "$route.path"() {
+      const tryParse = this.$route.params.id
+      if (!tryParse) {
+        // remove event listeners
+        document.removeEventListener("keypress", this.focusKey)
+        document
+          .getElementById("message-list")
+          .removeEventListener("scroll", this.scrollEvent)
+        clearInterval(this.interval)
+      }
     },
     "$route.params.id"(val, oldVal) {
       this.focusInput()

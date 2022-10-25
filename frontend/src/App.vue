@@ -490,6 +490,15 @@ export default {
     touchEndX: null
   }),
   computed: {
+    /*chat() {
+      try {
+        return this.$store.state.chats.find(
+          (item) => item.id === parseInt(this.$route.params.id)
+        )
+      } catch {
+        return null
+      }
+    },*/
     creatorJSON: {
       get() {
         return JSON.stringify(this.$store.state.themeEngine.theme)

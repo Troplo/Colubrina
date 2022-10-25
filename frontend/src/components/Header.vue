@@ -545,11 +545,11 @@
         Debug
       </button>
       <template v-if="$route.name === 'Communications'">
-        <v-toolbar-title v-if="$store.state.selectedChat?.chat?.type">
+        <v-toolbar-title v-if="chat?.chat?.type">
           {{
-            $store.state.selectedChat?.chat?.type === "direct"
-              ? getDirectRecipient($store.state.selectedChat).username
-              : $store.state.selectedChat?.chat?.name
+            chat?.chat?.type === "direct"
+              ? getDirectRecipient(chat).username
+              : chat?.chat?.name
           }}
         </v-toolbar-title>
         <v-spacer></v-spacer>
@@ -954,6 +954,15 @@ export default {
     }
   },
   computed: {
+    chat() {
+      try {
+        return this.$store.state.chats.find(
+          (item) => item.id === parseInt(this.$route.params.id)
+        )
+      } catch {
+        return null
+      }
+    },
     chats() {
       if (!this.search?.length) {
         return this.$store.state.chats
