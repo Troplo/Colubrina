@@ -22,7 +22,6 @@ const path = require("path")
 const fs = require("fs")
 const FileType = require("file-type")
 const { v4: uuidv4 } = require("uuid")
-
 const limiter = rateLimit({
   windowMs: 10 * 1000,
   max: 8,
@@ -31,6 +30,13 @@ const limiter = rateLimit({
   legacyHeaders: false,
   keyGenerator: (req, res) => req.user.id || req.ip
 })
+const whitelist = [
+  "image/png",
+  "image/jpeg",
+  "image/jpg",
+  "image/webp",
+  "image/gif"
+]
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -177,6 +183,7 @@ router.get("/", auth, async (req, res, next) => {
           as: "chat",
           attributes: [
             "id",
+            "icon",
             "name",
             "updatedAt",
             "createdAt",
@@ -2110,5 +2117,48 @@ router.post("/create", auth, async (req, res, next) => {
     next(err)
   }
 })
-
+router.post(
+  "/avatar/:id",
+  auth,
+  upload.single("avatar"),
+  async (req, res, next) => {
+    try {
+      const chat = await ChatAssociation.findOne({
+        where: {
+          userId: req.user.id,
+          id: req.params.id,
+          rank: "admin"
+        }
+      })
+      if (!chat) throw Errors.chatNotFoundOrNotAdmin
+      if (req.file) {
+        const meta = await FileType.fromFile(req.file.path)
+        if (!whitelist.includes(meta.mime)) {
+          throw Errors.invalidFileType
+        }
+        const attachment = await Attachment.create({
+          userId: req.user.id,
+          type: "avatar",
+          attachment: req.file.filename,
+          name: req.file.originalname,
+          extension: meta.ext,
+          size: req.file.size
+        })
+        await Chat.update(
+          {
+            icon: attachment.attachment
+          },
+          {
+            where: {
+              id: chat.chatId
+            }
+          }
+        )
+        res.sendStatus(204)
+      }
+    } catch (err) {
+      next(err)
+    }
+  }
+)
 module.exports = router

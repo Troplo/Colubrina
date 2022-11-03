@@ -187,7 +187,7 @@ div .theme--dark.v-calendar-daily .v-calendar-daily__day {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--v-text-lighten3) !important;
+  background: var(--v-text-base) !important;
   border: solid 3px var(--v-bg-base) !important;
   border-radius: 7px !important;
 }

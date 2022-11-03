@@ -180,6 +180,15 @@
             "
             v-model="settings.item.chat.name"
           ></v-text-field>
+          <v-file-input
+            ref="avatarUpload"
+            accept="image/png, image/jpeg, image/jpg, image/gif, image/webp"
+            placeholder="Avatar"
+            prepend-icon=""
+            label="Profile Picture"
+            v-model="settings.avatar"
+            @change="doUpload"
+          ></v-file-input>
           <v-card-title
             >Members
             <v-btn
@@ -716,11 +725,8 @@
                   <v-list-item-avatar
                     :color="$vuetify.theme.themes.dark.primary"
                   >
-                    <v-icon v-if="item.chat.type === 'group'">
-                      mdi-account-group
-                    </v-icon>
                     <v-img
-                      v-else-if="
+                      v-if="
                         item.chat.type === 'direct' &&
                         getDirectRecipient(item).avatar
                       "
@@ -739,7 +745,13 @@
                   <v-list-item-avatar
                     :color="$vuetify.theme.themes.dark.primary"
                   >
-                    <v-icon v-if="item.chat.type === 'group'">
+                    <v-img
+                      v-if="item.chat.type === 'group' && item.chat.icon"
+                      :src="
+                        $store.state.baseURL + '/usercontent/' + item.chat.icon
+                      "
+                    />
+                    <v-icon v-else-if="item.chat.type === 'group'">
                       mdi-account-group
                     </v-icon>
                   </v-list-item-avatar>
@@ -750,7 +762,9 @@
                       {{ getDirectRecipient(item).name }}
                     </v-list-item-title>
                     <v-list-item-title v-else>
-                      <span> {{ item.chat.name }} </span>
+                      <span>
+                        {{ item.chat.name }}
+                      </span>
                     </v-list-item-title>
 
                     <v-list-item-subtitle v-if="item.chat.type === 'group'">
@@ -900,6 +914,7 @@ export default {
       copyTooltip: false,
       settings: {
         dialog: false,
+        avatar: null,
         addMembers: {
           dialog: false,
           users: [],
@@ -985,6 +1000,28 @@ export default {
       this.$router.push(this.route.value)
       this.route.modal = false
       this.route.value = ""
+    },
+    doUpload() {
+      if (this.settings.avatar) {
+        let formData = new FormData()
+        formData.append("avatar", this.settings.avatar)
+        this.axios
+          .post(
+            "/api/v1/communications/avatar/" + this.settings.item.id,
+            formData,
+            {
+              headers: {
+                "Content-Type": "multipart/form-data"
+              }
+            }
+          )
+          .then(() => {
+            this.$toast.success("Avatar updated")
+          })
+          .catch((e) => {
+            AjaxErrorHandler(this.$store)(e)
+          })
+      }
     },
     submitFeedback() {
       this.axios
