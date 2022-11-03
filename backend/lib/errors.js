@@ -89,6 +89,15 @@ ProcessedErrors.invalidParameter = function (param, message) {
   }
 }
 
+ProcessedErrors.customMessage = function (param) {
+  return {
+    name: "customMessage",
+    message: `${param}`,
+    status: 400,
+    parameter: param
+  }
+}
+
 ProcessedErrors.sequelizeValidation = (sequelize, obj) => {
   return new sequelize.ValidationError(obj.error, [
     new sequelize.ValidationErrorItem(

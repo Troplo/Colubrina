@@ -383,7 +383,7 @@
 <script>
 import Embed from "./Embed.vue"
 import CommsInput from "./CommsInput.vue"
-import AjaxErrorHandler from "@/lib/errorHandler"
+import AjaxErrorHandler from "@/lib/errorHandler.js"
 import Poll from "@/components/Poll"
 
 export default {

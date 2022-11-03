@@ -248,7 +248,7 @@
 </template>
 
 <script>
-import AjaxErrorHandler from "@/lib/errorHandler"
+import AjaxErrorHandler from "@/lib/errorHandler.js"
 import twemoji from "twemoji"
 const emojis = require("../lib/emojis.json")
 

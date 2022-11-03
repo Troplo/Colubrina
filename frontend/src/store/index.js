@@ -1,7 +1,7 @@
 import Vue from "vue"
 import Vuex from "vuex"
 import Vuetify from "../plugins/vuetify"
-import AjaxErrorHandler from "@/lib/errorHandler"
+import AjaxErrorHandler from "@/lib/errorHandler.js"
 
 Vue.use(Vuex)
 function getDirectRecipient(context, item) {

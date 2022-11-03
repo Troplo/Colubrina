@@ -28,7 +28,7 @@ const md = require("markdown-it")({
   highlight: function (/*str, lang*/) {
     return ""
   }
-}).disable(["image", "autolink"])
+}).disable(["image", "autolink", "list"])
 const emoji = require("markdown-it-emoji")
 const defaultRender =
   md.renderer.rules.link_open ||

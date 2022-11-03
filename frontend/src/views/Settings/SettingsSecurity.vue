@@ -18,6 +18,7 @@
             v-model="totp.password"
             color="white"
             @keydown.enter="totpEnable"
+            autocomplete="false"
           >
           </v-text-field>
           <v-btn @click="totpEnable" text>Proceed</v-btn>
@@ -96,7 +97,7 @@
 </template>
 
 <script>
-import AjaxErrorHandler from "@/lib/errorHandler"
+import AjaxErrorHandler from "@/lib/errorHandler.js"
 
 export default {
   name: "SettingsSecurity",

@@ -62,8 +62,8 @@ router.delete("/:id/:associationId", auth, async (req, res, next) => {
     if (!chat) {
       throw Errors.chatNotFoundOrNotAdmin
     }
-    if (!association) {
-      throw Errors.chatNotFoundOrNotAdmin
+    if (association?.rank === "admin" || !association) {
+      throw Errors.customMessage("User is admin and cannot be removed.")
     }
     await association.destroy()
     res.sendStatus(204)

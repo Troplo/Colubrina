@@ -5,6 +5,9 @@
       $vuetify.theme.themes[$vuetify.theme.dark ? 'dark' : 'light'].bg
     "
   >
+    <v-overlay :value="!$store.state.wsConnected" absolute style="z-index: 69">
+      <v-progress-circular indeterminate size="64"></v-progress-circular>
+    </v-overlay>
     <DevOverlay v-if="$store.state.site.release === 'dev'"></DevOverlay>
     <v-overlay :value="$store.state.site.loading">
       <v-progress-circular indeterminate size="64"></v-progress-circular>
@@ -452,7 +455,7 @@
 </template>
 <style></style>
 <script>
-import AjaxErrorHandler from "@/lib/errorHandler"
+import AjaxErrorHandler from "@/lib/errorHandler.js"
 import { VueFinalModal } from "vue-final-modal"
 import Header from "@/components/Header"
 import DevOverlay from "@/components/DevOverlay"

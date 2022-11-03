@@ -109,7 +109,7 @@
 
 <script>
 import Vue from "vue"
-import AjaxErrorHandler from "@/lib/errorHandler"
+import AjaxErrorHandler from "@/lib/errorHandler.js"
 
 export default {
   name: "Login",

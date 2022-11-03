@@ -30,7 +30,7 @@
 </template>
 
 <script>
-import AjaxErrorHandler from "@/lib/errorHandler"
+import AjaxErrorHandler from "@/lib/errorHandler.js"
 
 export default {
   name: "EmailConfirm",

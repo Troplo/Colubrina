@@ -1,8 +1,5 @@
 <template>
   <div v-if="$store.state.user.username">
-    <v-overlay :value="!$store.state.wsConnected" absolute>
-      <v-progress-circular indeterminate size="64"></v-progress-circular>
-    </v-overlay>
     <NicknameDialog :nickname="nickname" />
     <v-menu
       v-model="context.user.value"
@@ -687,6 +684,7 @@
               style="margin-bottom: -18px"
               elevation="2"
               v-model="search"
+              autocomplete="none"
             ></v-text-field>
             <v-toolbar color="sheet" class="rounded-xl mb-3" elevation="2">
               <v-toolbar-title class="subtitle-1">
@@ -777,9 +775,6 @@
       <template v-slot:append>
         <v-card tile color="bg" elevation="0">
           <v-divider></v-divider>
-          <v-overlay :value="!$store.state.wsConnected" absolute>
-            <v-progress-circular indeterminate size="48"></v-progress-circular>
-          </v-overlay>
           <v-list-item>
             <v-menu top offset-y>
               <template v-slot:activator="{ on, attrs }">
@@ -876,7 +871,7 @@
 </template>
 
 <script>
-import AjaxErrorHandler from "@/lib/errorHandler"
+import AjaxErrorHandler from "@/lib/errorHandler.js"
 import NicknameDialog from "@/components/NicknameDialog"
 import Vue from "vue"
 
