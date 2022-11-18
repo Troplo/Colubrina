@@ -1,0 +1,45 @@
+diff --git a/node_modules/vuetify/es5/directives/ripple/index.js b/node_modules/vuetify/es5/directives/ripple/index.js
+old mode 100644
+new mode 100755
+index 228e3ec..d97c443
+--- a/node_modules/vuetify/es5/directives/ripple/index.js
++++ b/node_modules/vuetify/es5/directives/ripple/index.js
+@@ -162,6 +162,8 @@ function rippleShow(e) {
+
+   value.center = element._ripple.centered || isKeyboardEvent(e);
+
++  ripples.hide(element);
++
+   if (element._ripple.class) {
+     value.class = element._ripple.class;
+   }
+diff --git a/node_modules/vuetify/lib/directives/ripple/index.js b/node_modules/vuetify/lib/directives/ripple/index.js
+old mode 100644
+new mode 100755
+index c895ae0..0718d0c
+--- a/node_modules/vuetify/lib/directives/ripple/index.js
++++ b/node_modules/vuetify/lib/directives/ripple/index.js
+@@ -151,6 +151,8 @@ function rippleShow(e) {
+
+   value.center = element._ripple.centered || isKeyboardEvent(e);
+
++  ripples.hide(element);
++
+   if (element._ripple.class) {
+     value.class = element._ripple.class;
+   }
+diff --git a/node_modules/vuetify/src/components/VNavigationDrawer/VNavigationDrawer.sass b/node_modules/vuetify/src/components/VNavigationDrawer/VNavigationDrawer.sass
+old mode 100644
+new mode 100755
+index ee4419a..101f5db
+--- a/node_modules/vuetify/src/components/VNavigationDrawer/VNavigationDrawer.sass
++++ b/node_modules/vuetify/src/components/VNavigationDrawer/VNavigationDrawer.sass
+@@ -9,7 +9,7 @@
+       background-color: map-get($material, 'dividers')
+
+   .v-divider
+-    border-color: map-get($material, 'dividers')
++    width: 0
+
+ // Block
+ .v-navigation-drawer
