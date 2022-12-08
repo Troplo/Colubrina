@@ -13,7 +13,7 @@ if (process.env.NODE_ENV === "production") {
     new WebpackAutoInject({
       // specify the name of the tag in the outputed files eg
       // bundle.js: [SHORT] Version: 0.13.36 ...
-      SHORT: "Troplo Versioning [Colubrina]",
+      SHORT: "Troplo Versioning [Colourbrina]",
       SILENT: true,
       PACKAGE_JSON_PATH: "./package.json",
       PACKAGE_JSON_INDENT: 2,
@@ -38,7 +38,7 @@ if (process.env.NODE_ENV === "production") {
         }
       },
       LOGS_TEXT: {
-        AIS_START: "Troplo Colubrina AIV started"
+        AIS_START: "Troplo Colourbrina AIV started"
       }
     })
   ]
@@ -48,7 +48,7 @@ if (process.env.NODE_ENV === "production") {
     new WebpackAutoInject({
       // specify the name of the tag in the outputed files eg
       // bundle.js: [SHORT] Version: 0.13.36 ...
-      SHORT: "Troplo Versioning [Colubrina]",
+      SHORT: "Troplo Versioning [Colourbrina]",
       SILENT: true,
       PACKAGE_JSON_PATH: "./package.json",
       PACKAGE_JSON_INDENT: 2,
@@ -73,7 +73,7 @@ if (process.env.NODE_ENV === "production") {
         }
       },
       LOGS_TEXT: {
-        AIS_START: "Troplo Colubrina AIV started"
+        AIS_START: "Troplo Colourbrina AIV started"
       }
     })
   ]
@@ -92,7 +92,7 @@ module.exports = {
   pluginOptions: {
     electronBuilder: {
       builderOptions: {
-        appId: "com.troplo.colubrina",
+        appId: "com.troplo.Colourbrina",
         win: {
           target: ["portable", "nsis", "zip"],
           publish: ["github"]
@@ -118,7 +118,7 @@ module.exports = {
     workboxOptions: {
       skipWaiting: true
     },
-    name: "Colubrina",
+    name: "Colourbrina",
     themeColor: "#181818",
     msTileColor: "#181818",
     appleMobileWebAppCapable: "yes",

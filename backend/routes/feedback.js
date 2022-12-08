@@ -14,7 +14,7 @@ router.post("/", auth, async (req, res, next) => {
       },
       route: req.body.route,
       userId: req.user.id,
-      tenant: "colubrina"
+      tenant: "Colourbrina"
     })
     res.sendStatus(204)
   } catch (e) {

@@ -369,7 +369,7 @@ div {
       const blob = new Blob([data], { type: "text/plain" })
       const e = document.createEvent("MouseEvents"),
         a = document.createElement("a")
-      a.download = theme.name + " - Colubrina Theme.json"
+      a.download = theme.name + " - Colourbrina Theme.json"
       a.href = window.URL.createObjectURL(blob)
       a.dataset.downloadurl = ["text/json", a.download, a.href].join(":")
       e.initEvent(

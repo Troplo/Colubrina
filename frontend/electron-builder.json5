@@ -1,5 +1,5 @@
 {
-  appId: "com.troplo.colubrina",
+  appId: "com.troplo.Colourbrina",
   win: {
     target: ["portable", "nsis", "zip"],
     publish: ["github"]

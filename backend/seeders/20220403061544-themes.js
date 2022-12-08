@@ -7,12 +7,12 @@ module.exports = {
       [
         {
           id: 1,
-          name: "Colubrina Classic",
+          name: "Colourbrina Classic",
           userId: 1,
           public: true,
           theme: {
             id: 1,
-            name: "Colubrina Classic",
+            name: "Colourbrina Classic",
             primaryType: "all",
             dark: {
               primary: "#0190ea",
@@ -50,12 +50,12 @@ module.exports = {
         },
         {
           id: 2,
-          name: "Colubrina Gray",
+          name: "Colourbrina Gray",
           userId: 1,
           public: true,
           theme: {
             id: 2,
-            name: "Colubrina Gray",
+            name: "Colourbrina Gray",
             primaryType: "all",
             user: {
               sussiId: "asdasd"
@@ -96,12 +96,12 @@ module.exports = {
         },
         {
           id: 3,
-          name: "Colubrina AMOLED (Black)",
+          name: "Colourbrina AMOLED (Black)",
           userId: 1,
           public: true,
           theme: {
             id: 3,
-            name: "Colubrina AMOLED",
+            name: "Colourbrina AMOLED",
             primaryType: "dark",
             dark: {
               primary: "#0190ea",
@@ -138,12 +138,12 @@ module.exports = {
         },
         {
           id: 4,
-          name: "Colubrina Grayscale",
+          name: "Colourbrina Grayscale",
           userId: 1,
           public: true,
           theme: {
             id: 5,
-            name: "Colubrina Grayscale",
+            name: "Colourbrina Grayscale",
             primaryType: "all",
             dark: {
               primary: "#6E6E6E",
@@ -181,12 +181,12 @@ module.exports = {
         },
         {
           id: 5,
-          name: "Colubrina High Contrast",
+          name: "Colourbrina High Contrast",
           userId: 1,
           public: true,
           theme: {
             id: 6,
-            name: "Colubrina High Contrast",
+            name: "Colourbrina High Contrast",
             primaryType: "all",
             dark: {
               primary: "#0057E9",

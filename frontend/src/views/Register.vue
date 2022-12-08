@@ -30,7 +30,7 @@
                   v-model="instance"
                   v-if="isElectron()"
                   label="Instance URL"
-                  placeholder="https://colubrina.troplo.com"
+                  placeholder="https://Colourbrina.troplo.com"
                   type="email"
                 ></v-text-field>
                 <small style="float: right" v-if="isElectron()">{{
@@ -145,7 +145,7 @@ export default {
       rulesDialog: false,
       rulesOpenedOnce: false,
       instance:
-        localStorage.getItem("instance") || "https://colubrina.troplo.com",
+        localStorage.getItem("instance") || "https://Colourbrina.troplo.com",
       instanceString: ""
     }
   },

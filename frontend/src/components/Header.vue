@@ -1034,7 +1034,7 @@ export default {
           this.feedback.text = ""
           this.feedback.rating = 0
           this.feedback.modal = false
-          this.$toast.success("Thank you for making a better Colubrina.")
+          this.$toast.success("Thank you for making a better Colourbrina.")
         })
         .catch(() => {
           this.$toast.error(

@@ -1,5 +1,5 @@
 {
-  "name": "colubrina-cli",
+  "name": "Colourbrina-cli",
   "private": true,
   "dependencies": {
     "argon2": "^0.28.7",

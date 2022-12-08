@@ -47,7 +47,7 @@ export default new Vuex.Store({
     site: {
       release: "stable",
       loading: true,
-      name: "Colubrina",
+      name: "Colourbrina",
       emailVerification: false
     },
     user: {
@@ -176,7 +176,7 @@ export default new Vuex.Store({
     discardTheme(context) {
       context.state.themeEngine.theme = {
         id: 1,
-        name: "Colubrina Classic",
+        name: "Colourbrina Classic",
         primaryType: "all",
         css: "",
         dark: {
@@ -371,8 +371,8 @@ export default new Vuex.Store({
         Vue.axios.defaults.baseURL = localStorage.getItem("instance")
         context.state.baseURL = localStorage.getItem("instance")
       }
-      Vue.axios.defaults.headers.common["X-Colubrina"] = true
-      Vue.axios.defaults.headers.common["X-Colubrina-Version"] =
+      Vue.axios.defaults.headers.common["X-Colourbrina"] = true
+      Vue.axios.defaults.headers.common["X-Colourbrina-Version"] =
         context.state.versioning.version
       Vue.axios.defaults.headers.common["Authorization"] =
         localStorage.getItem("token")
@@ -458,7 +458,7 @@ div {
               } else {
                 const theme = {
                   id: 1,
-                  name: "Colubrina Classic",
+                  name: "Colourbrina Classic",
                   primaryType: "all",
                   dark: {
                     primary: "#0190ea",
@@ -498,7 +498,7 @@ div {
                 Vuetify.framework.theme.themes.light = light
                 Vuetify.framework.theme.themes.name = name
                 this.name = name
-                console.log("Failed to load Colubrina Account")
+                console.log("Failed to load Colourbrina Account")
                 context.user = null
                 localStorage.removeItem("userCache")
                 reject(e)
@@ -506,7 +506,7 @@ div {
             } catch {
               const theme = {
                 id: 1,
-                name: "Colubrina Classic",
+                name: "Colourbrina Classic",
                 primaryType: "all",
                 dark: {
                   primary: "#0190ea",
@@ -546,7 +546,7 @@ div {
               Vuetify.framework.theme.themes.light = light
               Vuetify.framework.theme.themes.name = name
               this.name = name
-              console.log("Failed to load Colubrina Account")
+              console.log("Failed to load Colourbrina Account")
               localStorage.removeItem("userCache")
               context.user = null
               reject(e)
@@ -554,7 +554,7 @@ div {
             if (!localStorage.getItem("userCache")) {
               const theme = {
                 id: 1,
-                name: "Colubrina Classic",
+                name: "Colourbrina Classic",
                 primaryType: "all",
                 dark: {
                   primary: "#0190ea",
@@ -594,7 +594,7 @@ div {
               Vuetify.framework.theme.themes.light = light
               Vuetify.framework.theme.themes.name = name
               this.name = name
-              console.log("Failed to load Colubrina Account")
+              console.log("Failed to load Colourbrina Account")
               context.user = null
               reject(e)
             }

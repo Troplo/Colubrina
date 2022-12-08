@@ -15,7 +15,7 @@
         <router-view> </router-view>
         <div class="mx-4">
           <small
-            >Troplo/Colubrina version {{ $store.state.versioning.version }},
+            >Troplo/Colourbrina version {{ $store.state.versioning.version }},
             built on {{ $store.state.versioning.date }}</small
           >
         </div>

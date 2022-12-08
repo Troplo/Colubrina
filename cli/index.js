@@ -8,19 +8,19 @@ const axios = require("axios")
 const os = require("os")
 const { execSync } = require("child_process")
 
-console.log("Troplo/Colubrina CLI")
+console.log("Troplo/Colourbrina CLI")
 if (fs.existsSync("../backend/config/config.json")) {
   console.log(
-    "Want to modify either the Colubrina, or database config? Check out the config files in backend/config."
+    "Want to modify either the Colourbrina, or database config? Check out the config files in backend/config."
   )
 }
-console.log("Colubrina version", require("../frontend/package.json").version)
+console.log("Colourbrina version", require("../frontend/package.json").version)
 async function checkForUpdates() {
   if (!process.argv.includes("--skip-update")) {
     await axios
       .get("https://services.troplo.com/api/v1/state", {
         headers: {
-          "X-Troplo-Project": "colubrina",
+          "X-Troplo-Project": "Colourbrina",
           "X-Troplo-Project-Version": require("../frontend/package.json")
             .version
         },
@@ -33,10 +33,10 @@ async function checkForUpdates() {
         if (
           require("../frontend/package.json").version !== res.data.latestVersion
         ) {
-          console.log("A new version of Colubrina is available!")
+          console.log("A new version of Colourbrina is available!")
           console.log("Latest version:", res.data.latestVersion)
         } else {
-          console.log("Colubrina is up to date.")
+          console.log("Colourbrina is up to date.")
         }
       })
       .catch((e) => {
@@ -53,9 +53,9 @@ let state = {
   db: {
     host: "localhost",
     port: 3306,
-    username: "colubrina",
+    username: "Colourbrina",
     password: null,
-    database: "colubrina",
+    database: "Colourbrina",
     storage: "../backend/storage.db",
     dialect: "mariadb"
   },
@@ -73,13 +73,13 @@ async function doSetupDB() {
     default: state.db.port || 3306
   })
   const username = await input.text("What is the username?", {
-    default: state.db.username || "colubrina"
+    default: state.db.username || "Colourbrina"
   })
   const password = await input.text("What is the password?", {
     default: state.db.password ? "Enter for cached password" : "Please specify"
   })
   const database = await input.text("What is the database name?", {
-    default: state.db.database || "colubrina"
+    default: state.db.database || "Colourbrina"
   })
   let storage
   if (dialect === "sqlite") {
@@ -187,7 +187,7 @@ async function configureDotEnv() {
     default: "http://localhost"
   })
   config.siteName = await input.text("Site Name", {
-    default: "Colubrina"
+    default: "Colourbrina"
   })
   config.allowRegistrations = await input.text("Allow Registrations", {
     default: true
@@ -206,11 +206,11 @@ async function configureDotEnv() {
       default: 587
     })
     config.emailSMTPUsername = await input.text("SMTP Username", {
-      default: "colubrina@example.com"
+      default: "Colourbrina@example.com"
     })
     config.emailSMTPPassword = await input.text("SMTP Password", {})
     config.emailSMTPFrom = await input.text("SMTP From Address", {
-      default: "colubrina@example.com"
+      default: "Colourbrina@example.com"
     })
     config.emailSMTPSecure = await input.text("SMTP Secure", {
       default: true
@@ -218,8 +218,8 @@ async function configureDotEnv() {
   } else {
     config.emailSMTPHost = "smtp.myhost.com"
     config.emailSMTPPort = 587
-    config.emailSMTPUsername = "colubrina@example.com"
-    config.emailSMTPFrom = "colubrina@example.com"
+    config.emailSMTPUsername = "Colourbrina@example.com"
+    config.emailSMTPFrom = "Colourbrina@example.com"
     config.emailSMTPPassword = ""
     config.emailSMTPSecure = true
   }
@@ -257,7 +257,7 @@ async function init() {
         fs.existsSync(path.join(__dirname, "../backend/config/config.json"))
       ) {
         const option = await input.confirm(
-          "Colubrina config already exists, overwrite?",
+          "Colourbrina config already exists, overwrite?",
           {
             default: false
           }
@@ -294,10 +294,10 @@ async function init() {
       }
       try {
         await User.create({
-          username: "Colubrina",
+          username: "Colourbrina",
           id: 0,
           bot: true,
-          email: "colubrina@troplo.com",
+          email: "Colourbrina@troplo.com",
           banned: true
         })
         await User.update(
@@ -306,7 +306,7 @@ async function init() {
           },
           {
             where: {
-              username: "Colubrina"
+              username: "Colourbrina"
             }
           }
         )
@@ -316,12 +316,12 @@ async function init() {
       console.log("DB templates applied")
       console.log("Admin user creation")
       await createUser()
-      console.log("Colubrina has been setup.")
+      console.log("Colourbrina has been setup.")
       console.log(
-        "Colubrina can be started with `yarn serve` or `node .` in the backend directory."
+        "Colourbrina can be started with `yarn serve` or `node .` in the backend directory."
       )
       console.log(
-        "The Colubrina frontend can be built with `yarn build` in the root project directory, and is recommended to be served via NGINX, with a proxy_pass to the backend on /api and /socket.io."
+        "The Colourbrina frontend can be built with `yarn build` in the root project directory, and is recommended to be served via NGINX, with a proxy_pass to the backend on /api and /socket.io."
       )
     } else if (option === "Update/create database config file") {
       await dbSetup()

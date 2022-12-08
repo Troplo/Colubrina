@@ -1,17 +1,17 @@
 [Unit]
-Description=Colubrina
+Description=Colourbrina
 After=syslog.target
 After=network.target
 
 [Service]
 RestartSec=2s
 Type=simple
-User=colubrina
-Group=colubrina
-WorkingDirectory=/home/colubrina/colubrina/backend
-ExecStart=node /home/colubrina/colubrina/backend/index.js
+User=Colourbrina
+Group=Colourbrina
+WorkingDirectory=/home/Colourbrina/Colourbrina/backend
+ExecStart=node /home/Colourbrina/Colourbrina/backend/index.js
 Restart=always
-EnvironmentFile=/home/colubrina/colubrina/backend/.env
+EnvironmentFile=/home/Colourbrina/Colourbrina/backend/.env
 
 [Install]
 WantedBy=multi-user.target

@@ -78,7 +78,7 @@ router.post("/verify/resend", auth, mailLimiter, async (req, res, next) => {
     if (req.user.emailVerified) {
       throw Errors.invalidParameter("Email is already verified")
     }
-    const token = "COLUBRINA-VERIFY-" + cryptoRandomString({ length: 64 })
+    const token = "Colourbrina-VERIFY-" + cryptoRandomString({ length: 64 })
     await req.user.update({
       emailToken: token
     })
@@ -182,7 +182,7 @@ router.post("/login", async (req, res, next) => {
         .catch(() => {})
       const session = await Session.create({
         userId: user.id,
-        session: "COLUBRINA-" + cryptoRandomString({ length: 128 }),
+        session: "Colourbrina-" + cryptoRandomString({ length: 128 }),
         expiredAt: new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * 30),
         other: {
           ip: req.ip,
@@ -265,7 +265,7 @@ router.post("/register", limiter, async (req, res, next) => {
         .catch(() => {})
       const session = await Session.create({
         userId: user.id,
-        session: "COLUBRINA-" + cryptoRandomString({ length: 128 }),
+        session: "Colourbrina-" + cryptoRandomString({ length: 128 }),
         expiredAt: new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * 30),
         other: {
           ip: req.ip,
@@ -485,8 +485,8 @@ router.put("/settings/:type", auth, async (req, res, next) => {
         const match = await checkPassword(req.body.password)
         if (match) {
           const token = speakeasy.generateSecret({
-            name: "Colubrina - " + req.user.username,
-            issuer: "Colubrina"
+            name: "Colourbrina - " + req.user.username,
+            issuer: "Colourbrina"
           })
           await User.update(
             {

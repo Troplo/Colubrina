@@ -37,7 +37,7 @@ app.get("/api/v1/state", async (req, res) => {
     rules: req.app.locals.config.rules,
     name: req.app.locals.config.siteName,
     loading: true,
-    isColubrinaServer: true
+    isColourbrinaServer: true
   })
 })
 

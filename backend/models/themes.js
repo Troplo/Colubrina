@@ -21,7 +21,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       name: {
         type: DataTypes.STRING,
-        defaultValue: "A Colubrina Theme"
+        defaultValue: "A Colourbrina Theme"
       },
       userId: {
         type: DataTypes.BIGINT
@@ -33,7 +33,7 @@ module.exports = (sequelize, DataTypes) => {
       theme: {
         type: DataTypes.JSON,
         defaultValue: {
-          name: "A Colubrina Theme",
+          name: "A Colourbrina Theme",
           primaryType: "all",
           dark: {
             primary: "#0190ea",

@@ -1,12 +1,12 @@
-# Colubrina
+# Colourbrina
 
-![Wakatime](https://wakatime.troplo.com/api/badge/Troplo/interval:any/project:Colubrina?label=wakatime)
+![Wakatime](https://wakatime.troplo.com/api/badge/Troplo/interval:any/project:Colourbrina?label=wakatime)
 
-You can try a public instance of Colubrina at [colubrina.troplo.com](https://colubrina.troplo.com/).
+You can try a public instance of Colourbrina at [Colourbrina.troplo.com](https://Colourbrina.troplo.com/).
 
 This is currently beta software, and may not work as expected. Please file an issue if you encounter any.
 
-Colubrina is a simple self-hostable chatting platform written in Vue, and Vuetify for the frontend, and Node.js, Sequelize and Socket.io for the backend.
+Colourbrina is a simple self-hostable chatting platform written in Vue, and Vuetify for the frontend, and Node.js, Sequelize and Socket.io for the backend.
 
 ### Checklist
 - [x] Messaging
@@ -33,7 +33,7 @@ Colubrina is a simple self-hostable chatting platform written in Vue, and Vuetif
 <img src="https://i.troplo.com/i/a0459cbfd312.png" alt="Chat with AMOLED theme" width="45%"></img>
 <img src="https://i.troplo.com/i/48f5e875d455.png" alt="Chat with profile card and light theme" width="45%"></img>
 ## Backend setup
-First, configure a database and user (MariaDB strongly recommended) for Colubrina.<br>
+First, configure a database and user (MariaDB strongly recommended) for Colourbrina.<br>
 Please navigate to the `backend` folder and run `yarn`.<br>
 
 Then navigate to the `cli` folder, and run the following commands:
@@ -47,8 +47,8 @@ node .
 ```
 which should result in an interactive CLI prompt looking like the following:
 ```
-Troplo/Colubrina CLI
-Colubrina version 1.0.1
+Troplo/Colourbrina CLI
+Colourbrina version 1.0.1
 Failed to check for updates, ensure you are connected to the internet, and services.troplo.com is whitelisted behind any potential firewalls.
 ? Please select an option (Use arrow keys)
 ❯ Setup 
@@ -62,7 +62,7 @@ Failed to check for updates, ensure you are connected to the internet, and servi
 Select setup, and go through the steps.<br>After completing the initial setup, you may run `yarn build` in the frontend folder, or select "Build frontend for production" in the CLI.<br>
 The backend service can now be started with `node .` in the `backend` folder which will run on port `23998`.
 
-A systemd service example config file can be found at `colubrina.service`, and an `nginx.conf` example.
+A systemd service example config file can be found at `Colourbrina.service`, and an `nginx.conf` example.
 ## Frontend setup
 
 Rename .env.example to .env and fill it out with your own information.
@@ -93,4 +93,4 @@ yarn lint
 
 See [Configuration Reference](https://cli.vuejs.org/config/).
 
-#### View the Colubrina license in the LICENSE file.
+#### View the Colourbrina license in the LICENSE file.

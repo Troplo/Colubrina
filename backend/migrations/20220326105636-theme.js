@@ -15,7 +15,7 @@ module.exports = {
       },
       name: {
         type: Sequelize.STRING,
-        defaultValue: "A Colubrina Theme"
+        defaultValue: "A Colourbrina Theme"
       },
       userId: {
         type: Sequelize.BIGINT
@@ -27,7 +27,7 @@ module.exports = {
       theme: {
         type: Sequelize.JSON,
         defaultValue: {
-          name: "A Colubrina Theme",
+          name: "A Colourbrina Theme",
           primaryType: "all",
           dark: {
             primary: "#0190ea",

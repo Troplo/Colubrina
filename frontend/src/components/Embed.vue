@@ -160,7 +160,7 @@
         </v-row>
         <v-row v-else>
           <v-container>
-            <h4>You must update Colubrina to see this embed.</h4>
+            <h4>You must update Colourbrina to see this embed.</h4>
           </v-container>
         </v-row>
       </v-container>

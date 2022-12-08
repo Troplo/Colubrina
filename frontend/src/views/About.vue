@@ -8,17 +8,17 @@
             class="troplo-title"
             style="font-size: 100px"
           >
-            Colubrina
+            Colourbrina
           </h1>
           <h1
             v-if="$vuetify.breakpoint.smAndDown"
             class="troplo-title"
             style="font-size: 40px"
           >
-            Colubrina
+            Colourbrina
           </h1>
           <p class="subheading">
-            Colubrina is a simple open source chatting platform.
+            Colourbrina is a simple open source chatting platform.
           </p>
           <p class="subheading">
             Created by Troplo, if you like this project, please star it on
@@ -28,13 +28,13 @@
             text
             type="info"
             fab
-            href="https://github.com/Troplo/Colubrina"
+            href="https://github.com/Troplo/Colourbrina"
             target="_blank"
           >
             <v-icon> mdi-github </v-icon> </v-btn
           ><br />
           <small
-            >Troplo/Colubrina version: {{ $store.state.versioning.version }},
+            >Troplo/Colourbrina version: {{ $store.state.versioning.version }},
             built on: {{ $store.state.versioning.date }}</small
           >
         </v-container>

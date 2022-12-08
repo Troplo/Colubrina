@@ -552,7 +552,7 @@
                               <v-icon> mdi-crown </v-icon>
                             </v-btn>
                           </template>
-                          <span>Colubrina Instance Administrator</span>
+                          <span>Colourbrina Instance Administrator</span>
                         </v-tooltip>
                         <v-tooltip top v-if="item.user.bot">
                           <template v-slot:activator="{ on }">

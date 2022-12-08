@@ -803,7 +803,7 @@ export default {
     })
     document.title = this.$route.name
       ? this.$route.name + " - " + this.$store.state.site.name
-      : this.$store.state.site.name || "Colubrina"
+      : this.$store.state.site.name || "Colourbrina"
     this.$store.commit("setLoading", true)
     this.$vuetify.theme.dark = this.$store.state.user?.theme === "dark" || true
     this.$store.dispatch("getState")

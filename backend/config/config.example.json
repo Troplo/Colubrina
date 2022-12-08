@@ -1,7 +1,7 @@
 {
   "hostname": "localhost",
   "corsHostname": "http://localhost:8080",
-  "siteName": "Colubrina",
+  "siteName": "Colourbrina",
   "allowRegistrations": true,
   "notification": "",
   "notificationType": "",
@@ -10,8 +10,8 @@
   "emailVerification": false,
   "emailSMTPHost": "mail.example.com",
   "emailSMTPPort": 587,
-  "emailSMTPUser": "colubrina@example.com",
-  "emailSMTPFrom": "colubrina@example.com",
+  "emailSMTPUser": "Colourbrina@example.com",
+  "emailSMTPFrom": "Colourbrina@example.com",
   "emailSMTPPassword": "",
   "emailSMTPSecure": false,
   "rules": "Write your instance rules here."

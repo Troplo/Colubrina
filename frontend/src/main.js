@@ -93,7 +93,7 @@ Vue.directive("markdown", {
   }
 })
 if (process.env.NODE_ENV === "development") {
-  console.log("Colubrina is running in development mode.")
+  console.log("Colourbrina is running in development mode.")
   Vue.config.performance = true
 }
 new Vue({

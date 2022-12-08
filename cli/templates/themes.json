@@ -1,12 +1,12 @@
 [
   {
     "id": 1,
-    "name": "Colubrina Classic",
+    "name": "Colourbrina Classic",
     "userId": 0,
     "public": true,
     "theme": {
       "id": 1,
-      "name": "Colubrina Classic",
+      "name": "Colourbrina Classic",
       "primaryType": "all",
       "dark": {
         "primary": "#0190ea",
@@ -44,12 +44,12 @@
   },
   {
     "id": 2,
-    "name": "Colubrina Gray",
+    "name": "Colourbrina Gray",
     "userId": 0,
     "public": true,
     "theme": {
       "id": 2,
-      "name": "Colubrina Gray",
+      "name": "Colourbrina Gray",
       "primaryType": "all",
       "user": {
         "sussiId": "asdasd"
@@ -90,12 +90,12 @@
   },
   {
     "id": 3,
-    "name": "Colubrina AMOLED (Black)",
+    "name": "Colourbrina AMOLED (Black)",
     "userId": 0,
     "public": true,
     "theme": {
       "id": 3,
-      "name": "Colubrina AMOLED",
+      "name": "Colourbrina AMOLED",
       "primaryType": "dark",
       "dark": {
         "primary": "#0190ea",
