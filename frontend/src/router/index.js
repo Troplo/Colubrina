@@ -171,6 +171,14 @@ const routes = [
       )
   },
   {
+    path: "/reset/:code",
+    name: "Reset Password",
+    component: () =>
+      import(
+        /* webpackChunkName: "resetPassword" */ "../views/PasswordReset.vue"
+      )
+  },
+  {
     path: "*",
     name: "Not Found",
     component: () =>

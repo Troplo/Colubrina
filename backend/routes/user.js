@@ -589,4 +589,103 @@ router.put("/settings/:type", auth, async (req, res, next) => {
   }
 })
 
+router.post("/reset/send", mailLimiter, async (req, res, next) => {
+  try {
+    const user = await User.findOne({
+      where: {
+        email: req.body.email
+      }
+    })
+    if (user) {
+      const token = cryptoRandomString({ length: 64 })
+      await user.update({
+        passwordResetToken: token,
+        passwordResetExpiry: Date.now() + 86400000
+      })
+      const mailGenerator = new Mailgen({
+        theme: "default",
+        product: {
+          name: req.app.locals.config.siteName,
+          link: req.app.locals.config.corsHostname
+        }
+      })
+      const email = {
+        body: {
+          name: user.username,
+          intro: `${req.app.locals.config.siteName} Password Reset`,
+          action: {
+            instructions: `You are receiving this email because you registered on ${req.app.locals.config.siteName}, please use the link below to reset your account's password.`,
+            button: {
+              color: "#1A97FF",
+              text: "Password Reset",
+              link: req.app.locals.config.corsHostname + "/reset/" + token
+            }
+          },
+          outro: "If you did not request a password reset, ignore this email."
+        }
+      }
+      const emailBody = mailGenerator.generate(email)
+
+      const emailText = mailGenerator.generatePlaintext(email)
+      const transporter = nodemailer.createTransport({
+        host: req.app.locals.config.emailSMTPHost,
+        port: req.app.locals.config.emailSMTPPort,
+        secure: req.app.locals.config.emailSMTPSecure,
+        auth: {
+          user: req.app.locals.config.emailSMTPUser,
+          pass: req.app.locals.config.emailSMTPPassword
+        }
+      })
+      let info = await transporter.sendMail({
+        from: req.app.locals.config.emailSMTPFrom,
+        to: user.email,
+        subject: "Password Reset - " + req.app.locals.config.siteName,
+        text: emailText,
+        html: emailBody
+      })
+      res.sendStatus(204)
+    } else {
+      throw Errors.customMessage(
+        "Email not found, please type your email, not your username."
+      )
+    }
+  } catch (e) {
+    console.log(e)
+    next(e)
+  }
+})
+
+router.put("/reset", async (req, res, next) => {
+  try {
+    if (req.body.password && req.body.token) {
+      const user = await User.findOne({
+        where: {
+          passwordResetToken: req.body.token,
+          passwordResetExpiry: {
+            [Op.gt]: Date.now()
+          }
+        }
+      })
+      if (!req.body.token) {
+        throw Errors.invalidParameter("Token", "Invalid or expired token")
+      }
+      if (user) {
+        await user.update({
+          password: await argon2.hash(req.body.password),
+          passwordResetToken: null,
+          passwordResetExpiry: null
+        })
+        res.sendStatus(204)
+      } else {
+        throw Errors.invalidParameter("Token", "Invalid or expired token")
+      }
+    } else {
+      throw Errors.invalidParameter("Password or Token")
+    }
+  } catch (e) {
+    console.log(e)
+    next(e)
+  }
+})
+
 module.exports = router

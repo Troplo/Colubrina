@@ -822,7 +822,9 @@ export default {
       })
       .catch(() => {
         this.$store.dispatch("logout")
-        this.$router.push("/login")
+        if (!window.location.pathname.includes("/reset")) {
+          this.$router.push("/login")
+        }
       })
     this.getThemes()
     this.communicationsIdleCheck()

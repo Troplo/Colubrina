@@ -157,6 +157,14 @@ module.exports = (sequelize, DataTypes) => {
       emailToken: {
         type: DataTypes.STRING,
         allowNull: true
+      },
+      passwordResetToken: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
+      passwordResetExpiry: {
+        type: DataTypes.DATE,
+        allowNull: true
       }
     },
     {

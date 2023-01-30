@@ -71,6 +71,12 @@
                   label="Password"
                   type="password"
                 ></v-text-field>
+                <p
+                  style="float: right; color: #2196f3; cursor: pointer"
+                  @click="doPasswordReset()"
+                >
+                  Reset your Password
+                </p>
                 <v-switch
                   inset
                   label="Remember Me"
@@ -128,6 +134,18 @@ export default {
     }
   },
   methods: {
+    doPasswordReset() {
+      this.loading = true
+      this.axios.post("/api/v1/user/reset/send", {
+        email: this.username
+      }).then(() => {
+        this.loading = false
+        this.$toast.success("Password reset sent, check your email!")
+      }).catch((e) => {
+        this.loading = false
+        AjaxErrorHandler(this.$store)(e)
+      })
+    },
     isElectron() {
       return process.env.IS_ELECTRON
     },
