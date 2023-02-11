@@ -1050,21 +1050,13 @@ export default {
       this.edit.id = ""
       this.focusInput()
     },
-    autoScroll(smooth = false) {
+    autoScroll() {
       this.$nextTick(() => {
         if (!this.avoidAutoScroll) {
           try {
             const lastIndex = this.messages.length - 1
             const lastMessage = document.querySelector(`#message-${lastIndex}`)
-            if (smooth) {
-              lastMessage.scrollIntoView({
-                behavior: "smooth",
-                block: "nearest",
-                inline: "start"
-              })
-            } else {
-              lastMessage.scrollIntoView()
-            }
+            lastMessage.scrollIntoView()
             this.autoScrollRetry = 0
           } catch (e) {
             console.log("Could not auto scroll, retrying...")
