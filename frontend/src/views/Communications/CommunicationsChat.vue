@@ -170,7 +170,7 @@
       >
         <v-card
           class="d-flex flex-column-reverse fill-height rounded-0 mb-n3 chat-col"
-          style="overflow: auto; height: calc(100vh - 24px - 40px)"
+          style="overflow: auto; height: calc(100vh - 52px)"
           color="card"
           elevation="0"
         >
