@@ -210,7 +210,7 @@
             </v-toolbar>
             <v-fade-transition v-model="avoidAutoScroll">
               <v-toolbar
-                height="22"
+                height="24"
                 color="toolbar"
                 elevation="0"
                 style="
