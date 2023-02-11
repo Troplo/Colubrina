@@ -24,7 +24,7 @@ Colubrina is a simple self-hostable chatting platform written in Vue, and Vuetif
 - [ ] Clean-up/refactor code
 - [x] Mobile responsiveness/compatibility
 - [x] Email verification
-- [ ] Password resetting
+- [x] Password resetting
 - [x] Channel message pins
 - [x] Read receipts
 
