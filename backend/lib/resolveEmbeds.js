@@ -7,7 +7,7 @@ module.exports = async function (req, message) {
   return new Promise(async (resolve, reject) => {
     try {
       if (message.content) {
-        const regex = /(https?:\/\/[^\s]+)/g
+        const regex = /(https?:\/\/\S+)/g
         let links = message.content.match(regex)
         if (links && links.length > 3) {
           links = links.slice(0, 3)
@@ -46,7 +46,7 @@ module.exports = async function (req, message) {
                   })
                 }
               })
-              .catch(async (e) => {
+              .catch(async () => {
                 await axios
                   .get(link, {
                     headers: {
