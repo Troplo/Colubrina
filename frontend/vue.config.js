@@ -195,7 +195,7 @@ module.exports = {
     ]
   },
   devServer: {
-    proxy: "https://colubrina.troplo.com"
+    proxy: "http://localhost23998"
   },
   transpileDependencies: ["vuetify"]
 }
