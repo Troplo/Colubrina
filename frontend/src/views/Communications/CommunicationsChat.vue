@@ -222,7 +222,7 @@
                   z-index: 20;
                 "
                 width="100%"
-                @click="forceBottom"
+                @click="forceScroll"
                 v-if="avoidAutoScroll"
               >
                 <div>
@@ -437,7 +437,6 @@
               outlined
               autofocus
               @keydown.enter="doSearch"
-              @keydown.esc="$store.state.searchPanel = false"
             ></v-text-field>
             <v-list two-line color="card" ref="message-list-search">
               <template v-for="(message, index) in search.results">
@@ -775,7 +774,7 @@ export default {
           AjaxErrorHandler(this.$store)(e)
         })
     },
-    forceBottom() {
+    forceScroll() {
       this.avoidAutoScroll = false
       this.autoScroll()
     },
@@ -1115,6 +1114,13 @@ export default {
       if (document.activeElement.tagName === "BODY") {
         this.focusInput()
       }
+    },
+    escPressed(event) {
+      if (event.key === "Escape" && !this.$store.state.searchPanel) {
+        this.forceScroll()
+      } else if (event.key === "Escape" && this.$store.state.searchPanel) {
+        this.$store.state.searchPanel = false
+      }
     }
   },
   mounted() {
@@ -1126,6 +1132,7 @@ export default {
       return
     }
     document.addEventListener("keypress", this.focusKey)
+    document.addEventListener("keydown", this.escPressed)
     document
       .getElementById("message-list")
       .addEventListener("scroll", this.scrollEvent)
@@ -1252,6 +1259,7 @@ export default {
       if (!tryParse) {
         // remove event listeners
         document.removeEventListener("keypress", this.focusKey)
+        document.removeEventListener("keydown", this.escPressed)
         document
           .getElementById("message-list")
           .removeEventListener("scroll", this.scrollEvent)
@@ -1283,6 +1291,7 @@ export default {
   },
   destroyed() {
     document.removeEventListener("keypress", this.focusKey)
+    document.removeEventListener("keydown", this.escPressed)
     document.removeEventListener("scroll", this.scrollEvent)
     clearInterval(this.interval)
   }
