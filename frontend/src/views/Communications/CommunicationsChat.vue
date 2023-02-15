@@ -301,6 +301,52 @@
               style="display: block; width: 100px; margin: 0 auto"
             ></v-progress-circular>
             <template v-for="(message, index) in messages">
+              <div
+                  :key="'div2-' + message.keyId"
+                  v-if="message.readReceipts.length"
+              >
+                <v-tooltip
+                    v-for="association in message.readReceipts"
+                    :key="association.id"
+                    top
+                >
+                  <template
+                      v-slot:activator="{ on }"
+                      v-if="association.user.id !== $store.state.user.id"
+                  >
+                    <v-btn
+                        icon
+                        small
+                        fab
+                        width="20"
+                        height="20"
+                        class="ml-2 mt-2"
+                        style="float: right"
+                        @click="openUserPanel(association.user)"
+                    >
+                      <v-avatar size="20" v-on="on" color="primary">
+                        <img
+                            v-if="association.user.avatar"
+                            :src="
+                            $store.state.baseURL +
+                            '/usercontent/' +
+                            association.user.avatar
+                          "
+                            alt="avatar"
+                        />
+                        <span v-else>{{
+                            association.user.username[0].toUpperCase()
+                          }}</span>
+                      </v-avatar>
+                    </v-btn>
+                  </template>
+                  <span>
+                    {{ association.user.username }} has read up to this point.
+                  </span>
+                </v-tooltip>
+                <br v-if="index + 1 > messages.length" />
+                <br v-if="index + 1 > messages.length" />
+              </div>
               <Message
                 :key="message.keyId"
                 :message="message"
@@ -326,85 +372,7 @@
                   !message.type
                 "
               ></Message>
-              <div
-                :key="'div2-' + message.keyId"
-                v-if="message.readReceipts.length"
-              >
-                <v-tooltip
-                  v-for="association in message.readReceipts"
-                  :key="association.id"
-                  top
-                >
-                  <template
-                    v-slot:activator="{ on }"
-                    v-if="association.user.id !== $store.state.user.id"
-                  >
-                    <v-btn
-                      icon
-                      small
-                      fab
-                      width="20"
-                      height="20"
-                      class="ml-2 mt-2"
-                      style="float: right"
-                      @click="openUserPanel(association.user)"
-                    >
-                      <v-avatar size="20" v-on="on" color="primary">
-                        <img
-                          v-if="association.user.avatar"
-                          :src="
-                            $store.state.baseURL +
-                            '/usercontent/' +
-                            association.user.avatar
-                          "
-                          alt="avatar"
-                        />
-                        <span v-else>{{
-                          association.user.username[0].toUpperCase()
-                        }}</span>
-                      </v-avatar>
-                    </v-btn>
-                  </template>
-                  <span>
-                    {{ association.user.username }} has read up to this point.
-                  </span>
-                </v-tooltip>
-                <br v-if="index + 1 > messages.length" />
-                <br v-if="index + 1 > messages.length" />
-              </div>
             </template>
-            <v-tooltip top>
-              <template v-slot:activator="{ on }">
-                <v-btn
-                  icon
-                  small
-                  fab
-                  width="20"
-                  height="20"
-                  class="ml-2 mt-2"
-                  style="float: right"
-                  @click="openUserPanel($store.state.user)"
-                >
-                  <v-avatar size="20" v-on="on" color="primary">
-                    <img
-                      v-if="$store.state.user.avatar"
-                      :src="
-                        $store.state.baseURL +
-                        '/usercontent/' +
-                        $store.state.user.avatar
-                      "
-                      alt="avatar"
-                    />
-                    <span v-else>{{
-                      $store.state.user.username[0].toUpperCase()
-                    }}</span>
-                  </v-avatar>
-                </v-btn>
-              </template>
-              <span>
-                {{ $store.state.user.username }} has read up to this point.
-              </span>
-            </v-tooltip>
           </v-card-text>
         </v-card>
       </v-col>
