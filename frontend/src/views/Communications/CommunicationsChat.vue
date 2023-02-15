@@ -302,41 +302,41 @@
             ></v-progress-circular>
             <template v-for="(message, index) in messages">
               <div
-                  :key="'div2-' + message.keyId"
-                  v-if="message.readReceipts.length"
+                :key="'div2-' + message.keyId"
+                v-if="message.readReceipts.length"
               >
                 <v-tooltip
-                    v-for="association in message.readReceipts"
-                    :key="association.id"
-                    top
+                  v-for="association in message.readReceipts"
+                  :key="association.id"
+                  top
                 >
                   <template
-                      v-slot:activator="{ on }"
-                      v-if="association.user.id !== $store.state.user.id"
+                    v-slot:activator="{ on }"
+                    v-if="association.user.id !== $store.state.user.id"
                   >
                     <v-btn
-                        icon
-                        small
-                        fab
-                        width="20"
-                        height="20"
-                        class="ml-2 mt-2"
-                        style="float: right"
-                        @click="openUserPanel(association.user)"
+                      icon
+                      small
+                      fab
+                      width="20"
+                      height="20"
+                      class="ml-2 mt-2"
+                      style="float: right"
+                      @click="openUserPanel(association.user)"
                     >
                       <v-avatar size="20" v-on="on" color="primary">
                         <img
-                            v-if="association.user.avatar"
-                            :src="
+                          v-if="association.user.avatar"
+                          :src="
                             $store.state.baseURL +
                             '/usercontent/' +
                             association.user.avatar
                           "
-                            alt="avatar"
+                          alt="avatar"
                         />
                         <span v-else>{{
-                            association.user.username[0].toUpperCase()
-                          }}</span>
+                          association.user.username[0].toUpperCase()
+                        }}</span>
                       </v-avatar>
                     </v-btn>
                   </template>
