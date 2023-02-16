@@ -2327,9 +2327,9 @@ lru-cache@^6.0.0:
     yallist "^4.0.0"
 
 lru-cache@^7.14.0:
-  version "7.14.1"
-  resolved "https://registry.yarnpkg.com/lru-cache/-/lru-cache-7.14.1.tgz#8da8d2f5f59827edb388e63e459ac23d6d408fea"
-  integrity sha512-ysxwsnTKdAx96aTRdhDOCQfDgbHnt8SK0KY8SEjO0wHinhWOFTESbjVCMPbU1uGXg/ch4lifqx0wfjOawU2+WA==
+  version "7.16.0"
+  resolved "https://registry.yarnpkg.com/lru-cache/-/lru-cache-7.16.0.tgz#b1b946cff368d3f3c569cc3d6a5ba8f90435160f"
+  integrity sha512-VJBdeMa9Bz27NNlx+DI/YXGQtXdjUU+9gdfN1rYfra7vtTjhodl5tVNmR42bo+ORHuDqDT+lGAUAb+lzvY42Bw==
 
 lru-queue@^0.1.0:
   version "0.1.0"
@@ -2382,16 +2382,15 @@ map-obj@^4.1.0:
   integrity sha512-hdN1wVrZbb29eBGiGjJbeP8JbKjq1urkHJ/LIP/NY48MZ1QVXUsQBV1G1zvYFHn1XE06cwjBsOI2K3Ulnj1YXQ==
 
 mariadb@^3.0.1:
-  version "3.0.2"
-  resolved "https://registry.yarnpkg.com/mariadb/-/mariadb-3.0.2.tgz#427ae286b8fb35f4046b3457f4df729a5019d6c3"
-  integrity sha512-dVjiQZ6RW0IXFnX+T/ZEmnqs724DgkQsXqfCyInXn0XxVfO2Px6KbS4M3Ny6UiBg0zJ93SHHvfVBgYO4ZnFvvw==
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/mariadb/-/mariadb-3.1.0.tgz#7d683dabd83d2521303257a14062df25f9a88fbc"
+  integrity sha512-OyWbm90bX6gsEuJjD8rLrkBXYt3BR/xc6mQfFibZmmzSw938S5EZzullW5gbVZKRZwbZGxihfszxjCETWid45Q==
   dependencies:
     "@types/geojson" "^7946.0.10"
     "@types/node" "^17.0.45"
     denque "^2.1.0"
     iconv-lite "^0.6.3"
     lru-cache "^7.14.0"
-    moment-timezone "^0.5.38"
 
 maxmind@^4.2.0:
   version "4.3.8"
@@ -2570,7 +2569,7 @@ mmdb-lib@2.0.2:
   resolved "https://registry.yarnpkg.com/mmdb-lib/-/mmdb-lib-2.0.2.tgz#fe60404142c0456c19607c72caa15821731ae957"
   integrity sha512-shi1I+fCPQonhTi7qyb6hr7hi87R7YS69FlfJiMFuJ12+grx0JyL56gLNzGTYXPU7EhAPkMLliGeyHer0K+AVA==
 
-moment-timezone@^0.5.34, moment-timezone@^0.5.38:
+moment-timezone@^0.5.34:
   version "0.5.40"
   resolved "https://registry.yarnpkg.com/moment-timezone/-/moment-timezone-0.5.40.tgz#c148f5149fd91dd3e29bf481abc8830ecba16b89"
   integrity sha512-tWfmNkRYmBkPJz5mr9GVDn9vRlVZOTe6yqY92rFxiOdWXbjaR0+9LwQnZGGuNR63X456NqmEkbskte8tWL5ePg==
