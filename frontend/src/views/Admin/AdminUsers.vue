@@ -46,10 +46,10 @@
         $vuetify.theme.themes[$vuetify.theme.dark ? 'dark' : 'light'].card
       "
     >
-      <template v-slot:item.index="{ index }">
+      <template v-slot:[`item.index`]="{ index }">
         {{ index }}
       </template>
-      <template v-slot:item.actions="{ item }">
+      <template v-slot:[`item.actions`]="{ item }">
         <v-tooltip top>
           <template v-slot:activator="{ on }">
             <v-btn

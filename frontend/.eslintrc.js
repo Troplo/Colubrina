@@ -6,7 +6,7 @@ module.exports = {
   },
   extends: ["plugin:vue/essential", "eslint:recommended"],
   parserOptions: {
-    parser: "babel-eslint"
+    parser: "@babel/eslint-parser"
   },
   rules: {
     "no-console": process.env.NODE_ENV === "production" ? "warn" : "off",
@@ -14,6 +14,8 @@ module.exports = {
     "vue/no-parsing-error": [
       "error",
       { "invalid-first-character-of-tag-name": false }
-    ]
+    ],
+    "vue/no-mutating-props": "off",
+    "vue/multi-word-component-names": "off"
   }
 }

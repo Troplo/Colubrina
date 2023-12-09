@@ -1240,7 +1240,7 @@ export default {
       if (localStorage.getItem("drafts")) {
         drafts = JSON.parse(localStorage.getItem("drafts"))
       }
-      if (this.message || drafts[oldVal]) {
+      if (this.message && drafts[oldVal]) {
         drafts[oldVal] = this.message
         localStorage.setItem("drafts", JSON.stringify(drafts))
       } else if (!this.message && drafts[oldVal]) {

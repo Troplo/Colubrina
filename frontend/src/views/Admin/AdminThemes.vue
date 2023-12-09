@@ -16,10 +16,10 @@
         $vuetify.theme.themes[$vuetify.theme.dark ? 'dark' : 'light'].card
       "
     >
-      <template v-slot:item.actions="{ item }">
+      <template v-slot:[`item.actions`]="{ item }">
         <v-btn text color="primary" @click="applyTheme(item)"> Apply </v-btn>
       </template>
-      <template v-slot:item.theme.css="{ item }">
+      <template v-slot:[`item.theme.css`]="{ item }">
         {{ item.theme.css ? "Yes" : "No" }}
       </template>
     </v-data-table>
