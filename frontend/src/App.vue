@@ -2,7 +2,7 @@
   <v-app
     :style="
       'background-color: ' +
-      $vuetify.theme.themes[$vuetify.theme.dark ? 'dark' : 'light'].bg
+      $vuetify.theme.themes[$vuetify.theme.dark ? 'dark' : 'light']?.bg
     "
   >
     <v-overlay :value="!$store.state.wsConnected" absolute style="z-index: 69">
@@ -446,7 +446,7 @@
           id="main"
           :style="
             'background-color: ' +
-            $vuetify.theme.themes[$vuetify.theme.dark ? 'dark' : 'light'].bg
+            $vuetify.theme.themes[$vuetify.theme.dark ? 'dark' : 'light']?.bg
           "
         />
       </div>
