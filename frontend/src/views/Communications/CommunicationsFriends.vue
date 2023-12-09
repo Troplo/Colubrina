@@ -8,7 +8,7 @@
         <v-tab-item
           :style="
             'background-color: ' +
-            $vuetify.theme.themes[$vuetify.theme.dark ? 'dark' : 'light'].card
+            $vuetify.theme.themes[$vuetify.theme.dark ? 'dark' : 'light']?.card
           "
         >
           <v-card class="rounded-0" color="card" elevation="0">
@@ -21,7 +21,7 @@
                   <v-list-item-avatar
                     @click="userProfile(user)"
                     style="cursor: pointer"
-                    :color="$vuetify.theme.themes.dark.primary"
+                    :color="$vuetify.theme.themes.dark?.primary"
                   >
                     <v-img
                       :src="
@@ -79,7 +79,7 @@
         <v-tab-item
           :style="
             'background-color: ' +
-            $vuetify.theme.themes[$vuetify.theme.dark ? 'dark' : 'light'].card
+            $vuetify.theme.themes[$vuetify.theme.dark ? 'dark' : 'light']?.card
           "
         >
           <v-card class="rounded-0" color="card" elevation="0">
@@ -101,7 +101,7 @@
                 >
                   <v-list-item-avatar
                     @click="userProfile(friend.user2)"
-                    :color="$vuetify.theme.themes.dark.primary"
+                    :color="$vuetify.theme.themes.dark?.primary"
                   >
                     <v-img
                       :src="
@@ -155,7 +155,7 @@
                   <v-list-item-avatar
                     @click="userProfile(friend.user2)"
                     style="cursor: pointer"
-                    :color="$vuetify.theme.themes.dark.primary"
+                    :color="$vuetify.theme.themes.dark?.primary"
                   >
                     <v-img
                       :src="
@@ -202,7 +202,7 @@
                   <v-list-item-avatar
                     @click="userProfile(friend.user2)"
                     style="cursor: pointer"
-                    :color="$vuetify.theme.themes.dark.primary"
+                    :color="$vuetify.theme.themes.dark?.primary"
                   >
                     <v-img
                       :src="
@@ -235,7 +235,7 @@
         <v-tab-item
           :style="
             'background-color: ' +
-            $vuetify.theme.themes[$vuetify.theme.dark ? 'dark' : 'light'].card
+            $vuetify.theme.themes[$vuetify.theme.dark ? 'dark' : 'light']?.card
           "
         >
           <v-card color="card">

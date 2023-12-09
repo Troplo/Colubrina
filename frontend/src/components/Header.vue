@@ -204,7 +204,7 @@
               v-for="user in settings.item.chat.associations"
               :key="user.id"
             >
-              <v-list-item-avatar :color="$vuetify.theme.themes.dark.primary">
+              <v-list-item-avatar :color="$vuetify.theme.themes.dark?.primary">
                 <v-img
                   :src="
                     $store.state.baseURL + '/usercontent/' + user.user.avatar
@@ -613,7 +613,7 @@
           :style="
             'color: ' +
             $vuetify.theme.themes[$vuetify.theme.dark ? 'dark' : 'light']
-              .primary
+              ?.primary
           "
           class="troplo-title"
           @click="$router.push('/')"
@@ -723,7 +723,7 @@
                   offset-y="20"
                 >
                   <v-list-item-avatar
-                    :color="$vuetify.theme.themes.dark.primary"
+                    :color="$vuetify.theme.themes.dark?.primary"
                   >
                     <v-img
                       v-if="
@@ -743,7 +743,7 @@
                 </v-badge>
                 <v-badge dot color="none" v-else>
                   <v-list-item-avatar
-                    :color="$vuetify.theme.themes.dark.primary"
+                    :color="$vuetify.theme.themes.dark?.primary"
                   >
                     <v-img
                       v-if="item.chat.type === 'group' && item.chat.icon"
@@ -803,7 +803,7 @@
                   v-bind="attrs"
                 >
                   <v-list-item-avatar
-                    :color="$vuetify.theme.themes.dark.primary"
+                    :color="$vuetify.theme.themes.dark?.primary"
                     v-on="on"
                     v-bind="attrs"
                   >

@@ -876,7 +876,7 @@ router.put("/:id/message/edit", auth, async (req, res, next) => {
             chatId: chat.chat.id
           }
         })
-        await resolveEmbeds(req, message, associationsWithUser)
+        await resolveEmbeds(message)
           .then((embeds) => {
             associationsWithUser.forEach((association) => {
               io.to(association.userId).emit("messageEmbedResolved", {
@@ -1280,7 +1280,7 @@ router.post(
             chatId: chat.chat.id
           }
         })
-        await resolveEmbeds(req, messageLookup, associations)
+        await resolveEmbeds(messageLookup)
           .then((embeds) => {
             associationsWithUser.forEach((association) => {
               io.to(association.userId).emit("messageEmbedResolved", {
@@ -1590,7 +1590,7 @@ router.post("/:id/message", auth, limiter, async (req, res, next) => {
         ...messageLookup.dataValues,
         keyId: `${message.id}-${message.updatedAt.toISOString()}`
       })
-      await resolveEmbeds(req, messageLookup, associations)
+      await resolveEmbeds(messageLookup)
         .then((embeds) => {
           associationsWithUser.forEach((association) => {
             io.to(association.userId).emit("messageEmbedResolved", {

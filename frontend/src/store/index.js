@@ -23,6 +23,38 @@ function getDirectRecipient(context, item) {
     return user
   }
 }
+
+const darkTheme = {
+  primary: "#0190ea",
+  secondary: "#757575",
+  accent: "#000000",
+  error: "#ff1744",
+  info: "#2196F3",
+  success: "#4CAF50",
+  warning: "#ff9800",
+  card: "#151515",
+  toolbar: "#191919",
+  sheet: "#181818",
+  text: "#000000",
+  dark: "#151515",
+  bg: "#151515"
+}
+const lightTheme = {
+  primary: "#0190ea",
+  secondary: "#757575",
+  accent: "#000000",
+  error: "#ff1744",
+  info: "#2196F3",
+  success: "#4CAF50",
+  warning: "#ff9800",
+  card: "#f8f8f8",
+  toolbar: "#f8f8f8",
+  sheet: "#f8f8f8",
+  text: "#000000",
+  dark: "#f8f8f8",
+  bg: "#f8f8f8"
+}
+
 export default new Vuex.Store({
   state: {
     desktop: !!process.env.IS_ELECTRON,
@@ -179,36 +211,8 @@ export default new Vuex.Store({
         name: "Colubrina Classic",
         primaryType: "all",
         css: "",
-        dark: {
-          primary: "#0190ea",
-          secondary: "#757575",
-          accent: "#000000",
-          error: "#ff1744",
-          info: "#2196F3",
-          success: "#4CAF50",
-          warning: "#ff9800",
-          card: "#151515",
-          toolbar: "#191919",
-          sheet: "#181818",
-          text: "#000000",
-          dark: "#151515",
-          bg: "#151515"
-        },
-        light: {
-          primary: "#0190ea",
-          secondary: "#757575",
-          accent: "#000000",
-          error: "#ff1744",
-          info: "#2196F3",
-          success: "#4CAF50",
-          warning: "#ff9800",
-          card: "#f8f8f8",
-          toolbar: "#f8f8f8",
-          sheet: "#f8f8f8",
-          text: "#000000",
-          dark: "#f8f8f8",
-          bg: "#f8f8f8"
-        }
+        dark: darkTheme,
+        light: lightTheme
       }
       context.state.themeEngine.type = "create"
     },
@@ -394,9 +398,9 @@ export default new Vuex.Store({
           console.log("Socket not connected")
         }
         localStorage.setItem("userCache", JSON.stringify(user))
-        const name = user.themeObject.id
-        const dark = user.themeObject.theme.dark
-        const light = user.themeObject.theme.light
+        const name = user.themeObject?.id
+        const dark = user.themeObject?.theme.dark
+        const light = user.themeObject?.theme.light
         if (user.accentColor) {
           user.themeObject.theme.dark.primary = user.accentColor
           user.themeObject.theme.light.primary = user.accentColor
@@ -405,12 +409,12 @@ export default new Vuex.Store({
         Vuetify.framework.theme.themes.light = light
         Vuetify.framework.theme.themes.name = name
         Vuetify.framework.theme.themes.primaryType =
-          user.themeObject.theme.primaryType
+          user.themeObject?.theme.primaryType
         const themeElement = document.getElementById("user-theme")
         if (!themeElement) {
           const style = document.createElement("style")
           style.id = "user-theme"
-          style.innerHTML = user.themeObject.theme.css
+          style.innerHTML = user.themeObject?.theme.css
           document.head.appendChild(style)
         }
         const fontElement = document.getElementById("user-font")
@@ -460,36 +464,8 @@ div {
                   id: 1,
                   name: "Colubrina Classic",
                   primaryType: "all",
-                  dark: {
-                    primary: "#0190ea",
-                    secondary: "#757575",
-                    accent: "#000000",
-                    error: "#ff1744",
-                    info: "#2196F3",
-                    success: "#4CAF50",
-                    warning: "#ff9800",
-                    card: "#151515",
-                    toolbar: "#191919",
-                    sheet: "#181818",
-                    text: "#000000",
-                    dark: "#151515",
-                    bg: "#151515"
-                  },
-                  light: {
-                    primary: "#0190ea",
-                    secondary: "#757575",
-                    accent: "#000000",
-                    error: "#ff1744",
-                    info: "#2196F3",
-                    success: "#4CAF50",
-                    warning: "#ff9800",
-                    card: "#f8f8f8",
-                    toolbar: "#f8f8f8",
-                    sheet: "#f8f8f8",
-                    text: "#000000",
-                    dark: "#f8f8f8",
-                    bg: "#f8f8f8"
-                  }
+                  dark: darkTheme,
+                  light: lightTheme
                 }
                 const name = theme.id
                 const dark = theme.dark
@@ -508,36 +484,8 @@ div {
                 id: 1,
                 name: "Colubrina Classic",
                 primaryType: "all",
-                dark: {
-                  primary: "#0190ea",
-                  secondary: "#757575",
-                  accent: "#000000",
-                  error: "#ff1744",
-                  info: "#2196F3",
-                  success: "#4CAF50",
-                  warning: "#ff9800",
-                  card: "#151515",
-                  toolbar: "#191919",
-                  sheet: "#181818",
-                  text: "#000000",
-                  dark: "#151515",
-                  bg: "#151515"
-                },
-                light: {
-                  primary: "#0190ea",
-                  secondary: "#757575",
-                  accent: "#000000",
-                  error: "#ff1744",
-                  info: "#2196F3",
-                  success: "#4CAF50",
-                  warning: "#ff9800",
-                  card: "#f8f8f8",
-                  toolbar: "#f8f8f8",
-                  sheet: "#f8f8f8",
-                  text: "#000000",
-                  dark: "#f8f8f8",
-                  bg: "#f8f8f8"
-                }
+                dark: darkTheme,
+                light: lightTheme
               }
               const name = theme.id
               const dark = theme.dark
@@ -556,36 +504,8 @@ div {
                 id: 1,
                 name: "Colubrina Classic",
                 primaryType: "all",
-                dark: {
-                  primary: "#0190ea",
-                  secondary: "#757575",
-                  accent: "#000000",
-                  error: "#ff1744",
-                  info: "#2196F3",
-                  success: "#4CAF50",
-                  warning: "#ff9800",
-                  card: "#151515",
-                  toolbar: "#191919",
-                  sheet: "#181818",
-                  text: "#000000",
-                  dark: "#151515",
-                  bg: "#151515"
-                },
-                light: {
-                  primary: "#0190ea",
-                  secondary: "#757575",
-                  accent: "#000000",
-                  error: "#ff1744",
-                  info: "#2196F3",
-                  success: "#4CAF50",
-                  warning: "#ff9800",
-                  card: "#f8f8f8",
-                  toolbar: "#f8f8f8",
-                  sheet: "#f8f8f8",
-                  text: "#000000",
-                  dark: "#f8f8f8",
-                  bg: "#f8f8f8"
-                }
+                dark: darkTheme,
+                light: lightTheme
               }
               const name = theme.id
               const dark = theme.dark
