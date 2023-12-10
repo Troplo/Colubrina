@@ -12,7 +12,7 @@
           <v-tab to="/settings/security"> Security </v-tab>
           <v-tab to="/settings/sessions"> Sessions </v-tab>
         </v-tabs>
-        <router-view> </router-view>
+        <router-view />
         <div class="mx-4">
           <small
             >Troplo/Colubrina version {{ $store.state.versioning.version }},

@@ -3,46 +3,44 @@
     <v-toolbar color="toolbar">
       <v-toolbar-title>Site Config</v-toolbar-title>
     </v-toolbar>
-    <v-text-field
-      class="mx-3"
-      label="Notification"
-      v-model="notification"
-    ></v-text-field>
+    <v-text-field v-model="notification" class="mx-3" label="Notification" />
     <v-select
+      v-model="notificationType"
       :items="notificationTypes"
       label="Notification Type"
       class="mx-3"
-      v-model="notificationType"
       text-text="text"
       text-value="value"
-    >
-    </v-select>
+    />
     <v-select
+      v-model="broadcastType"
       :items="broadcastTypes"
       label="Broadcast Type"
       class="mx-3"
-      v-model="broadcastType"
       text-text="text"
       text-value="value"
-    >
-    </v-select>
+    />
     <v-switch
+      v-model="allowRegistrations"
       inset
       class="mx-3"
       label="Allow registrations"
-      v-model="allowRegistrations"
-    ></v-switch>
-    <v-textarea ref="rules" label="Instance Rules" v-model="rules" class="mx-3">
-    </v-textarea>
+    />
+    <v-textarea
+      ref="rules"
+      v-model="rules"
+      label="Instance Rules"
+      class="mx-3"
+    />
     <v-card-title>
-      <v-icon class="mr-1">mdi-language-markdown</v-icon>Rules Preview:
+      <v-icon class="mr-1"> mdi-language-markdown </v-icon>Rules Preview:
     </v-card-title>
     <v-card-text>
-      <span v-markdown class="mx-3" :key="rules">{{ rules }}</span>
+      <span :key="rules" v-markdown class="mx-3">{{ rules }}</span>
     </v-card-text>
-    <v-btn text class="mx-3 mb-3" color="primary" @click="updateState"
-      >Save</v-btn
-    >
+    <v-btn text class="mx-3 mb-3" color="primary" @click="updateState">
+      Save
+    </v-btn>
   </div>
 </template>
 
@@ -75,6 +73,12 @@ export default {
       ]
     }
   },
+  mounted() {
+    this.notification = this.$store.state.site.notification
+    this.notificationType = this.$store.state.site.notificationType
+    this.allowRegistrations = this.$store.state.site.allowRegistrations
+    this.rules = this.$store.state.site.rules
+  },
   methods: {
     updateState() {
       this.axios
@@ -92,12 +96,6 @@ export default {
           AjaxErrorHandler(this.$store)(e)
         })
     }
-  },
-  mounted() {
-    this.notification = this.$store.state.site.notification
-    this.notificationType = this.$store.state.site.notificationType
-    this.allowRegistrations = this.$store.state.site.allowRegistrations
-    this.rules = this.$store.state.site.rules
   }
 }
 </script>

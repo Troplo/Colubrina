@@ -10,7 +10,7 @@
       class="rounded-l"
       style="z-index: 20"
     >
-      <v-list class="rounded-l" v-if="context.user.item">
+      <v-list v-if="context.user.item" class="rounded-l">
         <v-menu
           :nudge-right="10"
           :close-delay="100"
@@ -20,42 +20,43 @@
           offset-x
           open-on-hover
         >
-          <template v-slot:activator="{ on }">
+          <template #activator="{ on }">
             <v-list-item v-on="on">
               <v-list-item-title>Notification Settings</v-list-item-title
-              ><v-icon class="ml-2">mdi-arrow-right</v-icon>
+              ><v-icon class="ml-2"> mdi-arrow-right </v-icon>
             </v-list-item>
           </template>
           <div>
             <v-list>
               <v-list-item @click="setNotifications('all')">
                 <v-list-item-title>All messages</v-list-item-title>
-                <v-icon v-if="context.user.raw.notifications === 'all'"
-                  >mdi-check</v-icon
-                >
+                <v-icon v-if="context.user.raw.notifications === 'all'">
+                  mdi-check
+                </v-icon>
               </v-list-item>
               <v-list-item two-line @click="setNotifications('mentions')">
                 <v-list-item-content>
-                  <v-list-item-title
-                    >Mentions only
+                  <v-list-item-title>
+                    Mentions only
                     <v-icon
-                      style="float: right"
                       v-if="context.user.raw.notifications === 'mentions'"
-                      >mdi-check</v-icon
-                    ></v-list-item-title
-                  >
+                      style="float: right"
+                    >
+                      mdi-check
+                    </v-icon>
+                  </v-list-item-title>
 
-                  <v-list-item-subtitle
-                    >Mentions are performed when your username is sent in the
-                    chat.</v-list-item-subtitle
-                  >
+                  <v-list-item-subtitle>
+                    Mentions are performed when your username is sent in the
+                    chat.
+                  </v-list-item-subtitle>
                 </v-list-item-content>
               </v-list-item>
               <v-list-item @click="setNotifications('none')">
                 <v-list-item-title>None</v-list-item-title>
-                <v-icon v-if="context.user.raw.notifications === 'none'"
-                  >mdi-check</v-icon
-                >
+                <v-icon v-if="context.user.raw.notifications === 'none'">
+                  mdi-check
+                </v-icon>
               </v-list-item>
             </v-list>
           </div>
@@ -72,22 +73,22 @@
         <v-list-item @click="groupSettings(context.user.raw.id)">
           <v-list-item-title>Group Settings</v-list-item-title>
         </v-list-item>
-        <v-list-item @click="groupLeave(context.user.raw.id)" color="error">
+        <v-list-item color="error" @click="groupLeave(context.user.raw.id)">
           <v-list-item-title>Leave Group</v-list-item-title>
         </v-list-item>
       </v-list>
     </v-menu>
     <v-dialog
+      v-if="settings.item"
       v-model="settings.addMembers.dialog"
       max-width="400px"
-      v-if="settings.item"
     >
       <v-card color="card">
         <v-toolbar color="toolbar">
-          <v-toolbar-title
-            >Add User to {{ settings.item.chat.name }}</v-toolbar-title
-          >
-          <v-spacer></v-spacer>
+          <v-toolbar-title>
+            Add User to {{ settings.item.chat.name }}
+          </v-toolbar-title>
+          <v-spacer />
           <v-btn icon @click.native="settings.addMembers.dialog = false">
             <v-icon>mdi-close</v-icon>
           </v-btn>
@@ -105,7 +106,7 @@
             item-value="id"
             multiple
           >
-            <template v-slot:selection="data">
+            <template #selection="data">
               <v-chip
                 v-bind="data.attrs"
                 :input-value="data.selected"
@@ -113,25 +114,25 @@
                 @click="data.select"
                 @click:close="remove(data.item)"
               >
-                <v-avatar left v-if="data.item.avatar">
+                <v-avatar v-if="data.item.avatar" left>
                   <v-img
                     :src="
                       $store.state.baseURL + '/usercontent/' + data.item.avatar
                     "
-                  ></v-img>
+                  />
                 </v-avatar>
                 @{{ data.item.username }}
               </v-chip>
             </template>
-            <template v-slot:item="data">
-              <v-avatar left v-if="data.item.avatar" class="mr-3 mb-2 mt-2">
+            <template #item="data">
+              <v-avatar v-if="data.item.avatar" left class="mr-3 mb-2 mt-2">
                 <v-img
                   :src="
                     $store.state.baseURL + '/usercontent/' + data.item.avatar
                   "
-                ></v-img>
+                />
               </v-avatar>
-              <v-avatar left v-else class="mr-3 mb-2 mt-2">
+              <v-avatar v-else left class="mr-3 mb-2 mt-2">
                 <v-icon>mdi-account</v-icon>
               </v-avatar>
               <v-list-item-content>
@@ -141,60 +142,60 @@
           </v-autocomplete>
         </v-container>
         <v-card-actions>
-          <v-spacer></v-spacer>
+          <v-spacer />
           <v-btn color="error" text @click="settings.addMembers.dialog = false">
             Cancel
           </v-btn>
           <v-btn
             color="primary"
             text
-            @click="addMembersToGroup"
             :disabled="!settings.addMembers.users.length"
+            @click="addMembersToGroup"
           >
             Add
           </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-dialog v-model="settings.dialog" max-width="500px" v-if="settings.item">
+    <v-dialog v-if="settings.item" v-model="settings.dialog" max-width="500px">
       <v-card color="card">
         <v-toolbar color="toolbar">
           <v-toolbar-title>Group Settings</v-toolbar-title>
-          <v-spacer></v-spacer>
+          <v-spacer />
           <v-btn icon @click.native="settings.dialog = false">
             <v-icon>mdi-close</v-icon>
           </v-btn>
         </v-toolbar>
         <v-container>
-          <v-alert text type="info" v-if="settings.item.rank !== 'admin'">
+          <v-alert v-if="settings.item.rank !== 'admin'" text type="info">
             You need to be an administrator of this group to change settings.
           </v-alert>
-          <v-card-title v-if="settings.item.rank === 'admin'"
-            >General</v-card-title
-          >
+          <v-card-title v-if="settings.item.rank === 'admin'">
+            General
+          </v-card-title>
           <v-text-field
-            label="Group Name"
             v-if="
               settings.item.chat.type === 'group' &&
               settings.item.rank === 'admin'
             "
             v-model="settings.item.chat.name"
-          ></v-text-field>
+            label="Group Name"
+          />
           <v-file-input
             ref="avatarUpload"
+            v-model="settings.avatar"
             accept="image/png, image/jpeg, image/jpg, image/gif, image/webp"
             placeholder="Avatar"
             prepend-icon=""
             label="Profile Picture"
-            v-model="settings.avatar"
             @change="doUpload"
-          ></v-file-input>
-          <v-card-title
-            >Members
+          />
+          <v-card-title>
+            Members
             <v-btn
+              v-if="settings.item.rank === 'admin'"
               icon
               @click.native="settings.addMembers.dialog = true"
-              v-if="settings.item.rank === 'admin'"
             >
               <v-icon>mdi-plus</v-icon>
             </v-btn>
@@ -206,25 +207,25 @@
             >
               <v-list-item-avatar :color="$vuetify.theme.themes.dark?.primary">
                 <v-img
+                  v-if="user.user.avatar"
                   :src="
                     $store.state.baseURL + '/usercontent/' + user.user.avatar
                   "
-                  v-if="user.user.avatar"
                 />
                 <v-icon v-else> mdi-account </v-icon>
               </v-list-item-avatar>
               <v-list-item-content>
-                <v-list-item-title
-                  >{{ user.user.username }}
-                  <v-btn text icon v-if="user.rank === 'admin'">
+                <v-list-item-title>
+                  {{ user.user.username }}
+                  <v-btn v-if="user.rank === 'admin'" text icon>
                     <v-icon> mdi-gavel </v-icon>
                   </v-btn>
                 </v-list-item-title>
               </v-list-item-content>
               <v-list-item-action v-if="settings.item.rank === 'admin'">
                 <v-tooltip top>
-                  <template v-slot:activator="{ on, attrs }">
-                    <div v-on="on" v-bind="attrs">
+                  <template #activator="{ on, attrs }">
+                    <div v-bind="attrs" v-on="on">
                       <v-btn icon @click="giveUserAdmin(user)">
                         <v-icon>mdi-account-arrow-up</v-icon>
                       </v-btn>
@@ -258,7 +259,7 @@
       <v-card color="card">
         <v-toolbar color="toolbar">
           <v-toolbar-title>Are you sure you want to leave?</v-toolbar-title>
-          <v-spacer></v-spacer>
+          <v-spacer />
           <v-btn
             icon
             @click.native="
@@ -276,7 +277,7 @@
           </p>
         </v-container>
         <v-card-actions>
-          <v-spacer></v-spacer>
+          <v-spacer />
           <v-btn color="primary" text @click.native="leave.dialog = false">
             Cancel
           </v-btn>
@@ -288,7 +289,7 @@
       <v-card color="card">
         <v-toolbar color="toolbar">
           <v-toolbar-title>New Communication</v-toolbar-title>
-          <v-spacer></v-spacer>
+          <v-spacer />
           <v-btn icon @click.native="dialogs.new = false">
             <v-icon>mdi-close</v-icon>
           </v-btn>
@@ -306,7 +307,7 @@
             item-value="id"
             multiple
           >
-            <template v-slot:selection="data">
+            <template #selection="data">
               <v-chip
                 v-bind="data.attrs"
                 :input-value="data.selected"
@@ -314,25 +315,25 @@
                 @click="data.select"
                 @click:close="remove(data.item)"
               >
-                <v-avatar left v-if="data.item.avatar">
+                <v-avatar v-if="data.item.avatar" left>
                   <v-img
                     :src="
                       $store.state.baseURL + '/usercontent/' + data.item.avatar
                     "
-                  ></v-img>
+                  />
                 </v-avatar>
                 @{{ data.item.username }}
               </v-chip>
             </template>
-            <template v-slot:item="data">
-              <v-avatar left v-if="data.item.avatar" class="mr-3 mb-2 mt-2">
+            <template #item="data">
+              <v-avatar v-if="data.item.avatar" left class="mr-3 mb-2 mt-2">
                 <v-img
                   :src="
                     $store.state.baseURL + '/usercontent/' + data.item.avatar
                   "
-                ></v-img>
+                />
               </v-avatar>
-              <v-avatar left v-else class="mr-3 mb-2 mt-2">
+              <v-avatar v-else left class="mr-3 mb-2 mt-2">
                 <v-icon>mdi-account</v-icon>
               </v-avatar>
               <v-list-item-content>
@@ -347,7 +348,7 @@
           >
         </v-container>
         <v-card-actions>
-          <v-spacer></v-spacer>
+          <v-spacer />
           <v-btn color="error" text @click="dialogs.new = false">
             Cancel
           </v-btn>
@@ -355,8 +356,8 @@
             color="primary"
             :loading="newConversation.loading"
             text
-            @click="createConversation"
             :disabled="!newConversation.users.length"
+            @click="createConversation"
           >
             Create
           </v-btn>
@@ -423,17 +424,17 @@
                   color="yellow darken-3"
                   empty-icon="$ratingFull"
                   hover
-                ></v-rating>
+                />
               </v-col>
               <v-col cols="12">
                 <v-textarea
-                  class="rounded-xl"
                   v-model="feedback.text"
+                  class="rounded-xl"
                   label="Enter your Feedback"
                   required
                   autofocus
                   placeholder="Enter your Feedback"
-                ></v-textarea>
+                />
               </v-col>
               <small
                 >Your feedback will be used to make
@@ -443,7 +444,7 @@
           </v-container>
         </v-card-text>
         <v-card-actions>
-          <v-spacer></v-spacer>
+          <v-spacer />
           <v-btn
             class="rounded-xl"
             color="blue darken-1"
@@ -471,17 +472,17 @@
         <v-card-text>
           <v-container>
             <v-text-field
-              class="rounded-xl"
               v-model="route.value"
+              class="rounded-xl"
               autofocus
-              @keyup.enter="goToRoute()"
               label="Route"
               required
-            ></v-text-field>
+              @keyup.enter="goToRoute()"
+            />
           </v-container>
         </v-card-text>
         <v-card-actions>
-          <v-spacer></v-spacer>
+          <v-spacer />
           <v-btn class="rounded-xl" text @click="route.modal = false">
             Close
           </v-btn>
@@ -498,54 +499,54 @@
     </v-dialog>
     <v-app-bar app color="dark" elevation="5" style="z-index: 15">
       <v-app-bar-nav-icon
-        @click.stop="$store.state.drawer = !$store.state.drawer"
         v-if="$vuetify.breakpoint.mobile || !$store.state.drawer"
-      ></v-app-bar-nav-icon>
+        @click.stop="$store.state.drawer = !$store.state.drawer"
+      />
       <button
-        style="display: none"
         v-shortkey="['ctrl', 'k']"
+        style="display: none"
         @shortkey="$store.commit('setSearch', true)"
       >
         Debug
       </button>
       <button
-        style="display: none"
         v-shortkey="['meta', 'k']"
+        style="display: none"
         @shortkey="$store.commit('setSearch', true)"
       >
         Debug
       </button>
       <button
-        style="display: none"
         v-shortkey="['ctrl', 'alt', 'd']"
+        style="display: none"
         @shortkey="$store.dispatch('toggleCSS')"
       >
         Style Toggle
       </button>
       <button
-        style="display: none"
         v-shortkey="['f9']"
+        style="display: none"
         @shortkey="$store.dispatch('toggleCSS')"
       >
         Style Toggle
       </button>
       <button
-        style="display: none"
         v-shortkey="['ctrl', 'f']"
+        style="display: none"
         @shortkey="$store.state.searchPanel = true"
       >
         Debug
       </button>
       <button
-        style="display: none"
         v-shortkey="['ctrl', 'b']"
+        style="display: none"
         @shortkey="route.modal = true"
       >
         Debug
       </button>
       <button
-        style="display: none"
         v-shortkey="['ctrl', '/']"
+        style="display: none"
         @shortkey="shortcuts = true"
       >
         Debug
@@ -558,22 +559,22 @@
               : chat?.chat?.name
           }}
         </v-toolbar-title>
-        <v-spacer></v-spacer>
+        <v-spacer />
         <v-tooltip bottom>
-          <template v-slot:activator="{ on }">
-            <v-btn v-on="on" icon @click="feedback.modal = true">
+          <template #activator="{ on }">
+            <v-btn icon v-on="on" @click="feedback.modal = true">
               <v-icon>mdi-bug</v-icon>
             </v-btn>
           </template>
           <span>Provide Feedback</span>
         </v-tooltip>
         <v-tooltip bottom>
-          <template v-slot:activator="{ on }">
+          <template #activator="{ on }">
             <v-btn
-              icon
-              v-model="$store.state.context.pins.value"
-              @click="show($event, 'pins', null, null, true)"
               id="pin-button"
+              v-model="$store.state.context.pins.value"
+              icon
+              @click="show($event, 'pins', null, null, true)"
               v-on="on"
             >
               <v-icon>mdi-pin-outline</v-icon>
@@ -582,7 +583,7 @@
           <span>Chat Pins</span>
         </v-tooltip>
         <v-tooltip bottom>
-          <template v-slot:activator="{ on }">
+          <template #activator="{ on }">
             <v-btn
               icon
               @click="$store.state.searchPanel = !$store.state.searchPanel"
@@ -594,10 +595,10 @@
           <span>Search Messages</span>
         </v-tooltip>
         <v-tooltip bottom>
-          <template v-slot:activator="{ on }">
+          <template #activator="{ on }">
             <v-btn
-              v-on="on"
               icon
+              v-on="on"
               @click="$store.state.userPanel = !$store.state.userPanel"
             >
               <v-icon>mdi-account-group-outline</v-icon>
@@ -616,9 +617,10 @@
               ?.primary
           "
           class="troplo-title"
-          @click="$router.push('/')"
           style="cursor: pointer"
-          >{{ $store.state.site.name }}</v-toolbar-title
+          @click="$router.push('/')"
+        >
+          {{ $store.state.site.name }} </v-toolbar-title
         ><v-app-bar-nav-icon
           v-if="
             !$vuetify.breakpoint.mobile &&
@@ -626,12 +628,13 @@
           "
           style="z-index: 1000"
           disabled
-          >{{ $store.state.site.release }}</v-app-bar-nav-icon
         >
-        <v-spacer></v-spacer>
+          {{ $store.state.site.release }}
+        </v-app-bar-nav-icon>
+        <v-spacer />
         <v-tooltip bottom>
-          <template v-slot:activator="{ on }">
-            <v-btn v-on="on" icon @click="feedback.modal = true">
+          <template #activator="{ on }">
+            <v-btn icon v-on="on" @click="feedback.modal = true">
               <v-icon>mdi-bug</v-icon>
             </v-btn>
           </template>
@@ -640,16 +643,16 @@
       </template>
     </v-app-bar>
     <v-navigation-drawer
+      v-model="$store.state.drawer"
       color="dark"
       app
       floating
       style="max-height: 100%; z-index: 15"
       class="elevation-5"
-      v-model="$store.state.drawer"
       :width="$vuetify.breakpoint.mobile ? 270 : 320"
     >
       <v-container>
-        <v-list dense nav id="comms-sidebar-list">
+        <v-list id="comms-sidebar-list" dense nav>
           <template v-if="$vuetify.breakpoint.mobile">
             <v-btn
               color="toolbar"
@@ -658,7 +661,7 @@
               class="mb-3 mr-1 rounded-xl"
               elevation="2"
             >
-              <v-icon left>mdi-account-multiple</v-icon>
+              <v-icon left> mdi-account-multiple </v-icon>
               Friends
             </v-btn>
             <v-btn
@@ -668,7 +671,7 @@
               elevation="2"
               @click="dialogs.new = true"
             >
-              <v-icon left>mdi-plus</v-icon>
+              <v-icon left> mdi-plus </v-icon>
               New
             </v-btn>
           </template>
@@ -680,10 +683,11 @@
               class="mb-3 rounded-xl"
               elevation="2"
             >
-              <v-icon left>mdi-account-multiple</v-icon>
+              <v-icon left> mdi-account-multiple </v-icon>
               Friends
             </v-btn>
             <v-text-field
+              v-model="search"
               class="rounded-xl"
               filled
               solo
@@ -692,19 +696,18 @@
               background-color="sheet"
               style="margin-bottom: -18px"
               elevation="2"
-              v-model="search"
               autocomplete="none"
-            ></v-text-field>
+            />
             <v-toolbar color="sheet" class="rounded-xl mb-3" elevation="2">
               <v-toolbar-title class="subtitle-1">
                 CHATS ({{ chats.length }})
               </v-toolbar-title>
-              <v-spacer></v-spacer>
+              <v-spacer />
               <v-btn icon @click="dialogs.new = true">
                 <v-icon>mdi-plus</v-icon>
               </v-btn>
-            </v-toolbar></template
-          >
+            </v-toolbar>
+          </template>
           <v-list v-for="item in chats" :key="item.id">
             <template>
               <v-list-item
@@ -714,10 +717,10 @@
                 "
               >
                 <v-badge
+                  v-if="item.chat.type === 'direct'"
                   bordered
                   bottom
                   :color="getStatus(item)"
-                  v-if="item.chat.type === 'direct'"
                   dot
                   offset-x="24"
                   offset-y="20"
@@ -741,7 +744,7 @@
                     </v-icon>
                   </v-list-item-avatar>
                 </v-badge>
-                <v-badge dot color="none" v-else>
+                <v-badge v-else dot color="none">
                   <v-list-item-avatar
                     :color="$vuetify.theme.themes.dark?.primary"
                   >
@@ -777,8 +780,7 @@
                       $route.params.id !== item.id.toString()
                     "
                   >
-                    <v-badge color="red" inline :content="item.unread">
-                    </v-badge>
+                    <v-badge color="red" inline :content="item.unread" />
                   </v-list-item-action>
                 </template>
               </v-list-item>
@@ -786,12 +788,12 @@
           </v-list>
         </v-list>
       </v-container>
-      <template v-slot:append>
+      <template #append>
         <v-card tile color="bg" elevation="0">
-          <v-divider></v-divider>
+          <v-divider />
           <v-list-item>
             <v-menu top offset-y>
-              <template v-slot:activator="{ on, attrs }">
+              <template #activator="{ on, attrs }">
                 <v-badge
                   bordered
                   bottom
@@ -799,13 +801,13 @@
                   dot
                   offset-x="26"
                   offset-y="19"
-                  v-on="on"
                   v-bind="attrs"
+                  v-on="on"
                 >
                   <v-list-item-avatar
                     :color="$vuetify.theme.themes.dark?.primary"
-                    v-on="on"
                     v-bind="attrs"
+                    v-on="on"
                   >
                     <v-img
                       v-if="$store.state.user.avatar"
@@ -830,29 +832,28 @@
                 <v-list-item two-line @click="setStatus('busy')">
                   <v-list-item-content>
                     <v-list-item-title>Do not Disturb</v-list-item-title>
-                    <v-list-item-subtitle class="text-wrap"
-                      >You will not receive any
-                      notifications.</v-list-item-subtitle
-                    >
+                    <v-list-item-subtitle class="text-wrap">
+                      You will not receive any notifications.
+                    </v-list-item-subtitle>
                   </v-list-item-content>
                 </v-list-item>
                 <v-list-item two-line @click="setStatus('invisible')">
                   <v-list-item-content>
                     <v-list-item-title>Invisible</v-list-item-title>
-                    <v-list-item-subtitle class="text-wrap"
-                      >You will appear as offline, and the typing indicator will
-                      be disabled.</v-list-item-subtitle
-                    >
+                    <v-list-item-subtitle class="text-wrap">
+                      You will appear as offline, and the typing indicator will
+                      be disabled.
+                    </v-list-item-subtitle>
                   </v-list-item-content>
                 </v-list-item>
               </v-list>
             </v-menu>
             <v-tooltip v-model="copyTooltip" top>
-              <template v-slot:activator="{ attrs }">
+              <template #activator="{ attrs }">
                 <v-list-item-content
-                  @click="copyUsername"
                   v-bind="attrs"
                   style="cursor: pointer; min-width: 100px"
+                  @click="copyUsername"
                 >
                   <v-list-item-title>
                     {{ $store.state.user.username }}
@@ -864,12 +865,12 @@
               </template>
               <span>Copied!</span>
             </v-tooltip>
-            <v-spacer></v-spacer>
+            <v-spacer />
             <v-btn
+              v-if="$store.state.user.admin"
               icon
               text
               to="/admin"
-              v-if="$store.state.user.admin"
               style="margin-right: 0; padding-right: 0"
             >
               <v-icon>mdi-gavel</v-icon>
@@ -988,6 +989,73 @@ export default {
         )
       })
     }
+  },
+  watch: {
+    $route(to) {
+      this.feedback.route = to.path
+    }
+  },
+  mounted() {
+    this.feedback.route = this.$route.path
+    Vue.axios.defaults.headers.common["Authorization"] =
+      localStorage.getItem("token")
+    this.searchUsers()
+    this.searchUsersForGroupAdmin()
+    this.$store.dispatch("getChats")
+    this.$socket.on("friendUpdate", () => {
+      this.searchUsers()
+      this.searchUsersForGroupAdmin()
+    })
+    this.$socket.on("siteState", () => {
+      this.searchUsers()
+      this.searchUsersForGroupAdmin()
+    })
+    this.$socket.on("userSettings", () => {
+      this.$store.dispatch("getChats")
+    })
+    this.$socket.on("chatUpdated", () => {
+      this.$store.dispatch("getChats")
+    })
+    this.$socket.on("chatAdded", (chat) => {
+      this.$store.commit("addChat", chat)
+    })
+    this.$socket.on("userStatus", (event) => {
+      this.$store.state.chats.forEach((item) => {
+        item.chat.associations.forEach((a) => {
+          if (a.user.id === event.userId) {
+            a.user.status = event.status
+          }
+        })
+        item.chat.users.forEach((u) => {
+          if (u.id === event.userId) {
+            u.status = event.status
+          }
+        })
+      })
+    })
+    this.$socket.on("message", (message) => {
+      const chat = this.$store.state.chats.find(
+        (item) => item.chatId === message.chatId
+      )
+      if (chat) {
+        const index = this.$store.state.chats.indexOf(chat)
+        this.$store.state.chats.splice(index, 1)
+        this.$store.state.chats.unshift(chat)
+      }
+    })
+    this.$socket.on("readChat", (chat) => {
+      const item = this.$store.state.chats.find((item) => item.id === chat.id)
+      if (item) {
+        const index = this.$store.state.chats.indexOf(item)
+        console.log(this.$store.state.chats[index].lastRead)
+        this.$store.state.chats[index].lastRead = chat.lastRead
+        this.$store.state.communicationNotifications = 0
+        this.$store.state.chats.forEach((item) => {
+          this.$store.state.communicationNotifications +=
+            this.getLastRead(item).count
+        })
+      }
+    })
   },
   methods: {
     goToRoute() {
@@ -1331,73 +1399,6 @@ export default {
             )
         })
         .catch(() => {})
-    }
-  },
-  mounted() {
-    this.feedback.route = this.$route.path
-    Vue.axios.defaults.headers.common["Authorization"] =
-      localStorage.getItem("token")
-    this.searchUsers()
-    this.searchUsersForGroupAdmin()
-    this.$store.dispatch("getChats")
-    this.$socket.on("friendUpdate", () => {
-      this.searchUsers()
-      this.searchUsersForGroupAdmin()
-    })
-    this.$socket.on("siteState", () => {
-      this.searchUsers()
-      this.searchUsersForGroupAdmin()
-    })
-    this.$socket.on("userSettings", () => {
-      this.$store.dispatch("getChats")
-    })
-    this.$socket.on("chatUpdated", () => {
-      this.$store.dispatch("getChats")
-    })
-    this.$socket.on("chatAdded", (chat) => {
-      this.$store.commit("addChat", chat)
-    })
-    this.$socket.on("userStatus", (event) => {
-      this.$store.state.chats.forEach((item) => {
-        item.chat.associations.forEach((a) => {
-          if (a.user.id === event.userId) {
-            a.user.status = event.status
-          }
-        })
-        item.chat.users.forEach((u) => {
-          if (u.id === event.userId) {
-            u.status = event.status
-          }
-        })
-      })
-    })
-    this.$socket.on("message", (message) => {
-      const chat = this.$store.state.chats.find(
-        (item) => item.chatId === message.chatId
-      )
-      if (chat) {
-        const index = this.$store.state.chats.indexOf(chat)
-        this.$store.state.chats.splice(index, 1)
-        this.$store.state.chats.unshift(chat)
-      }
-    })
-    this.$socket.on("readChat", (chat) => {
-      const item = this.$store.state.chats.find((item) => item.id === chat.id)
-      if (item) {
-        const index = this.$store.state.chats.indexOf(item)
-        console.log(this.$store.state.chats[index].lastRead)
-        this.$store.state.chats[index].lastRead = chat.lastRead
-        this.$store.state.communicationNotifications = 0
-        this.$store.state.chats.forEach((item) => {
-          this.$store.state.communicationNotifications +=
-            this.getLastRead(item).count
-        })
-      }
-    })
-  },
-  watch: {
-    $route(to) {
-      this.feedback.route = to.path
     }
   }
 }

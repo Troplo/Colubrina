@@ -18,7 +18,7 @@
   padding: 10px;
   cursor: move;
   z-index: 2001;
-  background-color: #2196F3;
+  background-color: #2196f3;
 }
 
 .chat-col {
@@ -28,7 +28,7 @@
   height: 100%;
 }
 
->>>.max-v-list-height {
+>>> .max-v-list-height {
   max-height: 10px;
   overflow-y: auto;
 }
@@ -89,8 +89,8 @@ img.emoji {
   pointer-events: none;
 }
 @font-face {
-  font-family: 'JetBrains Mono';
-  src: url('./fonts/JetBrainsMono-Regular.ttf') format('truetype');
+  font-family: "JetBrains Mono";
+  src: url("./fonts/JetBrainsMono-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }

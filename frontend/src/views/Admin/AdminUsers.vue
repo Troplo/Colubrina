@@ -1,39 +1,36 @@
 <template>
   <div id="admin-users">
-    <v-dialog width="500" v-model="create.dialog">
+    <v-dialog v-model="create.dialog" width="500">
       <v-card color="card">
         <v-toolbar color="toolbar">
           <v-toolbar-title>Create User</v-toolbar-title>
         </v-toolbar>
         <v-container>
           <v-form @submit.prevent="createUser">
+            <v-text-field v-model="create.username" label="Username" />
+            <v-text-field v-model="create.email" label="Email" />
             <v-text-field
-              label="Username"
-              v-model="create.username"
-            ></v-text-field>
-            <v-text-field label="Email" v-model="create.email"></v-text-field>
-            <v-text-field
+              v-model="create.password"
               label="Password"
               type="password"
-              v-model="create.password"
-            ></v-text-field>
+            />
             <v-switch
+              v-model="create.emailVerified"
               inset
               label="Email Verified?"
-              v-model="create.emailVerified"
-            ></v-switch>
-            <v-btn text type="submit" color="primary">Create</v-btn>
+            />
+            <v-btn text type="submit" color="primary"> Create </v-btn>
           </v-form>
         </v-container>
       </v-card>
     </v-dialog>
     <v-toolbar color="toolbar">
       <v-toolbar-title>Users ({{ users.count }})</v-toolbar-title>
-      <v-spacer></v-spacer>
-      <v-btn @click="create.dialog = true" icon>
+      <v-spacer />
+      <v-btn icon @click="create.dialog = true">
         <v-icon>mdi-plus</v-icon>
       </v-btn>
-      <v-btn @click="getUsers" icon>
+      <v-btn icon @click="getUsers">
         <v-icon>mdi-refresh</v-icon>
       </v-btn>
     </v-toolbar>
@@ -46,17 +43,17 @@
         $vuetify.theme.themes[$vuetify.theme.dark ? 'dark' : 'light'].card
       "
     >
-      <template v-slot:item.index="{ index }">
+      <template #[`item.index`]="{ index }">
         {{ index }}
       </template>
-      <template v-slot:item.actions="{ item }">
+      <template #[`item.actions`]="{ item }">
         <v-tooltip top>
-          <template v-slot:activator="{ on }">
+          <template #activator="{ on }">
             <v-btn
-              v-on="on"
               icon
-              @click="banUser(item)"
               :disabled="item.id === $store.state.user.id || item.admin"
+              v-on="on"
+              @click="banUser(item)"
             >
               <v-icon>mdi-gavel</v-icon>
             </v-btn>
@@ -141,6 +138,9 @@ export default {
       ]
     }
   },
+  mounted() {
+    this.getUsers()
+  },
   methods: {
     createUser() {
       this.axios
@@ -197,9 +197,6 @@ export default {
           AjaxErrorHandler(this.$store)(e)
         })
     }
-  },
-  mounted() {
-    this.getUsers()
   }
 }
 </script>

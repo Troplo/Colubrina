@@ -2,27 +2,27 @@
   <div>
     <template>
       <v-toolbar
-        @click="jumpToMessage(message.replyId)"
+        v-if="message.reply"
         :key="message.keyId + '-reply-toolbar'"
         elevation="0"
         height="40"
         color="card"
-        v-if="message.reply"
         style="cursor: pointer"
+        @click="jumpToMessage(message.replyId)"
       >
-        <v-icon class="mr-2">mdi-reply</v-icon>
+        <v-icon class="mr-2"> mdi-reply </v-icon>
         <v-avatar size="24" class="mr-2">
           <v-img
+            v-if="message.reply.user.avatar"
             :src="
               $store.state.baseURL + '/usercontent/' + message.reply.user.avatar
             "
-            v-if="message.reply.user.avatar"
             class="elevation-1"
           />
           <v-icon v-else class="elevation-1"> mdi-account </v-icon>
         </v-avatar>
         <template v-if="message.reply.attachments.length">
-          <v-icon class="mr-2">mdi-file-image</v-icon>
+          <v-icon class="mr-2"> mdi-file-image </v-icon>
         </template>
         <template
           v-if="!message.reply.content && message.reply.attachments.length"
@@ -32,6 +32,7 @@
         {{ message.reply.content.substring(0, 100) }}
       </v-toolbar>
       <v-list-item
+        :id="'message-' + index"
         :key="message.keyId"
         :class="{
           'pa-0': $vuetify.breakpoint.mobile,
@@ -39,22 +40,21 @@
         }"
         class="message"
         :dense="lastMessage"
-        :id="'message-' + index"
-        @contextmenu="show($event, 'message', message)"
         :style="lastMessage ? 'margin-bottom: -5px; margin-top: -5px;' : ''"
+        @contextmenu="show($event, 'message', message)"
       >
         <v-avatar
+          v-if="!lastMessage"
           size="45"
           class="mr-2"
-          v-if="!lastMessage"
           :class="{ 'hide-on-hover': message.type }"
         >
           <v-img
-            :src="$store.state.baseURL + '/usercontent/' + message.user.avatar"
             v-if="message.user.avatar && !message.type"
+            :src="$store.state.baseURL + '/usercontent/' + message.user.avatar"
             class="elevation-1"
           />
-          <v-icon class="elevation-1" v-else-if="!message.type">
+          <v-icon v-else-if="!message.type" class="elevation-1">
             mdi-account
           </v-icon>
           <v-icon
@@ -86,12 +86,12 @@
           </v-icon>
         </v-avatar>
         <v-tooltip top style="z-index: 15">
-          <template v-slot:activator="{ on }">
+          <template #activator="{ on }">
             <small
-              v-on="on"
+              v-if="lastMessage || message.type"
               style="font-size: 9px; position: absolute"
               class="grey--text message-date"
-              v-if="lastMessage || message.type"
+              v-on="on"
             >
               {{ $date(message.createdAt).format("hh:mm A") }}
             </small>
@@ -110,14 +110,14 @@
               color="calendarNormalActivity"
               small
             >
-              <v-icon small>mdi-robot</v-icon>&nbsp;
+              <v-icon small> mdi-robot </v-icon>&nbsp;
             </v-chip>
             <small>
               {{ $date(message.createdAt).format("hh:mm A, DD/MM/YYYY") }}
             </small>
-            <v-tooltip top v-if="message.edited">
-              <template v-slot:activator="{ on, attrs }">
-                <span v-on="on" v-bind="attrs">
+            <v-tooltip v-if="message.edited" top>
+              <template #activator="{ on, attrs }">
+                <span v-bind="attrs" v-on="on">
                   <v-icon
                     color="grey"
                     small
@@ -140,9 +140,9 @@
             <span v-markdown>
               {{ message.content }}
             </span>
-            <v-tooltip top v-if="message.edited && lastMessage">
-              <template v-slot:activator="{ on }">
-                <v-icon color="grey" small v-on="on" style="">
+            <v-tooltip v-if="message.edited && lastMessage" top>
+              <template #activator="{ on }">
+                <v-icon color="grey" small style="" v-on="on">
                   mdi-pencil
                 </v-icon>
               </template>
@@ -155,37 +155,36 @@
           <template v-if="edit.id !== message.id">
             <Embed
               v-for="(embed, index) in message.embeds"
-              :key="index"
               :id="'embed-' + index"
+              :key="index"
               :embed="embed"
-              :setImagePreview="setImagePreview"
-            ></Embed>
+              :set-image-preview="setImagePreview"
+            />
             <v-row v-if="message.poll" no-gutters>
-              <Poll :message="message"></Poll>
+              <Poll :message="message" />
             </v-row>
           </template>
           <template v-if="edit.id !== message.id">
             <v-card
               v-for="(attachment, index) in message.attachments"
-              :key="attachment.id"
               :id="'attachment-' + index"
+              :key="attachment.id"
               :max-width="500"
               :min-width="!$vuetify.breakpoint.mobile ? 400 : 0"
               elevation="0"
               color="card"
             >
               <v-hover
-                v-slot="{ hover }"
                 v-if="
                   attachment.extension === 'jpg' ||
                   attachment.extension === 'png' ||
                   attachment.extension === 'jpeg' ||
                   attachment.extension === 'gif'
                 "
+                v-slot="{ hover }"
               >
                 <div>
                   <v-img
-                    @click="setImagePreview(attachment)"
                     contain
                     :max-width="500"
                     :max-height="500"
@@ -196,8 +195,9 @@
                     "
                     :min-height="250"
                     :min-width="250"
+                    @click="setImagePreview(attachment)"
                   >
-                    <template v-slot:placeholder>
+                    <template #placeholder>
                       <v-row
                         class="fill-height ma-0"
                         align="center"
@@ -206,13 +206,13 @@
                         <v-progress-circular
                           indeterminate
                           color="grey lighten-5"
-                        ></v-progress-circular>
+                        />
                       </v-row>
                     </template>
-                    <template v-slot:default>
+                    <template #default>
                       <v-fade-transition v-if="hover">
                         <v-overlay absolute>
-                          <v-icon large>mdi-arrow-expand-all</v-icon>
+                          <v-icon large> mdi-arrow-expand-all </v-icon>
                         </v-overlay>
                       </v-fade-transition>
                     </template>
@@ -254,29 +254,29 @@
             </v-card>
           </template>
           <CommsInput
+            v-if="edit.id === message.id"
             :edit="edit"
             :chat="chat"
             :auto-scroll="autoScroll"
             :end-edit="endEdit"
-            v-if="edit.id === message.id"
-          ></CommsInput>
+          />
         </v-list-item-content>
         <v-card
+          v-if="!$vuetify.breakpoint.mobile"
           elevation="8"
           color="card"
           class="message-action-card"
-          v-if="!$vuetify.breakpoint.mobile"
         >
           <v-tooltip top>
-            <template v-slot:activator="{ on }">
+            <template #activator="{ on }">
               <span v-on="on">
                 <v-btn
-                  icon
-                  v-on="on"
                   v-if="
                     message.userId === $store.state.user.id ||
                     chat.rank === 'admin'
                   "
+                  icon
+                  v-on="on"
                   @click="deleteMessage(message)"
                 >
                   <v-icon> mdi-delete </v-icon>
@@ -286,19 +286,19 @@
             <span> Delete </span>
           </v-tooltip>
           <v-tooltip top>
-            <template v-slot:activator="{ on }">
+            <template #activator="{ on }">
               <span v-on="on">
                 <v-btn
+                  v-if="
+                    message.userId === $store.state.user.id &&
+                    edit.id !== message.id
+                  "
                   icon
                   v-on="on"
                   @click="
                     edit.content = message.content
                     edit.editing = true
                     edit.id = message.id
-                  "
-                  v-if="
-                    message.userId === $store.state.user.id &&
-                    edit.id !== message.id
                   "
                 >
                   <v-icon> mdi-pencil </v-icon>
@@ -308,19 +308,19 @@
             <span> Edit </span>
           </v-tooltip>
           <v-tooltip top>
-            <template v-slot:activator="{ on }">
+            <template #activator="{ on }">
               <span v-on="on">
                 <v-btn
-                  v-on="on"
+                  v-if="
+                    message.userId === $store.state.user.id &&
+                    edit.id === message.id
+                  "
                   icon
+                  v-on="on"
                   @click="
                     edit.content = ''
                     edit.editing = false
                     edit.id = null
-                  "
-                  v-if="
-                    message.userId === $store.state.user.id &&
-                    edit.id === message.id
                   "
                 >
                   <v-icon> mdi-close </v-icon>
@@ -330,7 +330,7 @@
             <span> Discard Edits </span>
           </v-tooltip>
           <v-tooltip top>
-            <template v-slot:activator="{ on }">
+            <template #activator="{ on }">
               <span v-on="on">
                 <v-btn
                   icon
@@ -347,12 +347,12 @@
             <span> Reply </span>
           </v-tooltip>
           <v-tooltip top>
-            <template v-slot:activator="{ on }">
+            <template #activator="{ on }">
               <span v-on="on">
                 <v-btn
-                  v-on="on"
-                  icon
                   v-if="chat.rank === 'admin' || chat.chat.type === 'direct'"
+                  icon
+                  v-on="on"
                   @click="
                     pinMessage()
                     focusInput()
@@ -364,9 +364,9 @@
             </template>
             <span> Pin to Chat </span>
           </v-tooltip>
-          <v-menu offset-y v-if="$store.state.site.release === 'dev'">
-            <template v-slot:activator="{ on, attrs }">
-              <v-btn v-on="on" icon v-bind="attrs">
+          <v-menu v-if="$store.state.site.release === 'dev'" offset-y>
+            <template #activator="{ on, attrs }">
+              <v-btn icon v-bind="attrs" v-on="on">
                 <v-icon> mdi-dots-horizontal </v-icon>
               </v-btn>
             </template>
@@ -388,6 +388,11 @@ import Poll from "@/components/Poll"
 
 export default {
   name: "Message",
+  components: {
+    Poll,
+    CommsInput,
+    Embed
+  },
   props: [
     "message",
     "edit",
@@ -404,11 +409,6 @@ export default {
     "deleteMessage",
     "lastMessage"
   ],
-  components: {
-    Poll,
-    CommsInput,
-    Embed
-  },
   data() {
     return {
       graphOptions: {

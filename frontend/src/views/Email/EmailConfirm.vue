@@ -6,11 +6,7 @@
           <v-toolbar-title> Email Confirmation </v-toolbar-title>
         </v-toolbar>
         <v-container v-if="loading" class="text-center justify-center">
-          <v-progress-circular
-            size="64"
-            :indeterminate="true"
-            class="mb-3"
-          ></v-progress-circular>
+          <v-progress-circular size="64" :indeterminate="true" class="mb-3" />
           <h3>We're currently confirming your email address. Please wait.</h3>
         </v-container>
         <v-container v-else-if="failed" class="text-center justify-center">

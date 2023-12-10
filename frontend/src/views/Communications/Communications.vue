@@ -5,7 +5,7 @@
       :chat="selectedChat"
       :loading="false"
       :items="$store.state.chats"
-    ></router-view>
+    />
   </div>
 </template>
 
@@ -23,17 +23,17 @@ export default {
       }
     }
   },
+  watch: {
+    selectedChat() {
+      this.$store.commit("setSelectedChat", this.selectedChat)
+    }
+  },
   mounted() {
     this.$socket.on("memberListUpdate", () => {
       this.$store.dispatch("getChats")
     })
     if (!this.$route.params.id) {
       this.$router.push("/communications/friends")
-    }
-  },
-  watch: {
-    selectedChat() {
-      this.$store.commit("setSelectedChat", this.selectedChat)
     }
   }
 }

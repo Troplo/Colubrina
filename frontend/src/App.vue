@@ -6,11 +6,11 @@
     "
   >
     <v-overlay :value="!$store.state.wsConnected" absolute style="z-index: 69">
-      <v-progress-circular indeterminate size="64"></v-progress-circular>
+      <v-progress-circular indeterminate size="64" />
     </v-overlay>
-    <DevOverlay v-if="$store.state.site.release === 'dev'"></DevOverlay>
+    <DevOverlay v-if="$store.state.site.release === 'dev'" />
     <v-overlay :value="$store.state.site.loading">
-      <v-progress-circular indeterminate size="64"></v-progress-circular>
+      <v-progress-circular indeterminate size="64" />
     </v-overlay>
     <!-- theme engine editors -->
     <vue-final-modal
@@ -39,8 +39,8 @@
               $store.state.themeEngine.type === "create" ? "Creator" : "Editor"
             }}
             <v-tooltip top>
-              <template v-slot:activator="{ on, attrs }">
-                <span v-on="on" v-bind="attrs">
+              <template #activator="{ on, attrs }">
+                <span v-bind="attrs" v-on="on">
                   <v-btn
                     fab
                     small
@@ -54,7 +54,7 @@
               <span> Randomize theme </span>
             </v-tooltip>
           </v-toolbar-title>
-          <v-spacer></v-spacer>
+          <v-spacer />
           <v-btn icon @click="$store.state.themeEngine.editor = false">
             <v-icon>mdi-close</v-icon>
           </v-btn>
@@ -72,27 +72,30 @@
                 $store.dispatch('saveTheme', { theme: null, type: null })
                 $store.state.themeEngine.editor = false
               "
-              >{{
+            >
+              {{
                 $store.state.themeEngine.type === "create"
                   ? "Create & Apply"
                   : "Save Edits"
-              }}</v-btn
-            >
+              }}
+            </v-btn>
             <v-btn
+              v-if="$store.state.themeEngine.type === 'edit'"
               color="primary"
               text
               @click="
                 $store.dispatch('saveTheme', { theme: null, type: 'copy' })
               "
-              v-if="$store.state.themeEngine.type === 'edit'"
-              >Save a Copy</v-btn
             >
+              Save a Copy
+            </v-btn>
             <v-btn
               color="error darken-1"
               text
               @click="$store.dispatch('discardTheme')"
-              >Discard</v-btn
             >
+              Discard
+            </v-btn>
           </v-card-actions>
           <v-form>
             <v-text-field
@@ -100,28 +103,23 @@
               class="mx-3"
               label="Theme Name"
               required
-            ></v-text-field>
+            />
             <v-select
+              v-model="$store.state.themeEngine.theme.primaryType"
               :items="intendedFor"
               label="Intended for"
               class="mx-3"
-              v-model="$store.state.themeEngine.theme.primaryType"
-            >
-            </v-select>
-            <v-text-field
-              v-model="creatorJSON"
-              label="JSON"
-              class="mx-3"
-            ></v-text-field>
+            />
+            <v-text-field v-model="creatorJSON" label="JSON" class="mx-3" />
             <v-btn @click="$store.state.themeEngine.cssEditor = true">
               Custom CSS
             </v-btn>
             <h2
-              class="ml-2 mt-2 mb-3"
               v-if="
                 $store.state.themeEngine.theme.primaryType === 'dark' ||
                 $store.state.themeEngine.theme.primaryType === 'all'
               "
+              class="ml-2 mt-2 mb-3"
             >
               Dark:
             </h2>
@@ -132,44 +130,44 @@
               "
             >
               <v-col
-                sm="3"
                 v-for="(item, index) in $store.state.themeEngine.theme.dark"
                 :key="index + '-dark-card'"
+                sm="3"
               >
                 <v-card color="card">
                   <h3 class="ml-2 mt-2 mb-2">
                     {{ friendlyName(index) }}
                   </h3>
                   <v-menu offset-y>
-                    <template v-slot:activator="{ on }">
+                    <template #activator="{ on }">
                       <v-card
                         class="mb-2 mx-2"
                         :color="$store.state.themeEngine.theme.dark[index]"
                         v-on="on"
                       >
-                        <v-container></v-container>
+                        <v-container />
                       </v-card>
                     </template>
                     <v-color-picker
                       v-model="$store.state.themeEngine.theme.dark[index]"
                       show-swatches
                       hide-inputs
-                    ></v-color-picker>
+                    />
                   </v-menu>
                   <v-text-field
+                    v-model="$store.state.themeEngine.theme.dark[index]"
                     class="mx-2"
                     label="#HEX"
-                    v-model="$store.state.themeEngine.theme.dark[index]"
-                  ></v-text-field>
+                  />
                 </v-card>
               </v-col>
             </v-row>
             <h2
-              class="ml-2 mt-2 mb-3"
               v-if="
                 $store.state.themeEngine.theme.primaryType === 'light' ||
                 $store.state.themeEngine.theme.primaryType === 'all'
               "
+              class="ml-2 mt-2 mb-3"
             >
               Light:
             </h2>
@@ -180,35 +178,35 @@
               "
             >
               <v-col
-                sm="3"
                 v-for="(item, index) in $store.state.themeEngine.theme.light"
                 :key="index + '-light-card'"
+                sm="3"
               >
                 <v-card color="card">
                   <h3 class="ml-2 mt-2 mb-2">
                     {{ friendlyName(index) }}
                   </h3>
                   <v-menu offset-y>
-                    <template v-slot:activator="{ on }">
+                    <template #activator="{ on }">
                       <v-card
                         class="mb-2 mx-2"
                         :color="$store.state.themeEngine.theme.light[index]"
                         v-on="on"
                       >
-                        <v-container></v-container>
+                        <v-container />
                       </v-card>
                     </template>
                     <v-color-picker
                       v-model="$store.state.themeEngine.theme.light[index]"
                       show-swatches
                       hide-inputs
-                    ></v-color-picker>
+                    />
                   </v-menu>
                   <v-text-field
+                    v-model="$store.state.themeEngine.theme.light[index]"
                     class="mx-2"
                     label="#HEX"
-                    v-model="$store.state.themeEngine.theme.light[index]"
-                  ></v-text-field>
+                  />
                 </v-card>
               </v-col>
             </v-row>
@@ -221,27 +219,30 @@
                 $store.dispatch('saveTheme', { theme: null, type: null })
                 $store.state.themeEngine.editor = false
               "
-              >{{
+            >
+              {{
                 $store.state.themeEngine.type === "create"
                   ? "Create & Apply"
                   : "Save Edits"
-              }}</v-btn
-            >
+              }}
+            </v-btn>
             <v-btn
+              v-if="$store.state.themeEngine.type === 'edit'"
               color="primary"
               text
               @click="
                 $store.dispatch('saveTheme', { theme: null, type: 'copy' })
               "
-              v-if="$store.state.themeEngine.type === 'edit'"
-              >Save a Copy</v-btn
             >
+              Save a Copy
+            </v-btn>
             <v-btn
               color="error darken-1"
               text
               @click="$store.dispatch('discardTheme')"
-              >Discard</v-btn
             >
+              Discard
+            </v-btn>
           </v-card-actions>
         </v-container>
       </v-card>
@@ -271,7 +272,7 @@
       >
         <v-card-title color="toolbar" class="editor__toolbar v-toolbar">
           <v-toolbar-title>CSS Editor</v-toolbar-title>
-          <v-spacer></v-spacer>
+          <v-spacer />
           <v-btn icon @click="$store.state.themeEngine.cssEditor = false">
             <v-icon>mdi-close</v-icon>
           </v-btn>
@@ -281,13 +282,13 @@
             <v-col>
               <v-alert type="info" text class="editor__toolbar">
                 CTRL + ALT + D / F9 will toggle all custom CSS styling, works
-                anywhere, even outside the editor.</v-alert
-              >
+                anywhere, even outside the editor.
+              </v-alert>
               <v-switch
+                v-model="$store.state.themeEngine.autoCSS"
                 inset
                 label="Live update"
-                v-model="$store.state.themeEngine.autoCSS"
-              ></v-switch>
+              />
               <v-btn
                 icon
                 class="mb-2"
@@ -306,26 +307,26 @@
                 <v-icon>mdi-refresh</v-icon>
               </v-btn>
               <editor
-                class="editor"
                 v-model="$store.state.themeEngine.theme.css"
-                @init="editorInit"
+                class="editor"
                 lang="css"
                 :theme="$vuetify.theme.dark ? 'monokai' : 'chrome'"
                 height="350"
-              ></editor>
+                @init="editorInit"
+              />
             </v-col>
             <v-col v-if="cssTips">
               <v-card-title>
                 Tips
-                <v-spacer></v-spacer>
+                <v-spacer />
                 <v-btn icon @click="cssTips = false">
                   <v-icon>mdi-close</v-icon>
-                </v-btn></v-card-title
-              >
+                </v-btn>
+              </v-card-title>
               <v-alert type="error" text>
                 This is an alert.<br />
-                Try to style it with .v-alert</v-alert
-              >
+                Try to style it with .v-alert
+              </v-alert>
               Here's an example:<br />
               <code class="block"
                 >.v-alert {<br />
@@ -334,15 +335,17 @@
               <v-btn
                 class="mt-2 mr-2"
                 @click="$toast.success('I have been pressed.')"
-                >Here's a button</v-btn
               >
+                Here's a button
+              </v-btn>
               <v-btn
                 class="mt-2"
                 text
                 color="info"
                 @click="$toast.info('This is the second button\'s action.')"
-                >Here's another one</v-btn
               >
+                Here's another one
+              </v-btn>
               <v-card-title> Fonts </v-card-title>
               <code
                 class="block"
@@ -392,9 +395,8 @@
         </v-toolbar>
         <v-container v-if="$store.state.modals.search">
           <v-autocomplete
-            @keydown.enter="handleEnter"
-            auto-select-first
             v-model="search"
+            auto-select-first
             :items="$store.state.quickSwitchCache"
             item-text="subjectLongName"
             label="Search"
@@ -402,13 +404,13 @@
             autofocus
             return-object
             :search-input.sync="searchInput"
-          >
-          </v-autocomplete>
+            @keydown.enter="handleEnter"
+          />
         </v-container>
       </v-card>
     </v-dialog>
     <v-main>
-      <Header></Header>
+      <Header />
       <v-container
         v-if="
           $store.state.site.latestVersion > $store.state.versioning.version &&
@@ -453,7 +455,6 @@
     </v-main>
   </v-app>
 </template>
-<style></style>
 <script>
 import AjaxErrorHandler from "@/lib/errorHandler.js"
 import { VueFinalModal } from "vue-final-modal"
@@ -528,6 +529,123 @@ export default {
         return array
       }
     }
+  },
+  watch: {
+    "$store.state.userPanel"(val) {
+      localStorage.setItem("userPanel", val)
+    },
+    cssTips(val) {
+      localStorage.setItem("cssTipsDismissed", !val)
+    },
+    "$store.state.themeEngine.theme": {
+      handler() {
+        this.$vuetify.theme.themes.dark =
+          this.$store.state.themeEngine.theme.dark
+        this.$vuetify.theme.themes.light =
+          this.$store.state.themeEngine.theme.light
+        this.$vuetify.theme.themes.name = this.$store.state.themeEngine.theme.id
+      },
+      deep: true
+    },
+    "$store.state.themeEngine.theme.css"() {
+      if (this.$store.state.themeEngine.autoCSS) {
+        this.$store.dispatch("applyCSS", null)
+      }
+    },
+    "$store.state.user.theme": {
+      handler() {
+        if (this.$store.state.user?.theme) {
+          this.$vuetify.theme.dark = this.$store.state.user.theme === "dark"
+        }
+      },
+      deep: true
+    },
+    $route(to, from) {
+      document.title = to.name + " - " + this.$store.state.site.name
+      this.$store.state.lastRoute = from.path
+    },
+    search() {
+      if (this.search) {
+        if (this.search.id) {
+          this.$router.push("/communications/" + this.search.id)
+          this.$store.commit("setSearch", false)
+          this.search = null
+          this.$nextTick(() => {
+            this.searchInput = null
+          })
+        } else if (this.search.customType === 1) {
+          this.$router.push(this.search.route)
+          this.$store.commit("setSearch", false)
+          this.search = null
+          this.$nextTick(() => {
+            this.searchInput = null
+          })
+        }
+      }
+    }
+  },
+  async mounted() {
+    if (localStorage.getItem("forceEnableDevMode"))
+      this.$store.state.release = "dev"
+    await this.$store.dispatch("doInit")
+    if (this.$vuetify.breakpoint.mobile) {
+      this.$store.state.drawer = false
+    }
+    if (localStorage.getItem("cssTipsDismissed")) {
+      this.cssTips = false
+    }
+    if (localStorage.getItem("userPanel")) {
+      this.$store.state.userPanel = JSON.parse(
+        localStorage.getItem("userPanel")
+      )
+    } else {
+      this.$store.state.userPanel = true
+    }
+    if (this.$vuetify.breakpoint.mobile) {
+      this.$store.state.userPanel = false
+    }
+    window.addEventListener("offline", () => {
+      this.$store.commit("setOnline", false)
+      this.$store.dispatch("getState")
+    })
+    window.addEventListener("online", () => {
+      this.$store.commit("setOnline", true)
+      this.$store.dispatch("getState")
+      this.$store.dispatch("getUserInfo")
+    })
+    this.$socket.connect()
+    this.$socket.on("unauthorized", () => {
+      console.log("Reauth requested")
+      this.$socket.emit("token", localStorage.getItem("token"))
+    })
+    document.title = this.$route.name
+      ? this.$route.name + " - " + this.$store.state.site.name
+      : this.$store.state.site.name || "Colubrina"
+    this.$store.commit("setLoading", true)
+    this.$vuetify.theme.dark = this.$store.state.user?.theme === "dark" || true
+    this.$store.dispatch("getState")
+    this.$store
+      .dispatch("getUserInfo")
+      .then(() => {
+        console.log(window.location.pathname)
+        if (
+          !window.location.pathname.includes("/email/confirm/") &&
+          !window.location.pathname.includes("/email/verify") &&
+          !this.$store.state.user.emailVerified &&
+          this.$store.state.site.emailVerification
+        ) {
+          this.$router.push("/email/verify")
+        }
+      })
+      .catch(() => {
+        this.$store.dispatch("logout")
+        if (!window.location.pathname.includes("/reset")) {
+          this.$router.push("/login")
+        }
+      })
+    this.getThemes()
+    this.communicationsIdleCheck()
+    this.registerSocket()
   },
   methods: {
     handleEnter() {
@@ -766,126 +884,10 @@ export default {
           AjaxErrorHandler(this.$store)(e)
         })
     }
-  },
-  async mounted() {
-    if (localStorage.getItem("forceEnableDevMode"))
-      this.$store.state.release = "dev"
-    await this.$store.dispatch("doInit")
-    if (this.$vuetify.breakpoint.mobile) {
-      this.$store.state.drawer = false
-    }
-    if (localStorage.getItem("cssTipsDismissed")) {
-      this.cssTips = false
-    }
-    if (localStorage.getItem("userPanel")) {
-      this.$store.state.userPanel = JSON.parse(
-        localStorage.getItem("userPanel")
-      )
-    } else {
-      this.$store.state.userPanel = true
-    }
-    if (this.$vuetify.breakpoint.mobile) {
-      this.$store.state.userPanel = false
-    }
-    window.addEventListener("offline", () => {
-      this.$store.commit("setOnline", false)
-      this.$store.dispatch("getState")
-    })
-    window.addEventListener("online", () => {
-      this.$store.commit("setOnline", true)
-      this.$store.dispatch("getState")
-      this.$store.dispatch("getUserInfo")
-    })
-    this.$socket.connect()
-    this.$socket.on("unauthorized", () => {
-      console.log("Reauth requested")
-      this.$socket.emit("token", localStorage.getItem("token"))
-    })
-    document.title = this.$route.name
-      ? this.$route.name + " - " + this.$store.state.site.name
-      : this.$store.state.site.name || "Colubrina"
-    this.$store.commit("setLoading", true)
-    this.$vuetify.theme.dark = this.$store.state.user?.theme === "dark" || true
-    this.$store.dispatch("getState")
-    this.$store
-      .dispatch("getUserInfo")
-      .then(() => {
-        console.log(window.location.pathname)
-        if (
-          !window.location.pathname.includes("/email/confirm/") &&
-          !window.location.pathname.includes("/email/verify") &&
-          !this.$store.state.user.emailVerified &&
-          this.$store.state.site.emailVerification
-        ) {
-          this.$router.push("/email/verify")
-        }
-      })
-      .catch(() => {
-        this.$store.dispatch("logout")
-        if (!window.location.pathname.includes("/reset")) {
-          this.$router.push("/login")
-        }
-      })
-    this.getThemes()
-    this.communicationsIdleCheck()
-    this.registerSocket()
-  },
-  watch: {
-    "$store.state.userPanel"(val) {
-      localStorage.setItem("userPanel", val)
-    },
-    cssTips(val) {
-      localStorage.setItem("cssTipsDismissed", !val)
-    },
-    "$store.state.themeEngine.theme": {
-      handler() {
-        this.$vuetify.theme.themes.dark =
-          this.$store.state.themeEngine.theme.dark
-        this.$vuetify.theme.themes.light =
-          this.$store.state.themeEngine.theme.light
-        this.$vuetify.theme.themes.name = this.$store.state.themeEngine.theme.id
-      },
-      deep: true
-    },
-    "$store.state.themeEngine.theme.css"() {
-      if (this.$store.state.themeEngine.autoCSS) {
-        this.$store.dispatch("applyCSS", null)
-      }
-    },
-    "$store.state.user.theme": {
-      handler() {
-        if (this.$store.state.user?.theme) {
-          this.$vuetify.theme.dark = this.$store.state.user.theme === "dark"
-        }
-      },
-      deep: true
-    },
-    $route(to, from) {
-      document.title = to.name + " - " + this.$store.state.site.name
-      this.$store.state.lastRoute = from.path
-    },
-    search() {
-      if (this.search) {
-        if (this.search.id) {
-          this.$router.push("/communications/" + this.search.id)
-          this.$store.commit("setSearch", false)
-          this.search = null
-          this.$nextTick(() => {
-            this.searchInput = null
-          })
-        } else if (this.search.customType === 1) {
-          this.$router.push(this.search.route)
-          this.$store.commit("setSearch", false)
-          this.search = null
-          this.$nextTick(() => {
-            this.searchInput = null
-          })
-        }
-      }
-    }
   }
 }
 </script>
+<style></style>
 
 <style scoped>
 ::v-deep .modal-container {

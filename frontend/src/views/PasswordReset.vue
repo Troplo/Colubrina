@@ -8,23 +8,23 @@
         <v-card-text>
           <v-form>
             <v-text-field
-              @keyup.enter="doPasswordReset()"
-              class="rounded-xl"
               v-model="password"
+              class="rounded-xl"
               label="Password"
               type="password"
-            ></v-text-field>
-            <v-text-field
               @keyup.enter="doPasswordReset()"
-              class="rounded-xl"
+            />
+            <v-text-field
               v-model="confirmPassword"
+              class="rounded-xl"
               label="Confirm Password"
               type="password"
-            ></v-text-field>
+              @keyup.enter="doPasswordReset()"
+            />
           </v-form>
         </v-card-text>
         <v-card-actions>
-          <v-spacer></v-spacer>
+          <v-spacer />
           <v-btn
             class="rounded-xl"
             :loading="loading"

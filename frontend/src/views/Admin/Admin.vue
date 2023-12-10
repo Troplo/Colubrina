@@ -1,7 +1,7 @@
 <template>
   <div id="admin">
     <v-overlay :value="loading" absolute>
-      <v-progress-circular indeterminate size="64"></v-progress-circular>
+      <v-progress-circular indeterminate size="64" />
     </v-overlay>
     <v-container v-if="admin">
       <v-card color="card" class="rounded-xl">
@@ -30,7 +30,7 @@
             <span>Config</span>
           </v-tab>
         </v-tabs>
-        <router-view :admin="admin" :metrics="metrics"></router-view>
+        <router-view :admin="admin" :metrics="metrics" />
       </v-card>
     </v-container>
   </div>
@@ -47,6 +47,10 @@ export default {
       metrics: null,
       loading: true
     }
+  },
+  mounted() {
+    this.getAdminInfo()
+    this.getAdminMetrics()
   },
   methods: {
     getAdminMetrics() {
@@ -73,10 +77,6 @@ export default {
           this.$router.push("/")
         })
     }
-  },
-  mounted() {
-    this.getAdminInfo()
-    this.getAdminMetrics()
   }
 }
 </script>

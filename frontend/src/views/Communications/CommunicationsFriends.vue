@@ -1,8 +1,8 @@
 <template>
   <div id="communications-friends">
     <v-card color="card" class="rounded-0" :height="viewport()" elevation="0">
-      <v-tabs centered background-color="card" v-model="tab">
-        <v-tab :key="0">Users</v-tab>
+      <v-tabs v-model="tab" centered background-color="card">
+        <v-tab :key="0"> Users </v-tab>
         <v-tab :key="1"> Friends </v-tab>
         <v-tab :key="2"> Add new friend </v-tab>
         <v-tab-item
@@ -16,31 +16,31 @@
               <v-toolbar-title> Users </v-toolbar-title>
             </v-toolbar>
             <v-card color="card" elevation="0">
-              <v-list color="card" v-if="$store.state.site.publicUsers">
+              <v-list v-if="$store.state.site.publicUsers" color="card">
                 <v-list-item v-for="user in users" :key="user.id">
                   <v-list-item-avatar
-                    @click="userProfile(user)"
                     style="cursor: pointer"
                     :color="$vuetify.theme.themes.dark?.primary"
+                    @click="userProfile(user)"
                   >
                     <v-img
+                      v-if="user.avatar"
                       :src="
                         $store.state.baseURL + '/usercontent//' + user.avatar
                       "
-                      v-if="user.avatar"
                     />
                     <v-icon v-else> mdi-account </v-icon>
                   </v-list-item-avatar>
 
                   <v-list-item-content
-                    @click="userProfile(user)"
                     style="cursor: pointer"
+                    @click="userProfile(user)"
                   >
                     <v-list-item-title>
                       {{ user.username }}
-                      <v-tooltip top v-if="user.admin">
-                        <template v-slot:activator="{ on }">
-                          <v-btn icon v-on="on" class="ml-1">
+                      <v-tooltip v-if="user.admin" top>
+                        <template #activator="{ on }">
+                          <v-btn icon class="ml-1" v-on="on">
                             <v-icon> mdi-crown </v-icon>
                           </v-btn>
                         </template>
@@ -55,7 +55,9 @@
                     "
                   >
                     <v-btn icon>
-                      <v-icon @click="addFriend(user)">mdi-account-plus</v-icon>
+                      <v-icon @click="addFriend(user)">
+                        mdi-account-plus
+                      </v-icon>
                     </v-btn>
                   </v-list-item-action>
                   <v-list-item-action
@@ -70,9 +72,9 @@
                   </v-list-item-action>
                 </v-list-item>
               </v-list>
-              <v-card-title v-else
-                >Public users are not enabled on this instance.</v-card-title
-              >
+              <v-card-title v-else>
+                Public users are not enabled on this instance.
+              </v-card-title>
             </v-card>
           </v-card>
         </v-tab-item>
@@ -100,16 +102,16 @@
                   :key="friend.id"
                 >
                   <v-list-item-avatar
-                    @click="userProfile(friend.user2)"
                     :color="$vuetify.theme.themes.dark?.primary"
+                    @click="userProfile(friend.user2)"
                   >
                     <v-img
+                      v-if="friend.user2.avatar"
                       :src="
                         $store.state.baseURL +
                         '/usercontent//' +
                         friend.user2.avatar
                       "
-                      v-if="friend.user2.avatar"
                     />
                     <v-icon v-else> mdi-account </v-icon>
                   </v-list-item-avatar>
@@ -121,16 +123,16 @@
                   </v-list-item-content>
                   <v-list-item-action>
                     <v-btn icon>
-                      <v-icon color="error" @click="removeFriend(friend)"
-                        >mdi-close</v-icon
-                      >
+                      <v-icon color="error" @click="removeFriend(friend)">
+                        mdi-close
+                      </v-icon>
                     </v-btn>
                   </v-list-item-action>
                   <v-list-item-action>
                     <v-btn icon>
                       <v-icon color="success" @click="acceptFriend(friend)">
-                        mdi-check</v-icon
-                      >
+                        mdi-check
+                      </v-icon>
                     </v-btn>
                   </v-list-item-action>
                 </v-list-item>
@@ -153,24 +155,24 @@
                   :key="friend.id"
                 >
                   <v-list-item-avatar
-                    @click="userProfile(friend.user2)"
                     style="cursor: pointer"
                     :color="$vuetify.theme.themes.dark?.primary"
+                    @click="userProfile(friend.user2)"
                   >
                     <v-img
+                      v-if="friend.user2.avatar"
                       :src="
                         $store.state.baseURL +
                         '/usercontent//' +
                         friend.user2.avatar
                       "
-                      v-if="friend.user2.avatar"
                     />
                     <v-icon v-else> mdi-account </v-icon>
                   </v-list-item-avatar>
 
                   <v-list-item-content
-                    @click="userProfile(friend.user2)"
                     style="cursor: pointer"
+                    @click="userProfile(friend.user2)"
                   >
                     <v-list-item-title>
                       {{ friend.user2.username }}
@@ -178,9 +180,9 @@
                   </v-list-item-content>
                   <v-list-item-action>
                     <v-btn icon>
-                      <v-icon color="error" @click="removeFriend(friend)"
-                        >mdi-close</v-icon
-                      >
+                      <v-icon color="error" @click="removeFriend(friend)">
+                        mdi-close
+                      </v-icon>
                     </v-btn>
                   </v-list-item-action>
                 </v-list-item>
@@ -200,17 +202,17 @@
                 </v-list-item>
                 <v-list-item v-for="friend in computeAccepted" :key="friend.id">
                   <v-list-item-avatar
-                    @click="userProfile(friend.user2)"
                     style="cursor: pointer"
                     :color="$vuetify.theme.themes.dark?.primary"
+                    @click="userProfile(friend.user2)"
                   >
                     <v-img
+                      v-if="friend.user2.avatar"
                       :src="
                         $store.state.baseURL +
                         '/usercontent//' +
                         friend.user2.avatar
                       "
-                      v-if="friend.user2.avatar"
                     />
                     <v-icon v-else> mdi-account </v-icon>
                   </v-list-item-avatar>
@@ -222,9 +224,9 @@
                   </v-list-item-content>
                   <v-list-item-action>
                     <v-btn icon>
-                      <v-icon color="error" @click="removeFriend(friend)"
-                        >mdi-close</v-icon
-                      >
+                      <v-icon color="error" @click="removeFriend(friend)">
+                        mdi-close
+                      </v-icon>
                     </v-btn>
                   </v-list-item-action>
                 </v-list-item>
@@ -246,15 +248,14 @@
                 friends with them. You can add them here.
               </p>
               <v-text-field
-                @keyup.enter="addFriend(null)"
+                v-model="friend"
                 label="Friend username"
                 :placeholder="'BTR0001'"
-                v-model="friend"
-              >
-              </v-text-field>
+                @keyup.enter="addFriend(null)"
+              />
             </v-container>
             <v-card-actions>
-              <v-spacer></v-spacer>
+              <v-spacer />
               <v-btn color="primary" text @click="addFriend(null)">
                 Send Request
               </v-btn>
@@ -291,6 +292,19 @@ export default {
         (friend) => friend.status === "pendingCanAccept"
       )
     }
+  },
+  async mounted() {
+    this.getFriends()
+    this.getUsers()
+    this.$socket.on("friendRequest", () => {
+      this.getFriends()
+    })
+    this.$socket.on("friendUpdate", () => {
+      this.getFriends()
+    })
+    this.$socket.on("friendAccepted", () => {
+      this.getFriends()
+    })
   },
   methods: {
     userProfile() {
@@ -372,19 +386,6 @@ export default {
         this.friends = res.data
       })
     }
-  },
-  async mounted() {
-    this.getFriends()
-    this.getUsers()
-    this.$socket.on("friendRequest", () => {
-      this.getFriends()
-    })
-    this.$socket.on("friendUpdate", () => {
-      this.getFriends()
-    })
-    this.$socket.on("friendAccepted", () => {
-      this.getFriends()
-    })
   }
 }
 </script>

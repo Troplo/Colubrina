@@ -2,18 +2,16 @@
   <div>
     <v-card-text>
       <v-switch
-        inset
         v-model="messageAudio"
-        label="Play sound effect on new message"
-      >
-      </v-switch>
-      <v-switch
         inset
+        label="Play sound effect on new message"
+      />
+      <v-switch
         v-model="nativeNotifications"
+        inset
         label="Desktop notifications"
         @change="setNativeNotifications"
-      >
-      </v-switch>
+      />
       <v-btn v-if="nativeNotifications" @click="testNativeNotification">
         Test desktop notifications
       </v-btn>
@@ -28,6 +26,24 @@ export default {
     return {
       messageAudio: true,
       nativeNotifications: false
+    }
+  },
+  watch: {
+    nativeNotifications(val) {
+      localStorage.setItem("nativeNotifications", val)
+    },
+    messageAudio(val) {
+      localStorage.setItem("messageAudio", val)
+    }
+  },
+  mounted() {
+    if (localStorage.getItem("messageAudio")) {
+      this.messageAudio = JSON.parse(localStorage.getItem("messageAudio"))
+    }
+    if (localStorage.getItem("nativeNotifications")) {
+      this.nativeNotifications = JSON.parse(
+        localStorage.getItem("nativeNotifications")
+      )
     }
   },
   methods: {
@@ -67,24 +83,6 @@ export default {
       this.$toast.success(
         "A desktop notification has been sent, if you don't see it, check your site permissions."
       )
-    }
-  },
-  mounted() {
-    if (localStorage.getItem("messageAudio")) {
-      this.messageAudio = JSON.parse(localStorage.getItem("messageAudio"))
-    }
-    if (localStorage.getItem("nativeNotifications")) {
-      this.nativeNotifications = JSON.parse(
-        localStorage.getItem("nativeNotifications")
-      )
-    }
-  },
-  watch: {
-    nativeNotifications(val) {
-      localStorage.setItem("nativeNotifications", val)
-    },
-    messageAudio(val) {
-      localStorage.setItem("messageAudio", val)
     }
   }
 }
