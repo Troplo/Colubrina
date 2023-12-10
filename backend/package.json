@@ -4,6 +4,7 @@
   "private": true,
   "license": "GPL-3.0",
   "scripts": {
+    "dev": "nodemon",
     "start": "node .",
     "serve": "nodemon . --ignore config"
   },

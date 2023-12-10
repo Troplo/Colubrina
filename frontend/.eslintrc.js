@@ -17,6 +17,7 @@ module.exports = {
     ],
     "vue/no-reserved-component-names": "off",
     "vue/no-mutating-props": "off",
-    "vue/multi-word-component-names": "off"
+    "vue/multi-word-component-names": "off",
+    "vue/no-v-text-v-html-on-component": "off"
   }
 }
