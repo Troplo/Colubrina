@@ -32,7 +32,6 @@
     "markdown-it": "^13.0.1",
     "markdown-it-emoji": "git+https://github.com/Troplo/markdown-it-unicode-emoji",
     "markdown-it-highlightjs": "^4.0.1",
-    "node-ipc": "git+https://git.troplo.com/Troplo/node-ipc",
     "nth-check": "^2.0.1",
     "patch-package": "^6.4.7",
     "prettier": "^2.6.1",
@@ -81,7 +80,6 @@
   },
   "license": "GPL-3.0",
   "resolutions": {
-    "node-ipc": "git+https://git.troplo.com/Troplo/node-ipc",
     "selfsigned": "^2.0.1",
     "nth-check": "^2.0.1",
     "glob-parent": "^5.1.2",

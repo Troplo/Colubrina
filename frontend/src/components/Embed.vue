@@ -13,8 +13,8 @@
             contain
             :max-width="500"
             :max-height="500"
-            :min-height="250"
-            :min-width="250"
+            :min-height="100"
+            :min-width="100"
             :src="$store.state.baseURL + embed.mediaProxyLink"
             @click="setImagePreview(embed)"
           >
