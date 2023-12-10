@@ -11,9 +11,9 @@
             follow the instructions provided.
           </h3>
           <p class="mt-2">Haven't received it?</p>
-          <v-btn color="primary" text @click="resend" :loading="loading"
-            >Resend</v-btn
-          >
+          <v-btn color="primary" text :loading="loading" @click="resend">
+            Resend
+          </v-btn>
         </v-container>
       </v-card>
     </v-container>
@@ -30,6 +30,9 @@ export default {
       loading: true
     }
   },
+  mounted() {
+    this.resend()
+  },
   methods: {
     resend() {
       this.loading = true
@@ -44,9 +47,6 @@ export default {
           AjaxErrorHandler(this.$store)(e)
         })
     }
-  },
-  mounted() {
-    this.resend()
   }
 }
 </script>

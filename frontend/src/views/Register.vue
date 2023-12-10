@@ -1,5 +1,5 @@
 <template>
-  <div id="login" v-if="!$store.state.user?.id">
+  <div v-if="!$store.state.user?.id" id="login">
     <v-dialog v-model="rulesDialog" max-width="700px">
       <v-card color="card">
         <v-toolbar color="toolbar">
@@ -8,7 +8,7 @@
           </v-toolbar-title>
         </v-toolbar>
         <v-card-text class="mt-3" style="color: unset">
-          <span v-markdown :key="$store.state.site.rules">{{
+          <span :key="$store.state.site.rules" v-markdown>{{
             $store.state.site.rules
           }}</span>
         </v-card-text>
@@ -25,80 +25,80 @@
                   <span class="troplo-title">{{ $store.state.site.name }}</span>
                 </p>
                 <v-text-field
-                  @keyup.enter="doRegister()"
-                  class="rounded-xl"
-                  v-model="instance"
                   v-if="isElectron()"
+                  v-model="instance"
+                  class="rounded-xl"
                   label="Instance URL"
                   placeholder="https://colubrina.troplo.com"
                   type="email"
-                ></v-text-field>
-                <small style="float: right" v-if="isElectron()">{{
+                  @keyup.enter="doRegister()"
+                />
+                <small v-if="isElectron()" style="float: right">{{
                   instanceString
                 }}</small
                 ><br v-if="isElectron()" />
                 <v-text-field
-                  @keyup.enter="doRegister()"
-                  class="rounded-xl"
                   v-model="username"
+                  class="rounded-xl"
                   label="Username"
                   placeholder="FOO1000"
                   type="email"
-                ></v-text-field>
-                <v-text-field
                   @keyup.enter="doRegister()"
-                  class="rounded-xl"
+                />
+                <v-text-field
                   v-model="email"
+                  class="rounded-xl"
                   label="Email"
                   placeholder="troplo@troplo.com"
                   type="email"
-                ></v-text-field>
-                <v-text-field
                   @keyup.enter="doRegister()"
-                  class="rounded-xl"
+                />
+                <v-text-field
                   v-model="password"
+                  class="rounded-xl"
                   color="blue accent-7"
                   label="Password"
                   type="password"
-                ></v-text-field>
+                  @keyup.enter="doRegister()"
+                />
                 <small v-if="$store.state.site.emailVerification"
                   >This instance has email verification enforced, ensure your
                   email is correct.</small
                 >
                 <v-row align="center">
-                  <v-tooltip top v-if="!rulesOpenedOnce">
-                    <template v-slot:activator="{ on }">
+                  <v-tooltip v-if="!rulesOpenedOnce" top>
+                    <template #activator="{ on }">
                       <div v-on="on">
                         <v-switch
+                          v-model="rules"
                           class="ml-4 mt-5"
                           inset
-                          v-model="rules"
                           :disabled="!rulesOpenedOnce"
-                        ></v-switch>
+                        />
                       </div>
                     </template>
                     <span>You need to view the rules first.</span>
                   </v-tooltip>
                   <v-switch
+                    v-else
+                    v-model="rules"
                     class="ml-4 mt-5"
                     inset
-                    v-model="rules"
-                    v-else
                     :disabled="!rulesOpenedOnce"
-                  ></v-switch>
+                  />
                   I have read and agree to the&nbsp;
                   <a
+                    target="_blank"
                     @click="
                       rulesDialog = true
                       rulesOpenedOnce = true
                     "
-                    target="_blank"
                   >
                     instance rules </a
                   >.
                 </v-row>
                 <v-card-actions>
-                  <v-spacer></v-spacer>
+                  <v-spacer />
                   <v-btn
                     class="rounded-xl"
                     :loading="loading"
@@ -148,6 +148,25 @@ export default {
         localStorage.getItem("instance") || "https://colubrina.troplo.com",
       instanceString: ""
     }
+  },
+  watch: {
+    instance() {
+      this.testInstance()
+    }
+  },
+  mounted() {
+    this.$store
+      .dispatch("getUserInfo")
+      .then(() => {
+        this.$router.push("/")
+      })
+      .catch(() => {
+        this.$store.state.user = {
+          bcUser: null,
+          loggedIn: false
+        }
+      })
+    this.testInstance()
   },
   methods: {
     isElectron() {
@@ -228,25 +247,6 @@ export default {
             this.loading = false
           }
         })
-    }
-  },
-  mounted() {
-    this.$store
-      .dispatch("getUserInfo")
-      .then(() => {
-        this.$router.push("/")
-      })
-      .catch(() => {
-        this.$store.state.user = {
-          bcUser: null,
-          loggedIn: false
-        }
-      })
-    this.testInstance()
-  },
-  watch: {
-    instance() {
-      this.testInstance()
     }
   }
 }

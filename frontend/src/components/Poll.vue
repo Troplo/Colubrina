@@ -74,6 +74,16 @@ export default {
       })
     }
   },
+  mounted() {
+    this.$socket.on(`pollAnswer-${this.message.id}`, (data) => {
+      this.message.poll.answers = this.message.poll.answers.filter(
+        (answer) => answer.id !== data.id
+      )
+      if (data.answer) {
+        this.message.poll.answers.push(data.answer)
+      }
+    })
+  },
   methods: {
     votePoll(option) {
       this.axios
@@ -84,16 +94,6 @@ export default {
           AjaxErrorHandler(this.$store)(e)
         })
     }
-  },
-  mounted() {
-    this.$socket.on(`pollAnswer-${this.message.id}`, (data) => {
-      this.message.poll.answers = this.message.poll.answers.filter(
-        (answer) => answer.id !== data.id
-      )
-      if (data.answer) {
-        this.message.poll.answers.push(data.answer)
-      }
-    })
   }
 }
 </script>

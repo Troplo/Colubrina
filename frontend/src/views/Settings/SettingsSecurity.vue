@@ -13,15 +13,14 @@
             accessed by anyone else, and that you don't loose it.
           </p>
           <v-text-field
+            v-model="totp.password"
             type="password"
             label="Password"
-            v-model="totp.password"
             color="white"
-            @keydown.enter="totpEnable"
             autocomplete="false"
-          >
-          </v-text-field>
-          <v-btn @click="totpEnable" text>Proceed</v-btn>
+            @keydown.enter="totpEnable"
+          />
+          <v-btn text @click="totpEnable"> Proceed </v-btn>
         </template>
         <template v-else-if="totp.stage === 2">
           <p class="text-h6">Enable 2 Factor Authentication</p>
@@ -29,27 +28,25 @@
           <code>{{ totp.secret }}</code>
           <p>Please enter the 6 digit code from your authenticator app.</p>
           <v-text-field
+            v-model="totp.code"
             type="number"
             label="Code"
-            v-model="totp.code"
-            @keydown.enter="totpConfirm"
             color="white"
-          >
-          </v-text-field>
-          <v-btn @click="totpConfirm" text>Enable</v-btn>
+            @keydown.enter="totpConfirm"
+          />
+          <v-btn text @click="totpConfirm"> Enable </v-btn>
         </template>
         <template v-else-if="totp.stage === 3">
           <p class="text-h6">2 Factor Authentication Enabled</p>
           <p>You have successfully enabled 2 Factor Authentication.</p>
           <v-text-field
+            v-model="totp.code"
             type="password"
             label="2FA Code"
-            v-model="totp.code"
             color="white"
             @keydown.enter="totpDisable"
-          >
-          </v-text-field>
-          <v-btn @click="totpDisable" text>Disable</v-btn>
+          />
+          <v-btn text @click="totpDisable"> Disable </v-btn>
         </template>
       </v-alert>
       <v-alert>
@@ -58,15 +55,15 @@
             <p class="text-h6">Change Password</p>
             <p>You may set a custom password here.</p>
             <v-text-field
-              label="Current Password"
               v-model="password.current"
+              label="Current Password"
               type="password"
               color="white"
               @keydown.enter="passwordChange"
-            ></v-text-field>
+            />
             <v-text-field
-              label="New Password"
               v-model="password.new"
+              label="New Password"
               type="password"
               color="white"
               :rules="[
@@ -75,10 +72,10 @@
                   v.length >= 8 || 'Password must be at least 8 characters.'
               ]"
               @keydown.enter="passwordChange"
-            ></v-text-field>
+            />
             <v-text-field
-              label="Confirm New Password"
               v-model="password.confirm"
+              label="Confirm New Password"
               type="password"
               color="white"
               :rules="[
@@ -87,8 +84,8 @@
                   v.length >= 8 || 'Password must be at least 8 characters.'
               ]"
               @keydown.enter="passwordChange"
-            ></v-text-field>
-            <v-btn @click="passwordChange" text>Change</v-btn>
+            />
+            <v-btn text @click="passwordChange"> Change </v-btn>
           </v-col>
         </v-row>
       </v-alert>
@@ -120,6 +117,11 @@ export default {
         stage: 1
       }
     }
+  },
+  mounted() {
+    this.$store.state.user.totpEnabled
+      ? (this.totp.stage = 3)
+      : (this.totp.stage = 1)
   },
   methods: {
     passwordChange() {
@@ -188,11 +190,6 @@ export default {
           AjaxErrorHandler(this.$store)(e)
         })
     }
-  },
-  mounted() {
-    this.$store.state.user.totpEnabled
-      ? (this.totp.stage = 3)
-      : (this.totp.stage = 1)
   }
 }
 </script>

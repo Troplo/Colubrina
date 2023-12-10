@@ -1,9 +1,9 @@
 <template>
   <div id="communications-chat" @dragover.prevent @drop.prevent="handleDrag">
     <v-menu
+      v-model="$store.state.context.pins.value"
       :position-x="$store.state.context.pins.x"
       :position-y="60"
-      v-model="$store.state.context.pins.value"
       class="rounded-l elevation-7"
       absolute
       transition="scroll-y-transition"
@@ -12,24 +12,24 @@
     >
       <v-card min-width="400" max-width="400" color="toolbar">
         <v-toolbar color="toolbar lighten-1">
-          <v-spacer></v-spacer>
+          <v-spacer />
           <v-toolbar-title> Pins </v-toolbar-title>
-          <v-spacer></v-spacer>
+          <v-spacer />
         </v-toolbar>
-        <v-divider></v-divider>
+        <v-divider />
         <v-container>
-          <v-list dense v-if="pins.length" :max-height="600">
+          <v-list v-if="pins.length" dense :max-height="600">
             <v-list-item
-              @click="jumpToMessage(pin.message.id)"
               v-for="(pin, index) in pins"
               :key="index"
+              @click="jumpToMessage(pin.message.id)"
             >
               <SimpleMessage
+                :key="pin.message.keyId"
                 :message="pin.message"
                 :index="index"
-                :key="pin.message.keyId"
-              ></SimpleMessage>
-              <v-spacer></v-spacer>
+              />
+              <v-spacer />
               <v-btn icon text @click.stop="removePin(pin.messageId)">
                 <v-icon> mdi-close </v-icon>
               </v-btn>
@@ -52,7 +52,7 @@
       offset-y
       class="rounded-l"
     >
-      <v-list class="rounded-l" v-if="context.message.item">
+      <v-list v-if="context.message.item" class="rounded-l">
         <v-list-item @click="copy(context.message.item.content)">
           <v-list-item-title>Copy Message Content</v-list-item-title>
         </v-list-item>
@@ -60,14 +60,14 @@
           <v-list-item-title>Reply to Message</v-list-item-title>
         </v-list-item>
         <v-list-item
+          v-if="
+            context.message.item.userId === $store.state.user.id &&
+            edit.id !== context.message.item.id
+          "
           @click="
             edit.content = context.message.item.content
             edit.editing = true
             edit.id = context.message.item.id
-          "
-          v-if="
-            context.message.item.userId === $store.state.user.id &&
-            edit.id !== context.message.item.id
           "
         >
           <v-list-item-title>Edit Message</v-list-item-title>
@@ -81,9 +81,9 @@
       </v-list>
     </v-menu>
     <UserDialog
-      :user="context.userPopout"
       :key="context.userPopout.item?.id || 0"
-    ></UserDialog>
+      :user="context.userPopout"
+    />
     <NicknameDialog :nickname="nickname" />
     <v-dialog
       v-model="preview.dialog"
@@ -100,7 +100,7 @@
           :max-height="600"
           :min-height="300"
           contain
-        ></v-img>
+        />
         <v-container>
           <a :href="preview.src" style="text-decoration: none" target="_blank">
             <small> Open Externally </small>
@@ -115,10 +115,10 @@
       </v-card>
     </v-dialog>
     <v-navigation-drawer
+      v-if="$vuetify.breakpoint.mobile"
       v-model="$store.state.userPanel"
       color="bg"
       floating
-      v-if="$vuetify.breakpoint.mobile"
       app
       right
       style="z-index: 100"
@@ -127,10 +127,10 @@
         <v-list-item-group class="rounded-xl">
           <template v-for="item in associations">
             <v-list-item
+              :id="'user-popout-' + item.userId"
               :key="item.title"
               @contextmenu="show($event, 'user', item.user)"
               @click="openUserPanel(item.user)"
-              :id="'user-popout-' + item.userId"
             >
               <v-badge
                 bordered
@@ -162,10 +162,10 @@
         </v-list-item-group>
       </v-list>
     </v-navigation-drawer>
-    <v-row @drop="handleDrag" no-gutters style="overflow: hidden">
+    <v-row no-gutters style="overflow: hidden" @drop="handleDrag">
       <v-col
-        class="flex-grow-1 flex-shrink-1 pb-0"
         id="chat-col"
+        class="flex-grow-1 flex-shrink-1 pb-0"
         style="overflow: hidden"
       >
         <v-card
@@ -176,40 +176,41 @@
         >
           <v-card-text>
             <v-toolbar
-              @click="jumpToMessage(replying?.id)"
+              v-if="replying"
               elevation="0"
               height="35"
               color="card"
-              v-if="replying"
               style="cursor: pointer; overflow: hidden"
+              @click="jumpToMessage(replying?.id)"
             >
-              <v-icon class="mr-2">mdi-reply</v-icon>
+              <v-icon class="mr-2"> mdi-reply </v-icon>
               <v-avatar size="24" class="mr-2">
                 <v-img
+                  v-if="replying.user.avatar"
                   :src="
                     $store.state.baseURL +
                     '/usercontent/' +
                     replying.user.avatar
                   "
-                  v-if="replying.user.avatar"
                   class="elevation-1"
                 />
                 <v-icon v-else class="elevation-1"> mdi-account </v-icon>
               </v-avatar>
               <template v-if="replying.attachments.length">
-                <v-icon class="mr-2">mdi-file-image</v-icon>
+                <v-icon class="mr-2"> mdi-file-image </v-icon>
               </template>
               <template v-if="!replying.content && replying.attachments.length">
                 Click to view attachment
               </template>
               {{ replying.content.substring(0, 100) }}
-              <v-spacer></v-spacer>
-              <v-btn icon @click="replying = null" class="mr-2" small>
+              <v-spacer />
+              <v-btn icon class="mr-2" small @click="replying = null">
                 <v-icon> mdi-close </v-icon>
               </v-btn>
             </v-toolbar>
             <v-fade-transition v-model="avoidAutoScroll">
               <v-toolbar
+                v-if="avoidAutoScroll"
                 height="24"
                 color="toolbar"
                 elevation="0"
@@ -223,7 +224,6 @@
                 "
                 width="100%"
                 @click="forceScroll"
-                v-if="avoidAutoScroll"
               >
                 <div>
                   <v-icon size="16px"> mdi-arrow-down </v-icon>
@@ -232,17 +232,17 @@
               </v-toolbar>
             </v-fade-transition>
             <v-fade-transition
-              v-model="usersTyping.length"
               v-if="$vuetify.breakpoint.mobile"
+              v-model="usersTyping.length"
             >
               <div
+                v-if="usersTyping.length"
                 style="
                   border-radius: 0 0 20px 20px;
                   position: relative;
                   top: -30px;
                   margin-bottom: -22px;
                 "
-                v-if="usersTyping.length"
               >
                 {{ usersTyping.map((user) => getName(user)).join(", ") }}
                 {{ usersTyping.length > 1 ? " are" : " is" }} typing...
@@ -251,29 +251,29 @@
             <CommsInput
               :chat="chat"
               :replying="replying"
-              :editLastMessage="editLastMessage"
-              :autoScroll="autoScroll"
-              :endSend="endSend"
-            ></CommsInput>
+              :edit-last-message="editLastMessage"
+              :auto-scroll="autoScroll"
+              :end-send="endSend"
+            />
             <v-fade-transition
-              v-model="usersTyping.length"
               v-if="!$vuetify.breakpoint.mobile"
+              v-model="usersTyping.length"
             >
               <div
+                v-if="usersTyping.length"
                 style="
                   border-radius: 0 0 20px 20px;
                   position: absolute;
                   margin-top: -2px;
                   bottom: 1px;
                 "
-                v-if="usersTyping.length"
               >
                 {{ usersTyping.map((user) => getName(user)).join(", ") }}
                 {{ usersTyping.length > 1 ? " are" : " is" }} typing...
               </div>
             </v-fade-transition>
           </v-card-text>
-          <v-card-text class="flex-grow-1 overflow-y-auto" id="message-list">
+          <v-card-text id="message-list" class="flex-grow-1 overflow-y-auto">
             <v-card-title
               v-if="
                 reachedTop && $store.state.selectedChat?.chat?.type === 'group'
@@ -299,11 +299,11 @@
               indeterminate
               size="64"
               style="display: block; width: 100px; margin: 0 auto"
-            ></v-progress-circular>
+            />
             <template v-for="(message, index) in messages">
               <div
-                :key="'div2-' + message.keyId"
                 v-if="message.readReceipts.length"
+                :key="'div2-' + message.keyId"
               >
                 <v-tooltip
                   v-for="association in message.readReceipts"
@@ -311,8 +311,8 @@
                   top
                 >
                   <template
-                    v-slot:activator="{ on }"
                     v-if="association.user.id !== $store.state.user.id"
+                    #activator="{ on }"
                   >
                     <v-btn
                       icon
@@ -324,7 +324,7 @@
                       style="float: right"
                       @click="openUserPanel(association.user)"
                     >
-                      <v-avatar size="20" v-on="on" color="primary">
+                      <v-avatar size="20" color="primary" v-on="on">
                         <img
                           v-if="association.user.avatar"
                           :src="
@@ -371,16 +371,16 @@
                   !message.replyId &&
                   !message.type
                 "
-              ></Message>
+              />
             </template>
           </v-card-text>
         </v-card>
       </v-col>
       <v-col
+        v-if="$store.state.searchPanel && !$vuetify.breakpoint.mobile"
+        id="search-col"
         cols="3"
         class=""
-        id="search-col"
-        v-if="$store.state.searchPanel && !$vuetify.breakpoint.mobile"
         style="z-index: 15"
       >
         <v-card
@@ -393,7 +393,7 @@
             <v-toolbar-title>
               Search ({{ search.pager.totalItems || 0 }})
             </v-toolbar-title>
-            <v-spacer></v-spacer>
+            <v-spacer />
             <v-btn icon @click="$store.state.searchPanel = false">
               <v-icon>mdi-close</v-icon>
             </v-btn>
@@ -405,13 +405,13 @@
               outlined
               autofocus
               @keydown.enter="doSearch"
-            ></v-text-field>
-            <v-list two-line color="card" ref="message-list-search">
+            />
+            <v-list ref="message-list-search" two-line color="card">
               <template v-for="(message, index) in search.results">
                 <div
-                  @click="jumpToMessage(message.id)"
                   :key="message.keyId"
                   style="cursor: pointer"
+                  @click="jumpToMessage(message.id)"
                 >
                   <Message
                     :message="message"
@@ -428,7 +428,7 @@
                     :set-image-preview="setImagePreview"
                     :delete-message="deleteMessage"
                     :last-message="false"
-                  ></Message>
+                  />
                 </div>
               </template>
               <v-pagination
@@ -436,19 +436,19 @@
                 class="my-4"
                 :length="search.pager.totalPages"
                 @input="doSearch"
-              ></v-pagination>
+              />
             </v-list>
           </v-card-text>
         </v-card>
       </v-col>
       <v-col
-        :cols="$vuetify.breakpoint.xl ? 2 : 3"
-        id="user-col"
         v-if="
           $store.state.userPanel &&
           !$vuetify.breakpoint.mobile &&
           !$store.state.searchPanel
         "
+        id="user-col"
+        :cols="$vuetify.breakpoint.xl ? 2 : 3"
       >
         <v-card
           class="d-flex flex-column fill-height rounded-0"
@@ -464,17 +464,17 @@
             offset-y
             class="rounded-l"
           >
-            <v-list class="rounded-l" v-if="context.user.item">
+            <v-list v-if="context.user.item" class="rounded-l">
               <v-list-item
                 @click="
                   nickname.dialog = true
                   nickname.user = context.user.item
                 "
               >
-                <v-list-item-title
-                  >Change Friend Nickname for
-                  {{ context.user.item.username }}</v-list-item-title
-                >
+                <v-list-item-title>
+                  Change Friend Nickname for
+                  {{ context.user.item.username }}
+                </v-list-item-title>
               </v-list-item>
             </v-list>
           </v-menu>
@@ -482,10 +482,10 @@
             <v-list-item-group class="rounded-xl">
               <template v-for="item in associations">
                 <v-list-item
+                  :id="'user-popout-' + item.userId"
                   :key="item.title"
                   @contextmenu="show($event, 'user', item.user)"
                   @click="openUserPanel(item.user)"
-                  :id="'user-popout-' + item.userId"
                 >
                   <v-badge
                     bordered
@@ -513,25 +513,25 @@
                     <v-list-item-content>
                       <v-list-item-title>
                         {{ getName(item.user) }}
-                        <v-tooltip top v-if="item.user.admin">
-                          <template v-slot:activator="{ on }">
-                            <v-btn icon v-on="on" small>
+                        <v-tooltip v-if="item.user.admin" top>
+                          <template #activator="{ on }">
+                            <v-btn icon small v-on="on">
                               <v-icon> mdi-crown </v-icon>
                             </v-btn>
                           </template>
                           <span>Colubrina Instance Administrator</span>
                         </v-tooltip>
-                        <v-tooltip top v-if="item.user.bot">
-                          <template v-slot:activator="{ on }">
-                            <v-btn icon v-on="on" small>
+                        <v-tooltip v-if="item.user.bot" top>
+                          <template #activator="{ on }">
+                            <v-btn icon small v-on="on">
                               <v-icon> mdi-robot </v-icon>
                             </v-btn>
                           </template>
                           <span>Bot</span>
                         </v-tooltip>
-                        <v-tooltip top v-if="item.user.id < 35">
-                          <template v-slot:activator="{ on }">
-                            <v-btn icon v-on="on" small>
+                        <v-tooltip v-if="item.user.id < 35" top>
+                          <template #activator="{ on }">
+                            <v-btn icon small v-on="on">
                               <v-icon> mdi-alpha-a-circle </v-icon>
                             </v-btn>
                           </template>
@@ -708,6 +708,178 @@ export default {
         return []
       }
     }
+  },
+  watch: {
+    "$store.state.context.pins.value"(val) {
+      if (val) {
+        this.getPins()
+      }
+    },
+    userPanel() {
+      localStorage.setItem("userPanel", JSON.stringify(this.userPanel))
+    },
+    "$route.path"() {
+      const tryParse = this.$route.params.id
+      if (!tryParse) {
+        // remove event listeners
+        document.removeEventListener("keypress", this.focusKey)
+        document.removeEventListener("keydown", this.escPressed)
+        document
+          .getElementById("message-list")
+          .removeEventListener("scroll", this.scrollEvent)
+        clearInterval(this.interval)
+      }
+    },
+    "$route.params.id"(val, oldVal) {
+      this.focusInput()
+      let drafts = {}
+      if (localStorage.getItem("drafts")) {
+        drafts = JSON.parse(localStorage.getItem("drafts"))
+      }
+      if (this.message && drafts[oldVal]) {
+        drafts[oldVal] = this.message
+        localStorage.setItem("drafts", JSON.stringify(drafts))
+      } else if (!this.message && drafts[oldVal]) {
+        drafts[oldVal] = ""
+      }
+      this.message = drafts[val] || ""
+      this.usersTyping = []
+      this.replying = null
+      this.reachedTop = false
+      this.avoidAutoScroll = false
+      this.offset = null
+      this.pins = []
+      this.messages = []
+      this.getMessages()
+    }
+  },
+  mounted() {
+    this.$socket.on("memberListUpdate", () => {
+      this.$store.dispatch("getChats")
+    })
+    if (!this.$route.params.id) {
+      this.$router.push("/communications/friends")
+      return
+    }
+    document.addEventListener("keypress", this.focusKey)
+    document.addEventListener("keydown", this.escPressed)
+    document
+      .getElementById("message-list")
+      .addEventListener("scroll", this.scrollEvent)
+    this.interval = setInterval(() => {
+      this.typing()
+      if (
+        document.hasFocus() &&
+        this.messages[this.messages.length - 1]?.id !== this.lastRead
+      ) {
+        this.markRead()
+      }
+    }, 1000)
+    this.getMessages()
+    if (localStorage.getItem("userPanel")) {
+      this.userPanel = JSON.parse(localStorage.getItem("userPanel"))
+    } else {
+      localStorage.setItem("userPanel", true)
+    }
+    let drafts = {}
+    if (localStorage.getItem("drafts")) {
+      drafts = JSON.parse(localStorage.getItem("drafts"))
+    }
+    if (drafts[this.$route.params.id]) {
+      this.message = drafts[this.$route.params.id]
+    }
+    this.$socket.on("readChat", (data) => {
+      if (!this.chat) return
+      if (data.id === this.chat?.id) {
+        this.lastRead = data.lastRead
+      }
+    })
+    this.$socket.on("readReceipt", (data) => {
+      if (!this.chat) return
+      try {
+        if (
+          data.messageId &&
+          data.chatId === this.chat.chatId &&
+          this.messages?.length
+        ) {
+          this.messages.forEach((message) => {
+            message.readReceipts = message.readReceipts.filter(
+              (readReceipt) => readReceipt.id !== data.id
+            )
+          })
+          this.messages
+            .find((message) => message.id === data.messageId)
+            .readReceipts?.push(data)
+          this.autoScroll()
+        }
+      } catch (e) {
+        console.log("Read receipt error", e)
+      }
+    })
+    this.$socket.on("message", (message) => {
+      try {
+        if (!this.chat) return
+        if (message.chatId === this.chat.chatId) {
+          this.messages.push(message)
+          this.autoScroll()
+          if (document.hasFocus()) {
+            this.markRead()
+          }
+          if (this.messages.length > 50 && !this.avoidAutoScroll) {
+            this.messages.shift()
+            this.reachedTop = false
+          }
+        }
+      } catch (e) {
+        console.log("Message error", e)
+      }
+    })
+    this.$socket.on("editMessage", (message) => {
+      if (message.chatId === this.chat.chatId) {
+        const index = this.messages.findIndex((item) => item.id === message.id)
+        if (index !== -1) {
+          this.messages[index].content = message.content
+          this.messages[index].edited = message.edited
+          this.messages[index].editedAt = message.editedAt
+          this.messages[index].keyId = message.id + "-" + message.editedAt
+        }
+      }
+    })
+    this.$socket.on("messageEmbedResolved", (message) => {
+      if (message.chatId === this.chat.chatId) {
+        const index = this.messages.findIndex((item) => item.id === message.id)
+        if (index !== -1) {
+          this.messages[index].keyId = message.id + "-" + message.editedAt
+          this.messages[index].embeds = message.embeds
+          this.autoScroll()
+        }
+      }
+    })
+    this.$socket.on("typing", (event) => {
+      if (event.chatId === this.chat.chatId) {
+        const index = this.usersTyping.findIndex(
+          (item) => item.userId === event.userId
+        )
+        if (index > -1) {
+          this.usersTyping.splice(index, 1)
+        }
+        this.usersTyping.push(event)
+      }
+    })
+    this.$socket.on("deleteMessage", (message) => {
+      if (message.chatId === this.chat.chatId) {
+        const index = this.messages.findIndex((item) => item.id === message.id)
+        if (index !== -1) {
+          this.messages.splice(index, 1)
+        }
+      }
+    })
+  },
+  destroyed() {
+    document.removeEventListener("keypress", this.focusKey)
+    document.removeEventListener("keydown", this.escPressed)
+    document.removeEventListener("scroll", this.scrollEvent)
+    clearInterval(this.interval)
   },
   methods: {
     copy(content) {
@@ -1090,178 +1262,6 @@ export default {
         this.$store.state.searchPanel = false
       }
     }
-  },
-  mounted() {
-    this.$socket.on("memberListUpdate", () => {
-      this.$store.dispatch("getChats")
-    })
-    if (!this.$route.params.id) {
-      this.$router.push("/communications/friends")
-      return
-    }
-    document.addEventListener("keypress", this.focusKey)
-    document.addEventListener("keydown", this.escPressed)
-    document
-      .getElementById("message-list")
-      .addEventListener("scroll", this.scrollEvent)
-    this.interval = setInterval(() => {
-      this.typing()
-      if (
-        document.hasFocus() &&
-        this.messages[this.messages.length - 1]?.id !== this.lastRead
-      ) {
-        this.markRead()
-      }
-    }, 1000)
-    this.getMessages()
-    if (localStorage.getItem("userPanel")) {
-      this.userPanel = JSON.parse(localStorage.getItem("userPanel"))
-    } else {
-      localStorage.setItem("userPanel", true)
-    }
-    let drafts = {}
-    if (localStorage.getItem("drafts")) {
-      drafts = JSON.parse(localStorage.getItem("drafts"))
-    }
-    if (drafts[this.$route.params.id]) {
-      this.message = drafts[this.$route.params.id]
-    }
-    this.$socket.on("readChat", (data) => {
-      if (!this.chat) return
-      if (data.id === this.chat?.id) {
-        this.lastRead = data.lastRead
-      }
-    })
-    this.$socket.on("readReceipt", (data) => {
-      if (!this.chat) return
-      try {
-        if (
-          data.messageId &&
-          data.chatId === this.chat.chatId &&
-          this.messages?.length
-        ) {
-          this.messages.forEach((message) => {
-            message.readReceipts = message.readReceipts.filter(
-              (readReceipt) => readReceipt.id !== data.id
-            )
-          })
-          this.messages
-            .find((message) => message.id === data.messageId)
-            .readReceipts?.push(data)
-          this.autoScroll()
-        }
-      } catch (e) {
-        console.log("Read receipt error", e)
-      }
-    })
-    this.$socket.on("message", (message) => {
-      try {
-        if (!this.chat) return
-        if (message.chatId === this.chat.chatId) {
-          this.messages.push(message)
-          this.autoScroll()
-          if (document.hasFocus()) {
-            this.markRead()
-          }
-          if (this.messages.length > 50 && !this.avoidAutoScroll) {
-            this.messages.shift()
-            this.reachedTop = false
-          }
-        }
-      } catch (e) {
-        console.log("Message error", e)
-      }
-    })
-    this.$socket.on("editMessage", (message) => {
-      if (message.chatId === this.chat.chatId) {
-        const index = this.messages.findIndex((item) => item.id === message.id)
-        if (index !== -1) {
-          this.messages[index].content = message.content
-          this.messages[index].edited = message.edited
-          this.messages[index].editedAt = message.editedAt
-          this.messages[index].keyId = message.id + "-" + message.editedAt
-        }
-      }
-    })
-    this.$socket.on("messageEmbedResolved", (message) => {
-      if (message.chatId === this.chat.chatId) {
-        const index = this.messages.findIndex((item) => item.id === message.id)
-        if (index !== -1) {
-          this.messages[index].keyId = message.id + "-" + message.editedAt
-          this.messages[index].embeds = message.embeds
-          this.autoScroll()
-        }
-      }
-    })
-    this.$socket.on("typing", (event) => {
-      if (event.chatId === this.chat.chatId) {
-        const index = this.usersTyping.findIndex(
-          (item) => item.userId === event.userId
-        )
-        if (index > -1) {
-          this.usersTyping.splice(index, 1)
-        }
-        this.usersTyping.push(event)
-      }
-    })
-    this.$socket.on("deleteMessage", (message) => {
-      if (message.chatId === this.chat.chatId) {
-        const index = this.messages.findIndex((item) => item.id === message.id)
-        if (index !== -1) {
-          this.messages.splice(index, 1)
-        }
-      }
-    })
-  },
-  watch: {
-    "$store.state.context.pins.value"(val) {
-      if (val) {
-        this.getPins()
-      }
-    },
-    userPanel() {
-      localStorage.setItem("userPanel", JSON.stringify(this.userPanel))
-    },
-    "$route.path"() {
-      const tryParse = this.$route.params.id
-      if (!tryParse) {
-        // remove event listeners
-        document.removeEventListener("keypress", this.focusKey)
-        document.removeEventListener("keydown", this.escPressed)
-        document
-          .getElementById("message-list")
-          .removeEventListener("scroll", this.scrollEvent)
-        clearInterval(this.interval)
-      }
-    },
-    "$route.params.id"(val, oldVal) {
-      this.focusInput()
-      let drafts = {}
-      if (localStorage.getItem("drafts")) {
-        drafts = JSON.parse(localStorage.getItem("drafts"))
-      }
-      if (this.message && drafts[oldVal]) {
-        drafts[oldVal] = this.message
-        localStorage.setItem("drafts", JSON.stringify(drafts))
-      } else if (!this.message && drafts[oldVal]) {
-        drafts[oldVal] = ""
-      }
-      this.message = drafts[val] || ""
-      this.usersTyping = []
-      this.replying = null
-      this.reachedTop = false
-      this.avoidAutoScroll = false
-      this.offset = null
-      this.pins = []
-      this.messages = []
-      this.getMessages()
-    }
-  },
-  destroyed() {
-    document.removeEventListener("keypress", this.focusKey)
-    document.removeEventListener("keydown", this.escPressed)
-    document.removeEventListener("scroll", this.scrollEvent)
-    clearInterval(this.interval)
   }
 }
 </script>

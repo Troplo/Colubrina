@@ -1,32 +1,29 @@
 <template>
   <span>
     <v-card
+      v-if="embed.type === 'image'"
       :min-width="!$vuetify.breakpoint.mobile ? 400 : 0"
       :max-width="500"
       elevation="0"
       color="card"
-      v-if="embed.type === 'image'"
     >
       <v-hover v-slot="{ hover }">
         <div>
           <v-img
-            @click="setImagePreview(embed)"
             contain
             :max-width="500"
             :max-height="500"
             :min-height="250"
             :min-width="250"
             :src="$store.state.baseURL + embed.mediaProxyLink"
+            @click="setImagePreview(embed)"
           >
-            <template v-slot:placeholder>
+            <template #placeholder>
               <v-row class="fill-height ma-0" align="center" justify="center">
-                <v-progress-circular
-                  indeterminate
-                  color="grey lighten-5"
-                ></v-progress-circular>
+                <v-progress-circular indeterminate color="grey lighten-5" />
               </v-row>
             </template>
-            <template v-slot:default>
+            <template #default>
               <v-fade-transition v-if="hover">
                 <v-overlay absolute>
                   <v-icon large>mdi-arrow-expand-all</v-icon>
@@ -48,9 +45,9 @@
       <v-container fluid>
         <v-row v-if="embed.type === 'openGraph'">
           <v-col
+            v-if="embed.openGraph.ogImage"
             cols="12"
             class="text-xs-center"
-            v-if="embed.openGraph.ogImage"
           >
             <v-img
               :src="
@@ -60,12 +57,9 @@
               contain
               :aspect-ratio="16 / 9"
             >
-              <template v-slot:placeholder>
+              <template #placeholder>
                 <v-row class="fill-height ma-0" align="center" justify="center">
-                  <v-progress-circular
-                    indeterminate
-                    color="grey lighten-5"
-                  ></v-progress-circular>
+                  <v-progress-circular indeterminate color="grey lighten-5" />
                 </v-row>
               </template>
             </v-img>
@@ -85,7 +79,7 @@
           </v-col>
         </v-row>
         <v-row v-else-if="embed.type === 'embed-v1'">
-          <v-col cols="12" class="text-xs-center" v-if="embed.headerImage">
+          <v-col v-if="embed.headerImage" cols="12" class="text-xs-center">
             <v-img
               :src="
                 embed.openGraph.headerImage?.url ||
@@ -95,12 +89,9 @@
               contain
               :aspect-ratio="16 / 9"
             >
-              <template v-slot:placeholder>
+              <template #placeholder>
                 <v-row class="fill-height ma-0" align="center" justify="center">
-                  <v-progress-circular
-                    indeterminate
-                    color="grey lighten-5"
-                  ></v-progress-circular>
+                  <v-progress-circular indeterminate color="grey lighten-5" />
                 </v-row>
               </template>
             </v-img>
@@ -121,17 +112,17 @@
                   {{ graph.name }}
                 </h3>
                 <Chart
-                  :chart-data="graph.data"
                   v-if="graph.data"
+                  :chart-data="graph.data"
                   :options="graphOptions"
-                ></Chart>
+                />
                 <p v-else>Chart data could not be loaded.</p>
               </v-col>
             </v-row>
             <v-row
               v-for="(field, index) in embed.fields"
-              :key="'field-' + index"
               :id="'field-' + index"
+              :key="'field-' + index"
               class="mt-1"
             >
               <v-col
@@ -144,8 +135,8 @@
               </v-col>
             </v-row>
             <a
-              :href="embed.link.url"
               v-if="embed.link"
+              :href="embed.link.url"
               target="_blank"
               style="text-decoration: none"
             >
@@ -193,10 +184,10 @@ ChartJS.register(
 
 export default {
   name: "Embed",
-  props: ["embed", "setImagePreview"],
   components: {
     Chart
-  }
+  },
+  props: ["embed", "setImagePreview"]
 }
 </script>
 

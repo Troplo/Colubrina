@@ -2,8 +2,8 @@
   <div id="admin-themes">
     <v-toolbar color="toolbar">
       <v-toolbar-title>Themes ({{ themes.count }})</v-toolbar-title>
-      <v-spacer></v-spacer>
-      <v-btn @click="getThemes" icon>
+      <v-spacer />
+      <v-btn icon @click="getThemes">
         <v-icon>mdi-refresh</v-icon>
       </v-btn>
     </v-toolbar>
@@ -16,10 +16,10 @@
         $vuetify.theme.themes[$vuetify.theme.dark ? 'dark' : 'light'].card
       "
     >
-      <template v-slot:[`item.actions`]="{ item }">
+      <template #[`item.actions`]="{ item }">
         <v-btn text color="primary" @click="applyTheme(item)"> Apply </v-btn>
       </template>
-      <template v-slot:[`item.theme.css`]="{ item }">
+      <template #[`item.theme.css`]="{ item }">
         {{ item.theme.css ? "Yes" : "No" }}
       </template>
     </v-data-table>
@@ -78,6 +78,9 @@ export default {
       ]
     }
   },
+  mounted() {
+    this.getThemes()
+  },
   methods: {
     applyTheme(theme) {
       this.axios
@@ -110,9 +113,6 @@ export default {
           AjaxErrorHandler(this.$store)(e)
         })
     }
-  },
-  mounted() {
-    this.getThemes()
   }
 }
 </script>

@@ -5,10 +5,10 @@
         v-model="$store.state.user.theme"
         true-value="dark"
         false-value="light"
-        @change="saveSettings"
         inset
         label="Dark theme"
-      ></v-switch>
+        @change="saveSettings"
+      />
     </v-card-text>
     <v-alert
       v-if="
@@ -23,41 +23,41 @@
       You currently have a theme enabled that is not designed for your selected
       base theme.
     </v-alert>
-    <v-card-text
-      ><v-switch
-        inset
+    <v-card-text>
+      <v-switch
         v-model="defineAccent"
+        inset
         label="Use a custom accent color (overrides theme's primary attribute)."
-      ></v-switch>
+      />
       <v-color-picker
         v-if="defineAccent"
+        v-model="accent"
         hide-canvas
         value="hex"
         hide-inputs
         show-swatches
         swatches-max-height="132"
-        v-model="accent"
-      ></v-color-picker>
+      />
     </v-card-text>
     <v-col sm="4">
       <v-select
         v-model="$store.state.user.font"
         :items="fonts"
-        @change="setFont"
         label="Font"
         item-text="name"
         item-value="name"
-      ></v-select>
+        @change="setFont"
+      />
     </v-col>
     <v-card-text>
       <v-card
-        class="my-2"
-        @click="setTheme(theme)"
-        hover
-        outlined
         v-for="(theme, index) in computeThemes"
         :key="index"
+        class="my-2"
+        hover
+        outlined
         color="card"
+        @click="setTheme(theme)"
       >
         <v-list-item>
           <v-list-item-content>
@@ -67,20 +67,20 @@
                 <v-icon>mdi-download</v-icon>
               </v-btn>
               <v-btn
+                v-if="theme.userId === $store.state.user.id"
                 text
                 fab
                 small
                 @click="initEditTheme(theme)"
-                v-if="theme.userId === $store.state.user.id"
               >
                 <v-icon>mdi-pencil</v-icon>
               </v-btn>
               <v-btn
+                v-if="theme.userId === $store.state.user.id"
                 text
                 fab
                 small
                 @click="doDeleteTheme(theme)"
-                v-if="theme.userId === $store.state.user.id"
               >
                 <v-icon>mdi-delete</v-icon>
               </v-btn>
@@ -95,44 +95,44 @@
             </v-list-item-subtitle>
           </v-list-item-content>
           <v-list-item-action>
-            <v-avatar color="success" size="30" v-if="name === theme.id">
+            <v-avatar v-if="name === theme.id" color="success" size="30">
               <v-icon>mdi-check</v-icon>
             </v-avatar>
           </v-list-item-action>
         </v-list-item>
-        <div class="my-2" v-if="$vuetify.theme.dark">
+        <div v-if="$vuetify.theme.dark" class="my-2">
           <v-chip-group>
             <v-chip
+              v-for="(key, index) in Object.keys(theme.dark)"
+              :key="index"
               disabled
               style="opacity: 1"
               class="mx-1"
               label
               :color="theme.dark[key]"
-              v-for="(key, index) in Object.keys(theme.dark)"
-              :key="index"
             >
-              {{ friendlyName(key) }}</v-chip
-            >
+              {{ friendlyName(key) }}
+            </v-chip>
           </v-chip-group>
         </div>
-        <div class="my-2" v-if="!$vuetify.theme.dark">
+        <div v-if="!$vuetify.theme.dark" class="my-2">
           <v-chip-group column>
             <v-chip
+              v-for="(key, index) in Object.keys(theme.light)"
+              :key="index"
               class="mx-1"
               label
               :color="theme.light[key]"
-              v-for="(key, index) in Object.keys(theme.light)"
-              :key="index"
             >
-              {{ key }}</v-chip
-            >
+              {{ key }}
+            </v-chip>
           </v-chip-group>
         </div>
       </v-card>
       <v-container class="text-center justify-center">
-        <v-chip @click="initThemeCreator" x-large outlined fab
-          ><v-icon x-large>mdi-plus</v-icon></v-chip
-        >
+        <v-chip x-large outlined fab @click="initThemeCreator">
+          <v-icon x-large> mdi-plus </v-icon>
+        </v-chip>
       </v-container>
     </v-card-text>
   </div>
@@ -228,6 +228,52 @@ export default {
         return array
       }
     }
+  },
+  watch: {
+    "$store.state.themeEngine.editor"() {
+      this.getThemes()
+    },
+    "$store.state.themeEngine.cssEditor"() {
+      this.getThemes()
+    },
+    "creator.css"() {
+      if (this.autoCSS) {
+        this.applyCSS(null)
+      }
+    },
+    creator() {
+      this.$vuetify.theme.themes.dark = this.creator.dark
+      this.$vuetify.theme.themes.light = this.creator.light
+      this.$vuetify.theme.themes.name = this.creator.id
+    },
+    accent() {
+      this.setTheme(
+        this.themes.find(
+          (theme) => theme.id === this.$vuetify.theme.themes.name
+        )
+      )
+    },
+    defineAccent() {
+      if (!this.defineAccent) {
+        this.accent = null
+        this.$store.state.user.accentColor = null
+        this.getThemes()
+      } else {
+        this.accent = this.$store.state.user.accentColor || "#0190ea"
+      }
+    },
+    "$store.state.user.theme": {
+      handler() {
+        this.$vuetify.theme.dark = this.$store.state.user.theme === "dark"
+      },
+      deep: true
+    }
+  },
+  mounted() {
+    this.defineAccent = this.$store.state.user.accentColor !== null
+    this.accent = this.$store.state.user.accentColor
+    this.name = this.$vuetify.theme.themes.name
+    this.getThemes()
   },
   methods: {
     setFont() {
@@ -460,52 +506,6 @@ div {
           this.loading = false
           AjaxErrorHandler(this.$store)(e)
         })
-    }
-  },
-  mounted() {
-    this.defineAccent = this.$store.state.user.accentColor !== null
-    this.accent = this.$store.state.user.accentColor
-    this.name = this.$vuetify.theme.themes.name
-    this.getThemes()
-  },
-  watch: {
-    "$store.state.themeEngine.editor"() {
-      this.getThemes()
-    },
-    "$store.state.themeEngine.cssEditor"() {
-      this.getThemes()
-    },
-    "creator.css"() {
-      if (this.autoCSS) {
-        this.applyCSS(null)
-      }
-    },
-    creator() {
-      this.$vuetify.theme.themes.dark = this.creator.dark
-      this.$vuetify.theme.themes.light = this.creator.light
-      this.$vuetify.theme.themes.name = this.creator.id
-    },
-    accent() {
-      this.setTheme(
-        this.themes.find(
-          (theme) => theme.id === this.$vuetify.theme.themes.name
-        )
-      )
-    },
-    defineAccent() {
-      if (!this.defineAccent) {
-        this.accent = null
-        this.$store.state.user.accentColor = null
-        this.getThemes()
-      } else {
-        this.accent = this.$store.state.user.accentColor || "#0190ea"
-      }
-    },
-    "$store.state.user.theme": {
-      handler() {
-        this.$vuetify.theme.dark = this.$store.state.user.theme === "dark"
-      },
-      deep: true
     }
   }
 }

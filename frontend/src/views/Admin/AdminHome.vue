@@ -109,10 +109,10 @@ ChartJS.register(
 )
 export default {
   name: "AdminHome",
-  props: ["admin", "metrics"],
   components: {
     Chart
   },
+  props: ["admin", "metrics"],
   data() {
     return {
       options: {

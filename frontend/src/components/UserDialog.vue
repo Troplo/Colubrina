@@ -4,42 +4,42 @@
       <v-toolbar color="toolbar" height="100">
         <v-avatar size="64" class="mr-3 mb-2 mt-2">
           <v-img
-            :src="$store.state.baseURL + '/usercontent/' + user.item.avatar"
             v-if="user.item.avatar"
+            :src="$store.state.baseURL + '/usercontent/' + user.item.avatar"
             class="elevation-1"
           />
           <v-icon v-else class="elevation-1"> mdi-account </v-icon>
         </v-avatar>
         <v-toolbar-title>
           {{ getName(user.item) }}
-          <v-tooltip top v-if="user.item.admin">
-            <template v-slot:activator="{ on }">
-              <v-btn icon v-on="on" small>
+          <v-tooltip v-if="user.item.admin" top>
+            <template #activator="{ on }">
+              <v-btn icon small v-on="on">
                 <v-icon> mdi-crown </v-icon>
               </v-btn>
             </template>
             <span>Colubrina Instance Administrator</span>
           </v-tooltip>
-          <v-tooltip top v-if="user.item.id < 35">
-            <template v-slot:activator="{ on }">
-              <v-btn icon v-on="on" small>
+          <v-tooltip v-if="user.item.id < 35" top>
+            <template #activator="{ on }">
+              <v-btn icon small v-on="on">
                 <v-icon> mdi-alpha-a-circle </v-icon>
               </v-btn>
             </template>
             <span>Early User</span>
           </v-tooltip>
-          <v-tooltip top v-if="user.item.bot">
-            <template v-slot:activator="{ on }">
-              <v-btn icon v-on="on" small>
+          <v-tooltip v-if="user.item.bot" top>
+            <template #activator="{ on }">
+              <v-btn icon small v-on="on">
                 <v-icon> mdi-robot </v-icon>
               </v-btn>
             </template>
             <span>Bot</span>
           </v-tooltip>
           <div class="subheading subtitle-1 text--lighten-2">
-            <template v-if="user.item.nickname">{{
-              user.item.username
-            }}</template>
+            <template v-if="user.item.nickname">
+              {{ user.item.username }}
+            </template>
           </div>
         </v-toolbar-title>
       </v-toolbar>
@@ -62,10 +62,7 @@
             "
           >
             <v-overlay :value="loading.mutualFriends" absolute>
-              <v-progress-circular
-                indeterminate
-                size="64"
-              ></v-progress-circular>
+              <v-progress-circular indeterminate size="64" />
             </v-overlay>
             <v-list-item
               v-for="item in mutualFriends"
@@ -75,8 +72,8 @@
               <v-list-item-title>
                 <v-avatar size="24">
                   <v-img
-                    :src="$store.state.baseURL + '/usercontent/' + item.avatar"
                     v-if="item.avatar"
+                    :src="$store.state.baseURL + '/usercontent/' + item.avatar"
                     class="elevation-1"
                   />
                   <v-icon v-else class="elevation-1"> mdi-account </v-icon>
@@ -100,10 +97,7 @@
             "
           >
             <v-overlay :value="loading.mutualFriends" absolute>
-              <v-progress-circular
-                indeterminate
-                size="64"
-              ></v-progress-circular>
+              <v-progress-circular indeterminate size="64" />
             </v-overlay>
             <v-list-item
               v-for="item in mutualGroups"
@@ -126,7 +120,7 @@
           $vuetify.theme.themes[$vuetify.theme.dark ? 'dark' : 'light'].card
         "
       >
-        <v-spacer></v-spacer>
+        <v-spacer />
         <v-btn color="primary" text @click="user.value = false"> Close </v-btn>
       </v-card-actions>
     </v-card>
@@ -148,6 +142,9 @@ export default {
         mutualGroups: true
       }
     }
+  },
+  mounted() {
+    this.onMounted()
   },
   methods: {
     openUserPanel(user) {
@@ -199,9 +196,6 @@ export default {
           })
       }
     }
-  },
-  mounted() {
-    this.onMounted()
   }
 }
 </script>

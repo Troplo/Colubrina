@@ -7,11 +7,8 @@
         </v-toolbar>
         <v-card-text>
           <v-container fluid>
-            <v-text-field v-model="poll.title" label="Title"></v-text-field>
-            <v-textarea
-              v-model="poll.description"
-              label="Description"
-            ></v-textarea>
+            <v-text-field v-model="poll.title" label="Title" />
+            <v-textarea v-model="poll.description" label="Description" />
             <v-text-field
               v-for="(value, index) in poll.options"
               :key="index"
@@ -20,19 +17,19 @@
               :maxlength="30"
               :append-outer-icon="poll.options.length > 2 ? 'mdi-close' : ''"
               @click:append-outer="poll.options.splice(index, 1)"
-            ></v-text-field>
+            />
             <v-btn
-              @click="poll.options.push('')"
               v-if="poll.options.length <= 3"
               text
               block
+              @click="poll.options.push('')"
             >
               <v-icon> mdi-plus </v-icon>
             </v-btn>
           </v-container>
         </v-card-text>
         <v-card-actions>
-          <v-spacer></v-spacer>
+          <v-spacer />
           <v-btn color="red" text @click="poll.dialog = false"> Cancel </v-btn>
           <v-btn
             color="blue darken-1"
@@ -48,27 +45,27 @@
       </v-card>
     </v-dialog>
     <v-toolbar
+      v-for="(embed, index) in embeds"
+      :key="index"
       elevation="0"
       outlined
       height="40"
       color="card"
-      v-for="(embed, index) in embeds"
       style="cursor: pointer; overflow: hidden"
       class="mb-2"
-      :key="index"
     >
       <v-toolbar-title>
         <v-icon> mdi-attachment </v-icon>
         {{ embedName(embed.type) }}
       </v-toolbar-title>
-      <v-spacer></v-spacer>
-      <v-btn icon @click="embeds.splice(index, 1)" small>
+      <v-spacer />
+      <v-btn icon small @click="embeds.splice(index, 1)">
         <v-icon> mdi-close </v-icon>
       </v-btn>
     </v-toolbar>
     <v-progress-linear
-      v-model="uploadPercentage"
       v-if="uploading"
+      v-model="uploadPercentage"
       height="15"
       color="toolbar"
       disabled
@@ -77,11 +74,11 @@
       <small>{{ uploadPercentage }}%</small>
     </v-progress-linear>
     <v-toolbar
+      v-if="file"
       elevation="0"
       outlined
       height="40"
       color="card"
-      v-if="file"
       style="cursor: pointer; overflow: hidden"
       class="mb-2"
     >
@@ -89,12 +86,14 @@
         <v-icon> mdi-attachment </v-icon>
         {{ file.name }}
       </v-toolbar-title>
-      <v-spacer></v-spacer>
-      <v-btn icon @click="file = null" small>
+      <v-spacer />
+      <v-btn icon small @click="file = null">
         <v-icon> mdi-close </v-icon>
       </v-btn>
     </v-toolbar>
     <v-textarea
+      :id="edit ? 'edit-input' : 'message-input'"
+      ref="message-input"
       :style="
         !$vuetify.breakpoint.mobile
           ? 'margin-bottom: 5px'
@@ -103,12 +102,15 @@
       autofocus
       label="Type a message"
       placeholder="Keep it civil"
+      v-model="message"
       type="text"
-      ref="message-input"
-      :id="edit ? 'edit-input' : 'message-input'"
       outlined
       append-outer-icon="mdi-send"
       auto-grow
+      rows="1"
+      single-line
+      dense
+      hide-details
       @keyup.up="handleEditMessage"
       @keyup.esc="handleEsc"
       @click:append-outer="handleMessage()"
@@ -118,27 +120,22 @@
         completions = []
         completionWord = ''
       "
-      v-model="message"
       @paste="handlePaste"
-      rows="1"
-      single-line
-      dense
-      hide-details
       @keydown.enter.shift.exact.prevent="newLine($event)"
     >
-      <template v-slot:append-outer>
+      <template #append-outer>
         <v-btn
+          v-if="!edit"
           icon
           small
-          @click="handleMessage()"
-          v-if="!edit"
           :retain-focus-on-click="false"
           class="no-focus"
+          @click="handleMessage()"
         >
           <v-icon> mdi-send </v-icon>
         </v-btn>
       </template>
-      <template v-slot:prepend-inner>
+      <template #prepend-inner>
         <v-menu
           :nudge-top="10"
           :nudge-left="5"
@@ -148,13 +145,13 @@
           offset-y
           top
         >
-          <template v-slot:activator="{ on }">
+          <template #activator="{ on }">
             <v-btn
-              v-on="on"
               id="attachment-button"
               icon
               style="margin-top: -3px; margin-left: -4px"
               small
+              v-on="on"
               @dblclick.stop="openFileInput"
             >
               <v-icon>mdi-plus-circle</v-icon>
@@ -168,21 +165,22 @@
               </v-list-item>
               <v-list-item @click="openFileInput">
                 <v-file-input
+                  v-if="!edit"
+                  ref="file-input"
+                  v-model="file"
                   style="margin-top: -10px"
                   single-line
                   hide-input
-                  v-model="file"
-                  @change="getURLForImage"
-                  v-if="!edit"
-                  ref="file-input"
                   st
-                ></v-file-input>
+                  @change="getURLForImage"
+                />
                 Upload a file
               </v-list-item>
             </v-list>
           </div>
         </v-menu>
         <v-menu
+          v-if="false"
           :nudge-top="10"
           :nudge-left="5"
           :close-delay="100"
@@ -190,19 +188,18 @@
           bottom
           offset-y
           top
-          v-if="false"
         >
-          <template v-slot:activator="{ on }">
+          <template #activator="{ on }">
             <v-btn
               id="emoji-button"
               icon
-              v-on="on"
               style="
                 margin-top: -2px;
                 margin-left: 1px;
                 filter: grayscale(100%);
               "
               small
+              v-on="on"
               @dblclick.stop="openFileInput"
             >
               <img
@@ -230,11 +227,10 @@
                         v-for="emoji in emojisByCategory[category]"
                         :key="emoji.emoji"
                         sm="4"
-                        v-html="twemoji(emoji.emoji)"
-                        @click="addEmoji(emoji.emoji)"
                         style="cursor: pointer"
-                      >
-                      </v-col>
+                        @click="addEmoji(emoji.emoji)"
+                        v-html="twemoji(emoji.emoji)"
+                      />
                     </v-row>
                   </v-container>
                 </v-card>
@@ -302,6 +298,16 @@ export default {
       users: [],
       completions: [],
       completionWord: ""
+    }
+  },
+  watch: {
+    message() {
+      this.handleChange()
+    }
+  },
+  mounted() {
+    if (this.edit) {
+      this.message = this.edit.content
     }
   },
   /*
@@ -581,16 +587,6 @@ export default {
             })
         }
       }
-    }
-  },
-  mounted() {
-    if (this.edit) {
-      this.message = this.edit.content
-    }
-  },
-  watch: {
-    message() {
-      this.handleChange()
     }
   }
 }

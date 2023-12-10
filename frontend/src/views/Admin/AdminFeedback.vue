@@ -2,8 +2,8 @@
   <div id="admin-feedback">
     <v-toolbar color="toolbar">
       <v-toolbar-title>Feedback ({{ feedback.count }})</v-toolbar-title>
-      <v-spacer></v-spacer>
-      <v-btn @click="getFeedback" icon>
+      <v-spacer />
+      <v-btn icon @click="getFeedback">
         <v-icon>mdi-refresh</v-icon>
       </v-btn>
     </v-toolbar>
@@ -43,6 +43,9 @@ export default {
       feedback: []
     }
   },
+  mounted() {
+    this.getFeedback()
+  },
   methods: {
     getFeedback() {
       this.axios
@@ -51,9 +54,6 @@ export default {
           this.feedback = res.data
         })
     }
-  },
-  mounted() {
-    this.getFeedback()
   }
 }
 </script>

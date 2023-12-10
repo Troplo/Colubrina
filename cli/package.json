@@ -2,13 +2,13 @@
   "name": "colubrina-cli",
   "private": true,
   "dependencies": {
-    "argon2": "^0.28.7",
-    "axios": "^0.27.2",
+    "argon2": "^0.31.2",
+    "axios": "^1.6.2",
     "input": "^1.0.1",
-    "mariadb": "^3.0.1",
-    "pg": "^8.7.3",
-    "sequelize": "^6.21.3",
-    "sqlite3": "^5.0.10",
-    "umzug": "^3.1.1"
+    "mariadb": "^3.2.2",
+    "pg": "^8.11.3",
+    "sequelize": "^6.35.1",
+    "sqlite3": "^5.1.6",
+    "umzug": "^3.4.0"
   }
 }

@@ -10,11 +10,11 @@
           label="Nickname"
           autofocus
           @keyup.enter="setFriendNickname"
-        ></v-text-field>
+        />
         <small>Friend nicknames only show to you.</small>
       </v-card-text>
       <v-card-actions>
-        <v-spacer></v-spacer>
+        <v-spacer />
         <v-btn
           color="blue darken-1"
           text

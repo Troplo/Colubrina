@@ -1,5 +1,5 @@
 <template>
-  <div id="settings-site" v-if="$store.state.user?.id">
+  <div v-if="$store.state.user?.id" id="settings-site">
     <v-card-text>
       <div class="d-flex">
         <v-btn
@@ -22,16 +22,16 @@
           >
             <v-fade-transition v-if="hover">
               <v-overlay absolute>
-                <v-icon large>mdi-upload</v-icon>
+                <v-icon large> mdi-upload </v-icon>
               </v-overlay>
             </v-fade-transition>
             <v-img
+              v-if="$store.state.user.avatar"
               :src="
                 $store.state.baseURL +
                 '/usercontent/' +
                 $store.state.user.avatar
               "
-              v-if="$store.state.user.avatar"
               class="elevation-1"
             />
             <v-icon v-else-if="!hover" class="elevation-1">
@@ -40,15 +40,15 @@
           </v-avatar>
         </v-hover>
         <v-file-input
-          class="ml-3"
           ref="avatarUpload"
+          v-model="avatar.file"
+          class="ml-3"
           accept="image/png, image/jpeg, image/jpg, image/gif, image/webp"
           placeholder="Avatar"
           prepend-icon=""
           label="Profile Picture"
-          v-model="avatar.file"
           @change="doUpload"
-        ></v-file-input>
+        />
       </div>
       <v-text-field
         v-model="$store.state.user.email"
@@ -57,7 +57,7 @@
           (v) => !!v || 'Email is required',
           (v) => /^.+@.+\..+$/.test(v) || 'Email must be valid'
         ]"
-      ></v-text-field>
+      />
       <v-text-field
         v-model="$store.state.user.username"
         label="Username"
@@ -67,17 +67,17 @@
           (v) => /^[a-zA-Z0-9]+$/.test(v) || 'Username must be alphanumeric',
           (v) => v.length >= 2 || 'Username must be at least 2 characters'
         ]"
-      ></v-text-field>
+      />
     </v-card-text>
     <v-card-actions>
       <v-btn
         text
         color="primary"
+        :disabled="!$store.state.user.email || !$store.state.user.username"
         @click="
           $store.dispatch('saveOnlineSettings')
           $toast.success('Updated successfully.')
         "
-        :disabled="!$store.state.user.email || !$store.state.user.username"
       >
         Save
       </v-btn>
@@ -88,8 +88,9 @@
           $store.dispatch('logout')
           $router.push('/login')
         "
-        >Logout</v-btn
       >
+        Logout
+      </v-btn>
     </v-card-actions>
   </div>
 </template>

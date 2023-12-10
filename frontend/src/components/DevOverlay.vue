@@ -1,15 +1,15 @@
 <template>
-  <div class="dev-overlay" id="dev-overlay">
-    <div class="dev-header" id="dev-header">Colubrina DevTools</div>
+  <div id="dev-overlay" class="dev-overlay">
+    <div id="dev-header" class="dev-header">Colubrina DevTools</div>
     <v-container>
-      <v-btn @click="benchmark"
-        >Benchmark
-        <template v-if="isBenchmarking">({{ multiplier }}x)</template></v-btn
+      <v-btn @click="benchmark">
+        Benchmark
+        <template v-if="isBenchmarking"> ({{ multiplier }}x) </template> </v-btn
       ><br />
-      <template v-if="isBenchmarking"
-        >Please restart the Colubrina server to stop the benchmark.</template
+      <template v-if="isBenchmarking">
+        Please restart the Colubrina server to stop the benchmark. </template
       ><br />
-      <v-btn @click="deleteBenchmark">Delete benchuser messages</v-btn>
+      <v-btn @click="deleteBenchmark"> Delete benchuser messages </v-btn>
     </v-container>
   </div>
 </template>
@@ -23,6 +23,9 @@ export default {
       isBenchmarking: false,
       multiplier: 0
     }
+  },
+  mounted() {
+    this.drag(document.getElementById("dev-overlay"))
   },
   methods: {
     deleteBenchmark() {
@@ -81,9 +84,6 @@ export default {
         document.onmousemove = null
       }
     }
-  },
-  mounted() {
-    this.drag(document.getElementById("dev-overlay"))
   }
 }
 </script>

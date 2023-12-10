@@ -4,7 +4,7 @@ module.exports = {
     es2020: true,
     node: true
   },
-  extends: ["plugin:vue/essential", "eslint:recommended"],
+  extends: ["plugin:vue/recommended", "eslint:recommended"],
   parserOptions: {
     parser: "@babel/eslint-parser"
   },
@@ -15,6 +15,7 @@ module.exports = {
       "error",
       { "invalid-first-character-of-tag-name": false }
     ],
+    "vue/no-reserved-component-names": "off",
     "vue/no-mutating-props": "off",
     "vue/multi-word-component-names": "off"
   }

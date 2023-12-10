@@ -12,6 +12,9 @@ export default {
       logLines: []
     }
   },
+  mounted() {
+    this.getLogs()
+  },
   methods: {
     getLogs() {
       this.axios
@@ -23,9 +26,6 @@ export default {
           AjaxErrorHandler(this.$store)(e)
         })
     }
-  },
-  mounted() {
-    this.getLogs()
   }
 }
 </script>

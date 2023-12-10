@@ -1,24 +1,24 @@
 <template>
-  <div id="login" v-if="!$store.state.user?.bcUser?.id">
+  <div v-if="!$store.state.user?.bcUser?.id" id="login">
     <v-dialog v-model="totpDialog" max-width="500px">
       <v-card color="card">
         <v-toolbar color="toolbar">
           <v-toolbar-title> Two-Factor Authentication </v-toolbar-title>
         </v-toolbar>
         <v-container>
-          <v-card-text
-            >You are seeing this because you have enabled Two-Factor
+          <v-card-text>
+            You are seeing this because you have enabled Two-Factor
             Authentication on {{ $store.state.site.name }}.<br />
             Please check your phone, or authenticator app to obtain the 6 digit
-            code and enter it here.</v-card-text
-          >
+            code and enter it here.
+          </v-card-text>
           <v-otp-input
+            v-model="totp"
             length="6"
+            :disabled="loading"
             @keyup.enter="doLogin()"
             @finish="doLogin()"
-            v-model="totp"
-            :disabled="loading"
-          ></v-otp-input>
+          />
         </v-container>
       </v-card>
     </v-dialog>
@@ -33,64 +33,60 @@
                   <span class="troplo-title">{{ $store.state.site.name }}</span>
                 </p>
                 <v-text-field
-                  @keyup.enter="doLogin()"
-                  class="rounded-xl"
-                  v-model="instance"
                   v-if="isElectron()"
+                  v-model="instance"
+                  class="rounded-xl"
                   label="Instance URL"
                   placeholder="https://colubrina.troplo.com"
                   type="email"
-                ></v-text-field>
-                <small style="float: right" v-if="isElectron()">{{
+                  @keyup.enter="doLogin()"
+                />
+                <small v-if="isElectron()" style="float: right">{{
                   instanceString
                 }}</small
                 ><br v-if="isElectron()" />
                 <v-text-field
-                  @keyup.enter="doLogin()"
-                  class="rounded-xl"
-                  v-model="customHeaders[header.name]"
                   v-for="header in $store.state.site.customHeaders"
                   :key="header.name"
+                  v-model="customHeaders[header.name]"
+                  class="rounded-xl"
                   :label="header.friendlyName"
                   :placeholder="header.placeholder"
                   type="email"
-                ></v-text-field>
-                <v-text-field
                   @keyup.enter="doLogin()"
-                  class="rounded-xl"
+                />
+                <v-text-field
                   v-model="username"
+                  class="rounded-xl"
                   label="Username"
                   placeholder="FOO1000"
                   type="email"
-                ></v-text-field>
-                <v-text-field
                   @keyup.enter="doLogin()"
-                  class="rounded-xl"
+                />
+                <v-text-field
                   v-model="password"
+                  class="rounded-xl"
                   color="blue accent-7"
                   label="Password"
                   type="password"
-                ></v-text-field>
+                  @keyup.enter="doLogin()"
+                />
                 <p
                   style="float: right; color: #2196f3; cursor: pointer"
                   @click="doPasswordReset()"
                 >
                   Reset your Password
                 </p>
-                <v-switch
-                  inset
-                  label="Remember Me"
-                  v-model="rememberMe"
-                ></v-switch>
+                <v-switch v-model="rememberMe" inset label="Remember Me" />
                 <v-card-actions>
-                  <v-spacer></v-spacer>
+                  <v-spacer />
                   <v-btn
+                    v-if="$store.state.site.allowRegistrations"
                     class="rounded-xl"
                     :loading="loading"
                     color="primary"
                     text
                     @click="$router.push('/register')"
-                    v-if="$store.state.site.allowRegistrations"
                   >
                     Register
                   </v-btn>
@@ -133,18 +129,40 @@ export default {
       customHeaders: {}
     }
   },
+  watch: {
+    instance() {
+      this.testInstance()
+    }
+  },
+  mounted() {
+    this.$store
+      .dispatch("getUserInfo")
+      .then(() => {
+        this.$router.push("/")
+      })
+      .catch(() => {
+        this.$store.state.user = {
+          bcUser: null,
+          loggedIn: false
+        }
+      })
+    this.testInstance()
+  },
   methods: {
     doPasswordReset() {
       this.loading = true
-      this.axios.post("/api/v1/user/reset/send", {
-        email: this.username
-      }).then(() => {
-        this.loading = false
-        this.$toast.success("Password reset sent, check your email!")
-      }).catch((e) => {
-        this.loading = false
-        AjaxErrorHandler(this.$store)(e)
-      })
+      this.axios
+        .post("/api/v1/user/reset/send", {
+          email: this.username
+        })
+        .then(() => {
+          this.loading = false
+          this.$toast.success("Password reset sent, check your email!")
+        })
+        .catch((e) => {
+          this.loading = false
+          AjaxErrorHandler(this.$store)(e)
+        })
     },
     isElectron() {
       return process.env.IS_ELECTRON
@@ -222,25 +240,6 @@ export default {
             this.instanceString = "Error connecting to instance"
           })
       }
-    }
-  },
-  mounted() {
-    this.$store
-      .dispatch("getUserInfo")
-      .then(() => {
-        this.$router.push("/")
-      })
-      .catch(() => {
-        this.$store.state.user = {
-          bcUser: null,
-          loggedIn: false
-        }
-      })
-    this.testInstance()
-  },
-  watch: {
-    instance() {
-      this.testInstance()
     }
   }
 }
